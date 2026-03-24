@@ -1,0 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-background font-sans text-text antialiased;
+    background: #ffffff;
+    font-family: "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: rgba(240, 68, 82, 0.18);
+    color: #1f1f23;
+  }
+}
