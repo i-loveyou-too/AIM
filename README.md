@@ -1,0 +1,2 @@
+# AIM
+edutech project
