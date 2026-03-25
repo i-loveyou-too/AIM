@@ -7,6 +7,7 @@ type Option = {
 
 type StudentFiltersProps = {
   school: string;
+  className: string;
   grade: string;
   subject: string;
   status: string;
@@ -14,12 +15,14 @@ type StudentFiltersProps = {
   search: string;
   quickFilterLabel?: string;
   schoolOptions: Option[];
+  classNameOptions: Option[];
   gradeOptions: Option[];
   subjectOptions: Option[];
   statusOptions: Option[];
   sortOptions: Option[];
   onSearchChange: (value: string) => void;
   onSchoolChange: (value: string) => void;
+  onClassNameChange: (value: string) => void;
   onGradeChange: (value: string) => void;
   onSubjectChange: (value: string) => void;
   onStatusChange: (value: string) => void;
@@ -58,6 +61,7 @@ function FilterField({
 
 export function StudentFilters({
   school,
+  className,
   grade,
   subject,
   status,
@@ -65,21 +69,23 @@ export function StudentFilters({
   search,
   quickFilterLabel,
   schoolOptions,
+  classNameOptions,
   gradeOptions,
   subjectOptions,
   statusOptions,
   sortOptions,
   onSearchChange,
   onSchoolChange,
+  onClassNameChange,
   onGradeChange,
   onSubjectChange,
   onStatusChange,
   onSortChange,
   onReset,
 }: StudentFiltersProps) {
-  const activeCount = [school, grade, subject, status]
-    .filter((value) => value !== "전체")
-    .length + (quickFilterLabel && quickFilterLabel !== "전체 학생" ? 1 : 0);
+  const activeCount =
+    [school, className, grade, subject, status].filter((value) => value !== "전체").length +
+    (quickFilterLabel && quickFilterLabel !== "전체 학생" ? 1 : 0);
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-soft p-4 shadow-none sm:p-5">
@@ -97,6 +103,7 @@ export function StudentFilters({
 
         <div className="flex flex-wrap items-center gap-3">
           <FilterField label="학교" value={school} options={schoolOptions} onChange={onSchoolChange} />
+          <FilterField label="반" value={className} options={classNameOptions} onChange={onClassNameChange} />
           <FilterField label="학년" value={grade} options={gradeOptions} onChange={onGradeChange} />
           <FilterField label="과목" value={subject} options={subjectOptions} onChange={onSubjectChange} />
           <FilterField label="상태" value={status} options={statusOptions} onChange={onStatusChange} />

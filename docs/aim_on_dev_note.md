@@ -2,6 +2,36 @@
 
 ## 0. 문서 개요
 
+### 지금까지 작업 요약
+
+* 프론트 스택을 `Next.js + TypeScript + Tailwind CSS + shadcn/ui`로 정리함
+* 브랜드 색상을 `Clean & Vivid` 계열로 맞추고, 흰 배경 중심 UI로 통일함
+* 교사용 대시보드 MVP 첫 화면을 만들고, 사이드바 / 헤더 / 요약 카드 / 일정 / 인사이트 / 알림 / 빠른 실행을 연결함
+* 사이드바의 `학습 계획` 메뉴를 `수업 진도 / 커리큘럼`으로 바꿔, 역할이 더 바로 보이게 함
+* 학생 관리 페이지를 별도 탭으로 분리하고, 학교 / 학년 / 과목 / 상태 / 정렬 필터와 페이지네이션을 붙임
+* `관리 필요`, `시험 임박`, `미완료 과제` 요약 카드를 빠른 필터처럼 동작하게 연결함
+* `시험 알림`과 `반별 인사이트`를 학교 / 반 선택형으로 바꿔서 값이 실제로 달라 보이게 만듦
+* 학생 리스트에서 한 학생을 클릭하면 들어가는 학생 상세 페이지를 만들고, 진도 / 시험 / 과제 / 취약 단원 / 피드백 / 다음 액션을 한 화면에 정리함
+* 학생 상세에 최근 과제 현황 표와 관찰 노트 / 다음 액션 블록을 추가해, 실행 판단이 더 빨리 보이게 만듦
+* 학생 상세 상단에 시험 D-day 카드와 `학생 성향 확인` 버튼을 추가해, 학생 옆에서 바로 성향과 시험 긴급도를 보게 만듦
+* 학생 상세 상단에 학습 목표 블록을 넣어, 이번 시험 목표 / 목표 점수 / 정시·수시 / 목표 대학이 바로 보이게 만듦
+* 학생 상세 상단에서 학습 목표 박스를 없애고, 목표 대학 / 학습 방향은 이름 아래 칩으로, 이번 시험 목표 / 목표 점수는 D-day 박스 안에 넣어 한 화면 흐름을 더 단순하게 만듦
+* 학생 상세 상단의 `피드백 기록 / 과제 보기 / 계획 보기 / 수정` 버튼을 학생 이름 오른쪽 위로 올려, 바로 실행할 수 있게 정리함
+* 학생 상세 상단의 `피드백 기록 / 과제 보기 / 계획 보기 / 수정` 버튼을 `빠른 요약` 위로 옮겨, 요약과 행동을 한 묶음으로 보이게 정리함
+* 학생 상세에 AI 학습 진도 리포트와 취약 유형 분석 블록을 추가해, AI가 읽은 보완 포인트를 바로 볼 수 있게 함
+* 학생 상세의 최근 진도 섹션에 해야 할 일 리스트를 접기/펼치기 형태로 붙여, 급한 일부터 순서대로 보이게 함
+* 과제 관리 페이지 상단의 `오늘 마감 보기` / `미제출 보기` 중복 버튼을 제거하고, 아래 탭만 남겨 역할이 겹치지 않게 정리함
+* `계획 / 커리큘럼` 페이지를 새로 만들어 시험일 역산 계획, 역산 달력, 계획 대비 실제 비교, 커리큘럼 로드맵, 다음 수업 액션, 위험 신호, 운영 메모를 분리해서 보여주도록 함
+* mock data 구조를 별도 문서로 분리하고, 대시보드 데이터도 항목별 표로 정리해 문서화함
+* README에는 구조 요약 표를 넣고, [`FILE_STRUCTURE.md`](FILE_STRUCTURE.md)에는 한눈에 보는 표를 추가해 문서 역할을 분리함
+* 파일 구조를 기능별 폴더로 정리하고, [`FILE_STRUCTURE.md`](FILE_STRUCTURE.md)로 역할을 따로 기록함
+* 개발 노트와 파일 구조 문서를 `docs/` 폴더로 옮겨, 문서와 코드의 위치를 분리함
+* 이 작업공간에 로컬 Node.js LTS를 `.tooling/node`로 깔아, 여기서 직접 빌드를 돌릴 수 있게 세팅함
+* `scripts/dev-safe.sh`와 `scripts/dev-safe.mjs`, `scripts/build-safe.sh`를 만들어, `.next` 캐시와 중복 dev 서버를 먼저 정리하고 시작하는 안전 실행 경로를 추가함
+* `scripts/dev-safe.mjs`는 시작할 때마다 `.next`를 먼저 지우고, 기본 `3007`부터 시작하되 실패하면 다음 포트로 자동 재시도하도록 바꿈
+* 작업은 먼저 라우트 / 에러를 정리하고, 없는 페이지 이동 / 콘솔 에러 / 빌드 에러 / import 에러를 없앤 뒤 UI를 손보는 순서로 진행함
+* 현재 코드는 GitHub 원격 저장소 `https://github.com/i-loveyou-too/AIM`에 업로드해 둔 상태임
+
 ## 개발 대원칙
 
 ### 1. 잘 돌아가는 기능은 함부로 건드리지 않기
@@ -90,6 +120,8 @@
 * 변수명, 파일명, 템플릿명은 직관적으로 짓기
 * 너무 똑똑한 코드보다 명확한 코드가 우선
 * 복잡한 코드 블록에는 역할이 드러나는 짧은 주석이나 각주를 남기기
+* 주석은 길게 설명하기보다, 이 블록이 무엇을 담당하는지 먼저 드러내기
+* 새 코드 작성 시 주석이 필요한지 먼저 보고, 필요하면 바로 붙이기
 
 ### 15. 문제를 해결했으면 재발 방지 메모 남기기
 
@@ -107,7 +139,25 @@
 * 쪼개는 이유는 나중에 찾기 쉽고, 수정 범위를 줄이고, 오류 전파를 막기 위해서임
 * 처음부터 과하게 잘게 쪼개지는 않되, 한 파일이 비대해지면 바로 나누기
 
-### 18. 공통과 개별을 분리하기
+### 18. 각주는 코드의 길잡이로 쓰기
+
+* 코드 옆의 짧은 주석이나 각주는 "왜 여기 있는지"를 알려주는 용도로 쓰기
+* 조건문, 데이터 매핑, 페이지 분기, 계산식처럼 의미가 헷갈릴 수 있는 부분은 꼭 표시하기
+* 주석이 많은 것보다, 핵심 블록에 정확한 주석이 있는 것이 더 중요함
+* 앞으로 새 파일을 만들 때도 기능 설명이 보이도록 짧은 각주를 기본으로 남기기
+
+### 19. 실행 환경은 하나만 유지하기
+
+* 개발 서버는 가능하면 한 개만 띄워두기
+* 같은 프로젝트에서 여러 포트를 동시에 켜지 않기
+* 서버 에러가 나면 먼저 `.next` 캐시와 기존 dev 서버 상태부터 확인하기
+* dev 서버를 다시 띄울 때는 `.next`를 먼저 비우고 새로 시작하기
+* 작업 시작 전에는 라우트 / 에러부터 먼저 정리하고, 없는 페이지 이동 / 콘솔 에러 / 빌드 에러 / import 에러를 먼저 없애기
+* 라우트나 파일을 바꾼 뒤에는 바로 새로고침해서 반영 상태를 확인하기
+* 이상 증상이 반복되면 새 포트로 하나만 다시 띄워서 검증하기
+* 안전 실행이 필요하면 `scripts/dev-safe.sh`를 먼저 쓰기
+
+### 20. 공통과 개별을 분리하기
 
 * 공통 레이아웃, 공통 스타일, 공통 스크립트는 따로 두기
 * 페이지 전용 코드는 해당 페이지 파일로 분리하기
@@ -697,6 +747,14 @@ project/
 
 #### 2026-03-24
 
+* 작업 내용: `계획 / 커리큘럼` 페이지를 새로 만들고, 시험일 역산 계획 / 달력 / 계획 대비 실제 비교 / 로드맵 / 다음 액션 / 위험 / 메모 섹션으로 분리함
+* 수정 파일: `src/app/dashboard/curriculum/page.tsx`, `src/components/curriculum/*`, `src/lib/curriculum-mock-data.ts`, `src/components/layout/app-header.tsx`, `src/lib/mock-data/core.ts`, `README.md`, `docs/FILE_STRUCTURE.md`, `docs/MOCK_DATA.md`, `docs/aim_on_dev_note.md`
+* 결과: 계획 수립이 아니라 시험일 기준 운영 화면처럼 보이게 되고, 사이드바 메뉴에서도 바로 들어갈 수 있게 됨
+* 이슈: 없음
+* 다음 할 일: 필요하면 학생 상세와 커리큘럼 페이지의 계획 용어를 더 정확히 맞추기
+
+#### 2026-03-24
+
 * 작업 내용: 대시보드 주요 타이틀과 요약 카드 숫자 크기를 한 단계 낮춰 가독성을 정리함
 * 수정 파일: `src/components/layout/header.tsx`, `src/components/dashboard/summary-card.tsx`, `src/components/dashboard/insight-panel.tsx`, `src/components/dashboard/quick-actions.tsx`
 * 결과: 굵기는 유지하면서 화면 압박감이 줄어들고, `D-14` 중심의 포인트는 그대로 살림
@@ -746,7 +804,7 @@ project/
 #### 2026-03-24
 
 * 작업 내용: 학생 관리 페이지의 중복 헤더를 제거하고, 페이지와 리스트 컴포넌트에 짧은 주석을 추가함
-* 수정 파일: `src/app/dashboard/students/page.tsx`, `src/components/students/student-directory.tsx`, `aim_on_dev_note.md`
+* 수정 파일: `src/app/dashboard/students/page.tsx`, `src/components/students/student-directory.tsx`, `docs/aim_on_dev_note.md`
 * 결과: 학생 페이지 상단 중복이 사라지고, 코드 블록 역할이 더 쉽게 읽히게 됨
 * 이슈: 없음
 * 다음 할 일: 학생 상세 페이지를 만들 때도 같은 주석 원칙을 유지하기
@@ -770,7 +828,7 @@ project/
 #### 2026-03-24
 
 * 작업 내용: 파일 구조 정리 문서를 새로 만들고, 파일별 역할과 업데이트 기준을 기록함
-* 수정 파일: `FILE_STRUCTURE.md`, `README.md`
+* 수정 파일: `docs/FILE_STRUCTURE.md`, `README.md`
 * 결과: 폴더와 파일의 책임이 분명해져서 다음 작업 때 기준 문서로 바로 참고할 수 있게 됨
 * 이슈: 없음
 * 다음 할 일: 앞으로 파일 분리나 구조 변경이 생기면 이 문서를 먼저 갱신하기
@@ -817,11 +875,149 @@ project/
 
 #### 2026-03-24
 
+* 작업 내용: mock data 구조를 따로 문서화하고, dashboard 데이터 항목을 표로 전부 정리한 문서를 추가함
+* 수정 파일: `docs/MOCK_DATA.md`, `docs/DASHBOARD_DATA.md`, `README.md`, `docs/FILE_STRUCTURE.md`, `docs/aim_on_dev_note.md`
+* 결과: mock data를 구조 문서와 상세 문서로 나누어 확인할 수 있게 됨
+* 다음 할 일: 학생 상세 데이터도 필요하면 같은 방식으로 추가 문서화하기
+
+#### 2026-03-24
+
+* 작업 내용: 사이드바의 `학습 계획` 메뉴를 `수업 진도 / 커리큘럼`으로 변경함
+* 수정 파일: `src/lib/mock-data/core.ts`, `docs/aim_on_dev_note.md`
+* 결과: 메뉴 이름만 보고도 수업 진도와 커리큘럼 역할이 더 분명해짐
+* 다음 할 일: 필요하면 이 메뉴에 맞는 실제 페이지도 같은 이름으로 정리하기
+
+#### 2026-03-24
+
 * 작업 내용: 대시보드 이동 시 뜨던 런타임 에러를 정리하기 위해 `.next` 캐시를 지우고 dev 서버를 새로 재시작함
 * 수정 파일: 없음
 * 결과: stale chunk를 물고 있던 dev 서버를 정리해 새 청크로 다시 로드할 수 있게 됨
 * 이슈: 포트 3006에 남아 있던 이전 dev 서버 프로세스를 종료해야 했음
 * 다음 할 일: 비슷한 에러가 다시 뜨면 먼저 캐시와 기존 dev 서버 상태부터 확인하기
+
+#### 2026-03-24
+
+* 작업 내용: 여러 개의 Next dev 서버가 동시에 떠 있어서 라우트가 헷갈리는 문제를 정리함
+* 수정 파일: 없음
+* 결과: 3001~3005 포트의 오래된 dev 서버를 종료하고 3006만 남겨서 학생 관리 / 대시보드 라우트가 섞여 보일 가능성을 줄임
+* 이슈: 같은 프로젝트에서 여러 포트를 동시에 띄우면 옛 화면을 보는 일이 생길 수 있음
+* 다음 할 일: 개발 중에는 가능하면 dev 서버를 하나만 유지하기
+
+#### 2026-03-24
+
+* 작업 내용: dev 서버에서 뜨던 `Cannot find module './414.js'` 런타임 에러를 해결하기 위해 `.next` 캐시를 지우고 새 dev 서버를 다시 띄움
+* 수정 파일: 없음
+* 결과: 깨진 빌드 청크를 다시 만들 수 있게 되었고, 새 서버는 3007 포트에서 정상 재시작됨
+* 이슈: 이전 dev 서버가 stale chunk를 물고 있어서 브라우저에서 서버 에러가 났음
+* 다음 할 일: 비슷한 에러가 생기면 먼저 `.next`와 dev 서버 상태를 확인하기
+
+#### 2026-03-24
+
+* 작업 내용: 개발 중 서버 에러를 줄이기 위한 실행 환경 규칙을 문서에 고정함
+* 수정 파일: `docs/aim_on_dev_note.md`, `docs/FILE_STRUCTURE.md`
+* 결과: dev 서버 하나만 유지, 에러 시 `.next` 먼저 확인, 라우트 변경 후 바로 화면 확인이라는 기준이 문서에 들어감
+* 이슈: 없음
+* 다음 할 일: 앞으로 작업할 때 이 규칙을 기본 체크리스트로 사용하기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 관리 리스트에서 학생 상세 페이지로 들어가는 route와 학생 상세 전용 화면을 추가함
+* 수정 파일: `src/app/dashboard/students/[id]/page.tsx`, `src/components/students/student-detail-header.tsx`, `src/components/students/student-status-cards.tsx`, `src/components/students/student-progress-section.tsx`, `src/components/students/student-exam-section.tsx`, `src/components/students/student-assignment-section.tsx`, `src/components/students/student-weakness-section.tsx`, `src/components/students/student-feedback-section.tsx`, `src/components/students/student-next-actions.tsx`, `src/lib/student-detail-mock-data.ts`, `src/components/students/student-table.tsx`, `src/components/layout/app-header.tsx`, `README.md`, `docs/FILE_STRUCTURE.md`
+* 결과: 학생 이름과 첫 번째 액션에서 상세 페이지로 자연스럽게 이동하고, 한 학생의 진도 / 시험 / 과제 / 취약 단원 / 피드백 / 다음 액션을 한 화면에서 확인할 수 있게 됨
+* 이슈: 상세 mock data를 학생 리스트와 분리하지 않고 같은 원천을 쓰도록 맞추는 과정에서 구조를 한 번 정리함
+* 다음 할 일: 학생 상세의 버튼 중 실제 동작이 필요한 것부터 차례대로 연결하기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세의 최근 과제 현황을 표형으로 다시 보여주고, 선생님 관찰 노트와 다음 액션을 묶은 관리 블록을 추가함
+* 수정 파일: `src/app/dashboard/students/[id]/page.tsx`, `src/components/students/student-assignment-insight-section.tsx`, `src/lib/student-detail-mock-data.ts`, `docs/FILE_STRUCTURE.md`
+* 결과: 과제 점수와 관리 메모, 실행 항목이 한 화면에서 더 빠르게 보이도록 정리됨
+* 이슈: 빌드 확인은 이 셸에서 `npm` 경로가 잡히지 않아 바로 못 했음
+* 다음 할 일: dev 서버가 살아 있으면 새로고침으로 화면을 확인하고, 아니면 `npm` 경로가 있는 환경에서 다시 빌드 확인하기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세 상단에 시험 D-day 카드와 `학생 성향 확인` 버튼을 붙여, 이름 옆에서 바로 시험 긴급도와 학습 성향을 보게 함
+* 수정 파일: `src/components/students/student-detail-header.tsx`, `src/lib/student-detail-mock-data.ts`, `docs/aim_on_dev_note.md`
+* 결과: 학생 상세의 첫 화면이 더 운영형 화면처럼 보이게 되고, 학생 옆에서 바로 판단할 수 있는 신호가 늘어남
+* 다음 할 일: 필요하면 `학생 성향 확인` 버튼을 실제 분석 화면이나 모달로 연결하기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세 상단에 학습 목표 블록을 추가해 이번 시험 목표, 목표 점수, 정시·수시 준비, 목표 대학을 한 번에 보이게 함
+* 수정 파일: `src/components/students/student-detail-header.tsx`, `src/lib/student-detail-mock-data.ts`, `docs/aim_on_dev_note.md`
+* 결과: 학생 상세가 단순 프로필이 아니라 운영 판단용 화면에 더 가까워짐
+* 다음 할 일: 학습 목표 버튼을 클릭했을 때의 상세 패널이 필요하면 이어서 붙이기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세에 AI 학습 진도 리포트와 취약 유형 분석 블록을 추가함
+* 수정 파일: `src/app/dashboard/students/[id]/page.tsx`, `src/components/students/student-ai-insight-section.tsx`, `src/lib/student-detail-mock-data.ts`, `docs/aim_on_dev_note.md`, `docs/FILE_STRUCTURE.md`
+* 결과: AI 스마트 인사이트와 취약 유형이 한 화면에서 더 선명하게 보이게 됨
+* 다음 할 일: AI 인사이트의 추천 영역을 실제 상호작용으로 이어붙일지 검토하기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세의 시험 D-day 카드를 메인 대시보드 `시험 알림` 카드와 같은 색감과 구조로 맞추고 크기만 줄임
+* 수정 파일: `src/components/students/student-detail-header.tsx`, `docs/aim_on_dev_note.md`
+* 결과: 대시보드와 학생 상세의 시험 신호가 같은 브랜드 언어로 보이게 됨
+* 다음 할 일: 필요하면 학생 상세의 다른 요약 카드도 같은 톤으로 더 맞추기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세 핵심 상태 카드의 점 아이콘을 카드별 이모지로 교체함
+* 수정 파일: `src/components/students/student-status-cards.tsx`, `docs/aim_on_dev_note.md`
+* 결과: 각 상태 카드의 의미가 더 빨리 읽히고, 빈 점처럼 보이던 아이콘이 역할 있는 시각 요소로 바뀜
+* 다음 할 일: 필요하면 대시보드 상단 요약 카드도 같은 방식으로 더 선명한 이모지로 맞추기
+
+#### 2026-03-24
+
+* 작업 내용: 이 작업공간에 로컬 Node.js LTS를 설치해, `npm` 없이도 `node` / `npm` 경로를 잡고 빌드를 돌릴 수 있게 세팅함
+* 수정 파일: `.tooling/` (로컬 개발 환경), `.gitignore`, `docs/aim_on_dev_note.md`
+* 결과: 이 셸에서도 `npm run build`를 직접 실행할 수 있게 됨
+* 다음 할 일: 새 셸을 열어도 같은 경로를 쓰려면 PATH 설정을 다시 잡아주기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세 상단의 학습 목표 박스를 없애고, 목표 대학 / 학습 방향은 이름 아래 칩으로, 이번 시험 목표 / 목표 점수는 D-day 박스 안으로 옮김
+* 수정 파일: `src/components/students/student-detail-header.tsx`, `docs/aim_on_dev_note.md`
+* 결과: 상단 정보가 더 단순해지고, D-day 박스와 오른쪽 빠른 요약의 높이 균형이 맞아 보이게 됨
+* 다음 할 일: 필요하면 목표 대학과 학습 방향 칩을 클릭형 태그로 바꾸기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세 상단의 4개 행동 버튼을 오른쪽 `빠른 요약` 카드 상단으로 이동함
+* 수정 파일: `src/components/students/student-detail-header.tsx`, `docs/aim_on_dev_note.md`
+* 결과: 행동 버튼이 요약과 한 묶음으로 보여서, 학생 상태를 읽은 뒤 바로 실행하기 쉬워짐
+* 다음 할 일: 버튼 색이나 순서를 더 조정하고 싶으면 다음 단계에서 우선순위만 다시 정하면 됨
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세 상단의 행동 버튼을 이름 오른쪽 위로 이동시켜, 핵심 작업을 더 바로 누를 수 있게 배치함
+* 수정 파일: `src/components/students/student-detail-header.tsx`, `docs/aim_on_dev_note.md`
+* 결과: 버튼이 아래쪽에 묶여 있던 느낌이 줄고, 학생 헤더에서 바로 실행할 수 있는 구조가 됨
+* 다음 할 일: 버튼 색이나 우선순위가 필요하면 나중에 `피드백 기록`만 강조하는 식으로 조정하기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세 상태 카드의 이모지 매핑에서 한글 키를 문자열로 고치고, 컴파일 에러를 해결함
+* 수정 파일: `src/components/students/student-status-cards.tsx`, `docs/aim_on_dev_note.md`
+* 결과: 학생 상세 페이지가 다시 정상 빌드될 수 있는 형태로 돌아감
+* 다음 할 일: 카드별 이모지나 상태 색을 바꿀 때도 문자열 키 문법을 유지하기
+
+#### 2026-03-24
+
+* 작업 내용: 학생 상세의 최근 진도 섹션에 해야 할 일 리스트를 접기/펼치기 형태로 추가함
+* 수정 파일: `src/components/students/student-progress-section.tsx`, `docs/aim_on_dev_note.md`, `docs/FILE_STRUCTURE.md`
+* 결과: 가장 급한 2개 업무를 먼저 보여주고, 화살표로 전체 순서를 펼쳐볼 수 있게 됨
+* 다음 할 일: 필요하면 해야 할 일 항목을 실제 클릭 액션으로 연결하기
+
+#### 2026-03-24
+
+* 작업 내용: README와 파일 구조 문서에 요약 표를 추가해 문서 역할을 분리함
+* 수정 파일: `README.md`, `docs/FILE_STRUCTURE.md`, `docs/aim_on_dev_note.md`
+* 결과: README는 빠른 안내판, FILE_STRUCTURE는 상세 레퍼런스 역할이 더 분명해짐
+* 다음 할 일: 새 파일이 생기면 요약 표와 상세 표를 함께 갱신하기
 
 ## 20. 한 줄 정리
 

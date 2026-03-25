@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { StudentRecord } from "@/lib/mock-data/index";
 
 type StudentTableProps = {
@@ -68,14 +69,14 @@ export function StudentTable({
       </div>
 
       <div className="mt-5 overflow-hidden rounded-[28px] border border-border">
-        <div className="hidden bg-background/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted md:grid md:grid-cols-[1.25fr_0.9fr_1.2fr_0.7fr_1fr_0.8fr_0.55fr]">
+        <div className="hidden bg-background/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted md:grid md:grid-cols-[1.25fr_0.9fr_1.2fr_0.7fr_1fr_0.8fr_1.1fr]">
           <span>학생 정보</span>
           <span>학년 / 과목</span>
           <span>최근 진도</span>
           <span>시험일</span>
           <span>과제 상태</span>
           <span>관리 수준</span>
-          <span>액션</span>
+          <span>바로가기</span>
         </div>
 
         <div className="divide-y divide-border">
@@ -86,19 +87,23 @@ export function StudentTable({
             return (
               <article
                 key={student.id}
-                className="grid gap-4 px-4 py-4 transition duration-200 hover:bg-background/60 md:grid-cols-[1.25fr_0.9fr_1.2fr_0.7fr_1fr_0.8fr_0.55fr] md:items-center"
+                className="grid gap-4 px-4 py-4 transition duration-200 hover:bg-background/60 md:grid-cols-[1.25fr_0.9fr_1.2fr_0.7fr_1fr_0.8fr_1.1fr] md:items-center"
               >
-                <div className="flex items-center gap-3">
+                <Link
+                  href={`/dashboard/students/${student.id}`}
+                  className="group flex items-center gap-3 rounded-2xl transition hover:bg-background/60"
+                  aria-label={`${student.name} 학생 상세 보기`}
+                >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-soft text-sm font-extrabold text-brand">
                     {getInitials(student.name)}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[1.02rem] font-extrabold tracking-tight text-text">
+                    <p className="text-[1.02rem] font-extrabold tracking-tight text-text transition group-hover:text-brand">
                       {student.name}
                     </p>
-                    <p className="mt-1 text-xs text-muted">ID: {student.id}</p>
+                    <p className="mt-1 text-xs text-muted">학생 ID: {student.id}</p>
                   </div>
-                </div>
+                </Link>
 
                 <div className="text-sm text-muted">
                   <p className="font-semibold text-text">{student.grade}학년</p>
@@ -158,29 +163,24 @@ export function StudentTable({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-muted">
-                  {/* 액션 아이콘은 후속 상세 페이지와 연결할 자리입니다. */}
-                  <button
-                    type="button"
-                    className="rounded-full border border-border bg-white px-2.5 py-2 text-sm shadow-sm transition hover:border-brand/30 hover:text-brand"
+                {/* 상세 보기: 현재 운영 상태 관리 / 리포트 보기: 추이·분석 화면 */}
+                <div className="flex flex-col gap-1.5">
+                  <Link
+                    href={`/dashboard/students/${student.id}`}
+                    className="flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-bold text-brand shadow-sm transition hover:bg-brand/20"
                     aria-label={`${student.name} 상세 보기`}
                   >
-                    ↗
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-border bg-white px-2.5 py-2 text-sm shadow-sm transition hover:border-brand/30 hover:text-brand"
-                    aria-label={`${student.name} 일정 보기`}
+                    <span>📋</span>
+                    <span>상세 보기</span>
+                  </Link>
+                  <Link
+                    href={`/dashboard/students/${student.id}/report`}
+                    className="flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/10 px-3 py-1.5 text-xs font-bold text-accent shadow-sm transition hover:bg-accent/20"
+                    aria-label={`${student.name} 리포트 보기`}
                   >
-                    📅
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-border bg-white px-2.5 py-2 text-sm shadow-sm transition hover:border-brand/30 hover:text-brand"
-                    aria-label={`${student.name} 추가 작업`}
-                  >
-                    ⋯
-                  </button>
+                    <span>📊</span>
+                    <span>리포트 보기</span>
+                  </Link>
                 </div>
               </article>
             );

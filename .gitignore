@@ -1,6 +1,7 @@
 .DS_Store
 .next/
 node_modules/
+.tooling/
 .env
 .env.local
 .env.development.local

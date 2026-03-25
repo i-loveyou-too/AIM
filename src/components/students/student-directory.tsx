@@ -41,6 +41,7 @@ function buildOptions(values: string[], includeAll = true) {
 export function StudentDirectory({ students }: StudentDirectoryProps) {
   const [search, setSearch] = useState("");
   const [school, setSchool] = useState("전체");
+  const [className, setClassName] = useState("전체");
   const [grade, setGrade] = useState("전체");
   const [subject, setSubject] = useState("전체");
   const [status, setStatus] = useState("전체");
@@ -49,6 +50,14 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
   const [page, setPage] = useState(1);
 
   const schoolOptions = useMemo(() => buildOptions(uniqueValues(students, "school")), [students]);
+  // 반 옵션 — 선택한 학교에 해당하는 반만 표시
+  const classNameOptions = useMemo(() => {
+    const base = school === "전체" ? students : students.filter((s) => s.school === school);
+    const names = Array.from(new Set(base.map((s) => s.className))).sort((a, b) =>
+      a.localeCompare(b, "ko"),
+    );
+    return buildOptions(names);
+  }, [students, school]);
   const gradeOptions = useMemo(
     () => [{ label: "전체", value: "전체" }, ...gradeOrdering.map((value) => ({ label: value, value }))],
     [],
@@ -75,13 +84,14 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
   // 필터가 바뀌면 첫 페이지부터 다시 보여줍니다.
   useEffect(() => {
     setPage(1);
-  }, [overviewFilter, search, school, grade, subject, status, sortBy]);
+  }, [overviewFilter, search, school, className, grade, subject, status, sortBy]);
 
   const baseFilteredStudents = useMemo(() => {
     const query = search.trim().toLowerCase();
 
     return students.filter((student) => {
       if (school !== "전체" && student.school !== school) return false;
+      if (className !== "전체" && student.className !== className) return false;
       if (grade !== "전체" && student.grade !== grade) return false;
       if (subject !== "전체" && student.subject !== subject) return false;
       if (status !== "전체" && student.status !== status) return false;
@@ -105,7 +115,7 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
 
       return haystack.includes(query);
     });
-  }, [grade, school, search, students, status, subject]);
+  }, [className, grade, school, search, students, status, subject]);
 
   const filteredStudents = useMemo(() => {
     return baseFilteredStudents.filter((student) => {
@@ -222,11 +232,13 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
       <StudentFilters
         search={search}
         school={school}
+        className={className}
         grade={grade}
         subject={subject}
         status={status}
         sortBy={sortBy}
         schoolOptions={schoolOptions}
+        classNameOptions={classNameOptions}
         gradeOptions={gradeOptions}
         subjectOptions={subjectOptions}
         statusOptions={statusOptions}
@@ -241,7 +253,8 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
                 : "미완료 과제"
         }
         onSearchChange={setSearch}
-        onSchoolChange={setSchool}
+        onSchoolChange={(value) => { setSchool(value); setClassName("전체"); }}
+        onClassNameChange={setClassName}
         onGradeChange={setGrade}
         onSubjectChange={setSubject}
         onStatusChange={setStatus}
@@ -249,6 +262,7 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
         onReset={() => {
           setSearch("");
           setSchool("전체");
+          setClassName("전체");
           setGrade("전체");
           setSubject("전체");
           setStatus("전체");

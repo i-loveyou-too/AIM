@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "next dev",
+    "dev:safe": "bash scripts/dev-safe.sh",
     "build": "next build",
+    "build:safe": "bash scripts/build-safe.sh",
     "start": "next start"
   },
   "dependencies": {
