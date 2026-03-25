@@ -6,8 +6,8 @@ import { teacherProfile } from "@/lib/mock-data/index";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "에임 온 | 교사용 대시보드",
-  description: "에임 온 교사용 대시보드 MVP",
+  title: "Aim ON | 교사용 대시보드",
+  description: "Aim ON 교사용 대시보드 MVP",
 };
 
 export default function RootLayout({

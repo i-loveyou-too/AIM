@@ -197,28 +197,19 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
   return (
     <section className="space-y-6">
       <div className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft sm:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-5">
           <div className="space-y-3">
             <span className="inline-flex rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-brand">
               학생 관리
             </span>
             <div>
               <h2 className="text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.7rem]">
-                학생 목록을 필터로 바로 좁혀보세요
+                김민정 선생님! 학생들을 한눈에 확인하세요
               </h2>
               <p className="mt-2 text-sm leading-6 text-muted">
-                학교 선택, 학년 선택, 과목 선택을 분리해서 원하는 학생만 빠르게 볼 수 있습니다.
+                학교, 학년, 과목 기준으로 학생 상태를 빠르게 확인하고 필요한 학생부터 우선 관리할 수 있습니다.
               </p>
             </div>
-          </div>
-          <div className="rounded-[22px] border border-border bg-soft px-4 py-3 text-sm font-semibold text-text shadow-sm">
-            {overviewFilter === "urgent"
-              ? "현재 보기: 시험 임박 학생만"
-              : overviewFilter === "attention"
-                ? "현재 보기: 관리 필요 학생만"
-                : overviewFilter === "tasks"
-                  ? "현재 보기: 미완료 과제 많은 학생만"
-                  : "현재 보기: 전체 학생"}
           </div>
         </div>
       </div>

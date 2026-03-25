@@ -51,7 +51,7 @@ export function CurriculumRoadmapBoard({ roadmap }: CurriculumRoadmapBoardProps)
           const styles = toneStyles[item.tone];
 
           return (
-            <article key={item.title} className="rounded-[26px] border border-border/70 bg-soft/40 p-5">
+            <article key={item.title} className="flex h-full flex-col rounded-[26px] border border-border/70 bg-soft/40 p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
@@ -83,7 +83,7 @@ export function CurriculumRoadmapBoard({ roadmap }: CurriculumRoadmapBoardProps)
                 <div className={`h-2.5 rounded-full ${styles.bar}`} style={{ width: `${item.actualProgress}%` }} />
               </div>
 
-              <div className="mt-4 space-y-2 rounded-[20px] border border-border bg-white p-4 shadow-sm">
+              <div className="mt-4 flex min-h-[210px] flex-col gap-2 rounded-[20px] border border-border bg-white p-4 shadow-sm">
                 <p className="text-[11px] font-semibold text-muted">운영 메모</p>
                 <p className="text-sm leading-6 text-text">{item.lessonNote}</p>
                 <p className="text-xs leading-5 text-muted">{item.assignmentNote}</p>
@@ -91,40 +91,42 @@ export function CurriculumRoadmapBoard({ roadmap }: CurriculumRoadmapBoardProps)
                 <p className="text-xs leading-5 text-muted">{item.reinforcementNote}</p>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                {item.badges.map((badge) => (
-                  <span
-                    key={badge}
-                    className="rounded-full border border-border bg-white px-3 py-1 text-[11px] font-semibold text-text shadow-sm"
-                  >
-                    {badge}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-4 rounded-[20px] border border-border/70 bg-white p-4 shadow-sm">
-                <p className="text-[11px] font-semibold text-muted">세부 학습항목</p>
-                <div className="mt-3 space-y-2">
-                  {item.subtopics.map((subtopic) => (
-                    <div key={subtopic.title} className="rounded-[16px] bg-soft px-3 py-2">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-text">{subtopic.title}</p>
-                          {subtopic.note && <p className="text-[11px] text-muted">{subtopic.note}</p>}
-                        </div>
-                        <span className="text-xs font-bold text-brand">{subtopic.progress}%</span>
-                      </div>
-                      <div className="mt-2 h-1.5 rounded-full bg-white">
-                        <div className={`h-1.5 rounded-full ${styles.bar}`} style={{ width: `${subtopic.progress}%` }} />
-                      </div>
-                    </div>
+              <div className="mt-auto pt-4">
+                <div className="flex flex-wrap gap-2">
+                  {item.badges.map((badge) => (
+                    <span
+                      key={badge}
+                      className="rounded-full border border-border bg-white px-3 py-1 text-[11px] font-semibold text-text shadow-sm"
+                    >
+                      {badge}
+                    </span>
                   ))}
                 </div>
-              </div>
 
-              <p className="mt-4 text-xs font-semibold text-brand">
-                {item.canFinishBeforeExam}
-              </p>
+                <div className="mt-4 rounded-[20px] border border-border/70 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-semibold text-muted">세부 학습항목</p>
+                  <div className="mt-3 space-y-2">
+                    {item.subtopics.map((subtopic) => (
+                      <div key={subtopic.title} className="rounded-[16px] bg-soft px-3 py-2.5">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-text">{subtopic.title}</p>
+                            {subtopic.note && <p className="text-[11px] text-muted">{subtopic.note}</p>}
+                          </div>
+                          <span className="text-xs font-bold text-brand">{subtopic.progress}%</span>
+                        </div>
+                        <div className="mt-2 h-1.5 rounded-full bg-white">
+                          <div className={`h-1.5 rounded-full ${styles.bar}`} style={{ width: `${subtopic.progress}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="mt-4 text-xs font-semibold text-brand">
+                  {item.canFinishBeforeExam}
+                </p>
+              </div>
             </article>
           );
         })}

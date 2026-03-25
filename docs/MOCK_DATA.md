@@ -1,285 +1,1381 @@
-# Aim ON Mock Data 문서
+# Aim ON Mock Data 형태 문서
 
-이 문서는 `Aim ON` 프론트엔드에서 쓰는 mock data의 전체 형태를 한눈에 보기 위한 문서입니다.
+기준일: 2026-03-25
 
-## 문서 목적
+이 문서는 현재 코드 기준으로 **모든 mock data export의 형태(필드 구조)**를 정리한 문서입니다.
 
-- mock data가 어디에 있는지 빠르게 찾기
-- 각 파일이 어떤 역할을 하는지 표로 확인하기
-- 실제 화면과 어떤 데이터가 연결되는지 이해하기
-- 나중에 DB/API로 바꿀 때 기준점으로 쓰기
+## 파일 목록
 
-## 전체 구조
+- `src/lib/mock-data/core.ts`
+- `src/lib/mock-data/dashboard.ts`
+- `src/lib/mock-data/students.ts`
+- `src/lib/student-detail-mock-data.ts`
+- `src/lib/mock-data/student-report-mock-data.ts`
+- `src/lib/mock-data/report-hub-mock-data.ts`
+- `src/lib/mock-data/today-lessons.ts`
+- `src/lib/curriculum-mock-data.ts`
+- `src/lib/mock-data/assignment-mock-data.ts`
+- `src/lib/mock-data/issue-mock-data.ts`
+- `src/lib/mock-data/settings-mock-data.ts`
+- `src/lib/mock-data/index.ts` (재-export 진입점)
 
-| 파일 | 역할 | 주요 사용처 |
-| --- | --- | --- |
-| `src/lib/mock-data/core.ts` | 공통 정보 | 사이드바, 공통 헤더, 기본 문구 |
-| `src/lib/mock-data/dashboard.ts` | 대시보드 정보 | 대시보드 홈, 시험 알림, 인사이트, 일정 |
-| `src/lib/curriculum-mock-data.ts` | 계획 / 커리큘럼 정보 | 커리큘럼 페이지 전체 |
-| `src/lib/mock-data/today-lessons.ts` | 오늘 수업 운영 정보 | 오늘 수업 운영 페이지 |
-| `src/lib/mock-data/students.ts` | 학생 목록 원본 | 학생 관리 리스트, 학생 수 집계 |
-| `src/lib/student-detail-mock-data.ts` | 학생 상세 생성 로직 | 학생 상세 페이지 전체 |
-| `src/lib/mock-data/student-report-mock-data.ts` | 학생 리포트 분석 데이터 | 학생 리포트 페이지 전체 |
+---
 
-## 데이터 흐름
+## `src/lib/mock-data/core.ts`
 
-| 흐름 | 설명 |
-| --- | --- |
-| 공통 정보 | 교사용 프로필, 사이드바 메뉴, 안내 문구를 먼저 제공함 |
-| 대시보드 정보 | 상단 요약, 일정, 활동, 인사이트, 시험 알림을 구성함 |
-| 커리큘럼 정보 | 시험일까지 역산한 계획, 달력, 계획 대비 실제 비교, 위험 구간을 구성함 |
-| 학생 목록 | 학생 한 명 한 명의 기본 상태를 담은 원본 배열임 |
-| 학생 상세 | 학생 목록 원본과 과목/상태 프로필을 합쳐 상세 화면용 데이터를 계산함 |
+### exports
 
-## 타입 기준
+- `teacherProfile`
+- `SidebarChild`
+- `SidebarMenuItem`
+- `sidebarMenu`
+- `sidebarNotice`
 
-### `StudentRecord`
+### 형태
 
-`src/lib/mock-data/students.ts`에 있는 학생 한 명의 기본 형태입니다.
+```ts
+export const teacherProfile: {
+  name: string;
+  role: string;
+  initials: string;
+  greetingName: string;
+};
 
-| 필드 | 타입 | 의미 |
-| --- | --- | --- |
-| `id` | `string` | 학생 고유 ID |
-| `name` | `string` | 학생 이름 |
-| `school` | `string` | 학교명 |
-| `grade` | `string` | 학년 |
-| `className` | `string` | 반 이름 |
-| `subject` | `string` | 과목 |
-| `recentProgress` | `string` | 최근 진도 |
-| `recentTag` | `string` | 최근 진도 태그 |
-| `score` | `number` | 최근 성취도 |
-| `examDays` | `number` | 시험까지 남은 일수 |
-| `overdueAssignments` | `number` | 미완료 과제 수 |
-| `assignmentDone` | `number` | 완료 과제 수 |
-| `assignmentTotal` | `number` | 전체 과제 수 |
-| `weakTopic` | `string` | 취약 단원 |
-| `status` | `상승 \| 주의 \| 시험 임박 \| 안정` | 운영 상태 |
-| `note` | `string` | 짧은 학생 메모 |
+export type SidebarChild = {
+  label: string;
+  href: string;
+};
 
-### `StudentDetailData`
+export type SidebarMenuItem = {
+  emoji: string;
+  label: string;
+  href?: string;
+  children?: SidebarChild[];
+};
 
-`src/lib/student-detail-mock-data.ts`에서 계산되는 학생 상세 화면용 형태입니다.
+export const sidebarMenu: SidebarMenuItem[];
+export const sidebarNotice: string;
+```
 
-| 필드 | 역할 |
-| --- | --- |
-| `student` | 원본 학생 데이터 |
-| `goalScore` | 목표 점수 계산값 |
-| `currentLevel` | 현재 관리 수준 |
-| `examDate` | 시험일 |
-| `dDayLabel` | `D-5` 같은 표시 |
-| `studyti` | 학생 성향 요약 |
-| `learningGoal` | 이번 시험 목표와 대학/방향 정보 |
-| `aiInsight` | AI 인사이트 블록 |
-| `managementStatus` | 관리 상태 제목 |
-| `managementTone` | 상태 톤 |
-| `managementNote` | 운영 메모 |
-| `sectionCards` | 핵심 상태 카드 배열 |
-| `progress` | 진도/흐름 정보 |
-| `exam` | 시험일/역산 계획 정보 |
-| `assignments` | 과제 관리 정보 |
-| `weaknesses` | 취약 단원/위험 요소 |
-| `feedback` | 피드백 요약 |
-| `nextActions` | 다음 액션 목록 |
-| `timeline` | 최근 활동 타임라인 |
+---
 
-## 공통 데이터 상세
+## `src/lib/mock-data/dashboard.ts`
 
-### `core.ts`
+### exports
 
-| 이름 | 값 형태 | 설명 |
-| --- | --- | --- |
-| `teacherProfile` | 객체 | 상단 프로필에 쓰는 교사 정보 |
-| `sidebarMenu` | 배열 | 좌측 사이드바 메뉴 |
-| `sidebarNotice` | 문자열 | 운영 메모 영역 문구 |
+- `summaryStats`
+- `dashboardHero`
+- `aiInsights`
+- `examAlert`
+- `examSchools`
+- `todaySchedule`
+- `recentActivity`
+- `quickActions`
+- `examHighlights`
 
-### `dashboard.ts`
+### 형태 (코드 기준 추론)
 
-| 이름 | 값 형태 | 설명 |
-| --- | --- | --- |
-| `summaryStats` | 배열 | 대시보드 상단 요약 카드 4개 |
-| `dashboardHero` | 객체 | 대시보드 인사말 |
-| `aiInsights` | 객체 | 반별 인사이트와 학생 인사이트 |
-| `examAlert` | 객체 | 시험 알림 카드 기본값 |
-| `examSchools` | 배열 | 학교 선택형 시험 데이터 |
-| `todaySchedule` | 배열 | 오늘 수업 일정 |
-| `recentActivity` | 배열 | 최근 활동 알림 |
-| `quickActions` | 배열 | 빠른 실행 버튼 |
-| `examHighlights` | 배열 | 시험 임박 학생 하이라이트 |
+```ts
+type SummaryStat = {
+  label: string;
+  value: string;
+  note: string;
+  tone: "rose" | "gold" | "peach" | "soft";
+  emoji: string;
+  badge: string;
+  href?: string;
+};
 
-### `students.ts`
+export const summaryStats: SummaryStat[];
 
-| 이름 | 값 형태 | 설명 |
-| --- | --- | --- |
-| `students` | 배열 | 학생 관리 리스트 원본 |
-| `studentTotalCount` | 숫자 | 학생 총 인원 |
+export const dashboardHero: {
+  title: string;
+  subtitle: string;
+};
 
-### `today-lessons.ts`
+type ClassInsight = {
+  label: string;
+  school: string;
+  className: string;
+  metricLabel: string;
+  metricValue: string;
+  delta: string;
+  note: string;
+  chartBars: number[];
+  focusLabel: string;
+  focusValue: string;
+};
 
-`today-lessons.ts`는 오늘 수업 운영 화면용으로, 수업 전/중/후 흐름을 한 번에 보려는 데이터 묶음입니다.
+type StudentInsightItem = {
+  name: string;
+  className: string;
+  badge: string;
+  note: string;
+};
 
-| 이름 | 값 형태 | 설명 |
-| --- | --- | --- |
-| `todayLessonsSummary` | 객체 | 오늘 전체 수업 운영 요약 |
-| `todaySchedule` | 배열 | 오늘 수업 일정 리스트 |
-| `todayLessonsPrep` | 배열 | 수업별 준비 카드 |
-| `weaknessOverview` | 배열 | 약점 집중 관리 학생 개요 |
-| `homeworkReflection` | 객체 | 숙제 반영 개요 |
-| `todayMaterials` | 배열 | 오늘 사용할 자료 |
-| `lessonNextActions` | 배열 | 수업별 다음 액션 |
+export const aiInsights: {
+  classInsights: ClassInsight[];
+  studentInsight: {
+    label: string;
+    title: string;
+    subtitle: string;
+    students: StudentInsightItem[];
+  };
+};
 
-### `curriculum-mock-data.ts`
+export const examAlert: {
+  label: string;
+  title: string;
+  subtitle: string;
+  progress: number;
+};
 
-`curriculum-mock-data.ts`는 시험일까지의 역산 계획과 실제 진도를 비교해 커리큘럼 운영을 돕는 데이터 묶음입니다.
+export const examSchools: Array<{
+  name: string;
+  examName: string;
+  examDate: string;
+  daysLeft: number;
+  overallProgress: number;
+  classes: Array<{
+    name: string;
+    progress: number;
+  }>;
+}>;
 
-| 이름 | 값 형태 | 설명 |
-| --- | --- | --- |
-| `curriculumPageData` | 객체 | 커리큘럼 페이지 전체 데이터 |
+export const todaySchedule: Array<{
+  time: string;
+  duration: string;
+  title: string;
+  student: string;
+  memo: string;
+  status: string;
+  tone: "rose" | "peach";
+}>;
 
-#### `curriculumPageData`
+export const recentActivity: Array<{
+  time: string;
+  student: string;
+  action: string;
+  detail: string;
+}>;
 
-| 필드 | 설명 |
-| --- | --- |
-| `overview` | 학교, 반, 과목, 시험일, D-day, 남은 수업 수, 전체 진도율, 계획 대비 현재 상태 |
-| `summaryCards` | 상단 요약 카드 8개 |
-| `reversePlan` | 시험일 역산 계획 요약과 현재 목표 위치 |
-| `calendar` | 시험일까지의 중요한 날짜와 체크포인트 |
-| `comparison` | 계획 대비 실제 진도 비교와 마일스톤 |
-| `roadmap` | 대단원 / 중단원 / 세부 학습항목 로드맵 |
-| `nextActions` | 다음 수업 액션, 숙제 반영, 보강 대상, 수업 전 점검 |
-| `risks` | 지연 위험 / 시험 위험 모듈 |
-| `notes` | 계획 조정 이유와 운영 메모 |
+export const quickActions: Array<{
+  label: string;
+  description: string;
+  tone: "rose" | "gold" | "peach" | "soft";
+  icon: string;
+}>;
 
-## `today-lessons.ts` 항목별 개요
+export const examHighlights: Array<{
+  name: string;
+  subject: string;
+  examDate: string;
+  daysLeft: number;
+  status: string;
+  note: string;
+}>;
+```
 
-### `todayLessonsSummary`
+---
 
-| 필드 | 의미 |
-| --- | --- |
-| `totalLessons` | 오늘 전체 수업 수 |
-| `focusStudents` | 집중 관리가 필요한 학생 수 |
-| `homeworkIssues` | 숙제 이슈 수 |
-| `teachingPoints` | 오늘 정리할 수업 포인트 수 |
-| `examImminentStudents` | 시험 임박 학생 수 |
+## `src/lib/mock-data/students.ts`
 
-### `todaySchedule`
+### exports
 
-| 필드 | 의미 |
-| --- | --- |
-| `id` | 일정 고유 ID |
-| `time` | 수업 시간 |
-| `studentName` | 학생/그룹 이름 |
-| `grade` | 학년 |
-| `subject` | 과목 |
-| `lessonType` | 수업 형태 |
-| `todayGoal` | 오늘 수업 목표 |
-| `examDate` | 시험일 |
-| `dDay` | 남은 일수 |
-| `status` | 상태 |
+- `StudentRecord`
+- `students`
+- `studentTotalCount`
 
-### `todayLessonsPrep`
+### 형태
 
-| 필드 | 의미 |
-| --- | --- |
-| `studentName` | 학생 이름 |
-| `grade` | 학년 |
-| `subject` | 과목 |
-| `time` | 수업 시간 |
-| `examDate` | 시험일 |
-| `dDay` | 남은 일수 |
-| `recentAchievement` | 최근 성취도 수준 |
-| `status` | 수업 상태 |
-| `progress` | 진도 정보 |
-| `explanation` | 오늘 설명할 내용 |
-| `homework` | 숙제 점검 정보 |
-| `weakness` | 약점 포인트 |
-| `teacherNote` | 선생님 메모 |
-| `lessonMemo` | 수업 메모 |
+```ts
+export type StudentRecord = {
+  id: string;
+  name: string;
+  school: string;
+  grade: string;
+  className: string;
+  subject: string;
+  recentProgress: string;
+  recentTag: string;
+  score: number;
+  examDays: number;
+  overdueAssignments: number;
+  assignmentDone: number;
+  assignmentTotal: number;
+  weakTopic: string;
+  status: "상승" | "주의" | "시험 임박" | "안정";
+  note: string;
+};
 
-### `weaknessOverview`
+export const students: StudentRecord[];
+export const studentTotalCount: number;
+```
 
-| 필드 | 의미 |
-| --- | --- |
-| `studentName` | 학생 이름 |
-| `grade` | 학년 |
-| `subject` | 과목 |
-| `focusReason` | 집중해야 하는 이유 |
-| `overlappingWeakness` | 겹치는 약점 |
-| `action` | 바로 할 행동 |
-| `urgency` | 긴급도 |
+---
 
-### `homeworkReflection`
+## `src/lib/student-detail-mock-data.ts`
 
-| 필드 | 의미 |
-| --- | --- |
-| `criticalItems` | 꼭 반영할 숙제 이슈 |
-| `incompleteHomework` | 미완료 숙제 요약 |
-| `commonReExplanation` | 공통 재설명 항목 |
-| `reinforcementNeeded` | 추가 보강이 필요한 항목 |
+### exports
 
-### `todayMaterials`
+- `StudentDetailCard`
+- `StudentDetailData`
+- `getStudentDetailById(id: string)`
 
-| 필드 | 의미 |
-| --- | --- |
-| `id` | 자료 고유 ID |
-| `title` | 자료명 |
-| `type` | 자료 유형 |
-| `subject` | 과목 |
-| `student` | 대상 학생/그룹 |
-| `priority` | 우선순위 |
-| `note` | 비고 |
+### 형태
 
-### `lessonNextActions`
+```ts
+type Tone = "rose" | "gold" | "peach" | "soft";
 
-| 필드 | 의미 |
-| --- | --- |
-| `lessonId` | 수업 ID |
-| `studentName` | 학생 이름 |
-| `beforeClass` | 수업 전 할 일 |
-| `duringClass` | 수업 중 할 일 |
-| `afterClass` | 수업 후 할 일 |
-| `nextLessonPrep` | 다음 수업 준비 |
+export type StudentDetailCard = {
+  label: string;
+  value: string;
+  note: string;
+  tone: Tone;
+  badge: string;
+};
 
-## 학생 상세 데이터 생성 방식
+export type StudentDetailData = {
+  student: StudentRecord;
+  goalScore: number;
+  currentLevel: string;
+  examDate: string;
+  dDayLabel: string;
+  studyti: {
+    summary: string;
+    tags: string[];
+    ctaLabel: string;
+  };
+  learningGoal: {
+    summary: string;
+    scoreBoostLabel: string;
+    targetScoreLabel: string;
+    admissionTrack: string;
+    targetUniversity: string;
+    focusLabel: string;
+  };
+  aiInsight: {
+    progressReport: {
+      statusLabel: string;
+      currentChapterLabel: string;
+      currentChapter: string;
+      progressRate: number;
+      nextGoal: string;
+      completeDate: string;
+      smartInsight: string;
+    };
+    weakAnalysis: Array<{
+      title: string;
+      description: string;
+      statusLabel: string;
+      tone: Tone;
+      accuracyLabel: string;
+      progressRate: number;
+    }>;
+    clinicRecommendation: {
+      title: string;
+      subtitle: string;
+      ctaLabel: string;
+    };
+  };
+  managementStatus: string;
+  managementTone: Tone;
+  managementNote: string;
+  sectionCards: StudentDetailCard[];
+  progress: {
+    recentUnit: string;
+    completedUnits: string[];
+    currentUnit: string;
+    delayStatus: string;
+    progressRate: number;
+    progressBars: number[];
+    progressNote: string;
+  };
+  exam: {
+    examDate: string;
+    remainingDays: string;
+    planRate: number;
+    planStatus: string;
+    planNote: string;
+    reversePlanPosition: string;
+    reversePlanNote: string;
+    statusLabel: string;
+    statusTone: Tone;
+  };
+  assignments: {
+    completionRate: number;
+    completionText: string;
+    riskText: string;
+    items: Array<{
+      title: string;
+      status: "완료" | "미완료";
+      due: string;
+      note: string;
+      score: string;
+    }>;
+  };
+  weaknesses: {
+    topics: string[];
+    repeatMistakes: string[];
+    attentionFlags: string[];
+    note: string;
+  };
+  feedback: {
+    summary: string;
+    attitude: string;
+    supplement: string;
+    nextCheck: string;
+    note: string;
+  };
+  nextActions: Array<{
+    label: string;
+    description: string;
+    tone: Tone;
+  }>;
+  timeline: Array<{
+    time: string;
+    title: string;
+    detail: string;
+    kind: "success" | "info" | "warning";
+  }>;
+};
 
-`student-detail-mock-data.ts`는 단순 배열이 아니라 계산 로직이 함께 들어 있습니다.
+export function getStudentDetailById(id: string): StudentDetailData | null;
+```
 
-| 구분 | 설명 |
-| --- | --- |
-| `subjectProfiles` | 과목별 기본 흐름, 진도, 약점, 과제, 성향 요약 |
-| `statusProfiles` | 상태별 관리 신호, 계획 상태, 톤 |
-| `detailOverrides` | 학생 개별 예외값, 목표 대학, 목표 점수, 시험일 |
-| `buildStudentDetail()` | 학생 기본값 + 과목 프로필 + 상태 프로필 + 예외값을 합쳐 상세 데이터 생성 |
-| `getStudentDetailById()` | ID로 학생 상세 데이터를 꺼내는 함수 |
+### 내부 조합 데이터(참고)
 
-### `student-report-mock-data.ts`
+- `subjectProfiles` (과목별 기본 상세 프로필)
+- `statusProfiles` (학생 상태별 관리 프로필)
+- `detailOverrides` (학생별 예외 목표/시험일/입시 트랙)
 
-학생 리포트 페이지 전용 분석 데이터입니다. 학생 상세(`student-detail-mock-data.ts`)가 현재 상태·운영 중심이라면, 리포트는 추이·변화·분석 중심입니다.
+---
 
-| 이름 | 값 형태 | 설명 |
-| --- | --- | --- |
-| `reportStudent` | 객체 | 리포트 헤더용 학생 정보 (기간, D-day, 종합 상태, 인사이트) |
-| `reportKPIs` | 배열 | KPI 요약 카드 6개 (성취도, 진도율, 숙제율, 취약단원, 시험준비도, 계획안정성) |
-| `achievementTrend` | 배열 | 최근 8회차 점수 추이 (`SessionScore[]`) |
-| `homeworkTrend` | 배열 | 최근 4주 숙제 수행률 (`WeeklyHomework[]`) |
-| `progressVsPlan` | 객체 | 계획 대비 실제 단원 완료 현황 + 주간 breakdown |
-| `weakTopics` | 배열 | 반복 오답 취약 단원 (`WeakTopic[]`) |
-| `repeatMistakePatterns` | 배열 | 반복 실수 패턴과 유형 |
-| `examReadiness` | 객체 | D-day, 준비도 점수, 도달 가능 점수, 체크리스트 |
-| `teacherComment` | 객체 | 강점, 우려사항, 최근 변화, 다음 집중 방향 |
-| `nextDirection` | 객체 | 다음 수업 방향, 보강 항목, 숙제 방향, 설명 포인트 |
-| `recentMilestones` | 배열 | 최근 주요 활동 타임라인 (수업/과제/피드백/시험) |
+## `src/lib/mock-data/student-report-mock-data.ts`
 
-#### 주요 타입
+### exports
 
-| 타입 | 필드 | 의미 |
-| --- | --- | --- |
-| `SessionScore` | `session`, `date`, `score`, `note?` | 회차별 점수 데이터 |
-| `WeeklyHomework` | `week`, `completionRate`, `submitted`, `total`, `note?` | 주간 숙제 수행률 |
-| `WeakTopic` | `topic`, `category`, `severity`, `frequency`, `lastOccurred`, `riskBeforeExam` | 취약 단원 분석 |
+- `reportStudent`
+- `reportKPIs`
+- `SessionScore`
+- `achievementTrend`
+- `WeeklyHomework`
+- `homeworkTrend`
+- `progressVsPlan`
+- `WeakTopic`
+- `weakTopics`
+- `repeatMistakePatterns`
+- `examReadiness`
+- `teacherComment`
+- `nextDirection`
+- `recentMilestones`
 
-## 작업 기준
+### 형태
 
-- 학생 리스트 숫자는 `students.ts`를 기준으로 잡는다.
-- 대시보드 숫자는 가능하면 같은 원천을 바라본다.
-- 학생 상세는 원본 학생 데이터에서 계산해서 만든다.
-- 화면에 필요한 값이 생기면 먼저 `mock data`에 추가하고 컴포넌트가 그 값을 읽게 한다.
+```ts
+export const reportStudent: {
+  id: string;
+  name: string;
+  grade: string;
+  subject: string;
+  className: string;
+  school: string;
+  reportPeriod: string;
+  examDate: string;
+  dDay: string;
+  overallStatus: "주의 필요";
+  summaryInsight: string;
+};
+
+type ReportKpi = {
+  id: string;
+  label: string;
+  value: string;
+  change: string;
+  changeDir: "up" | "down" | "neutral";
+  note: string;
+  tone: "brand" | "warm" | "accent" | "soft" | "alert";
+  icon: string;
+};
+
+export const reportKPIs: ReportKpi[];
+
+export type SessionScore = {
+  session: string;
+  date: string;
+  score: number;
+  note?: string;
+};
+
+export const achievementTrend: SessionScore[];
+
+export type WeeklyHomework = {
+  week: string;
+  completionRate: number;
+  submitted: number;
+  total: number;
+  note?: string;
+};
+
+export const homeworkTrend: WeeklyHomework[];
+
+export const progressVsPlan: {
+  totalUnits: number;
+  plannedUnits: number;
+  actualUnits: number;
+  plannedPercent: number;
+  actualPercent: number;
+  status: "소폭 지연";
+  currentUnit: string;
+  delayNote: string;
+  weeklyBreakdown: Array<{
+    week: string;
+    planned: number;
+    actual: number;
+    label: string;
+    note?: string;
+  }>;
+};
+
+export type WeakTopic = {
+  topic: string;
+  category: "계산" | "개념" | "서술" | "응용";
+  severity: "높음" | "중간" | "낮음";
+  frequency: number;
+  lastOccurred: string;
+  riskBeforeExam: boolean;
+};
+
+export const weakTopics: WeakTopic[];
+
+export const repeatMistakePatterns: Array<{
+  pattern: string;
+  count: number;
+  type: string;
+}>;
+
+export const examReadiness: {
+  examDate: string;
+  dDay: string;
+  readinessScore: number;
+  targetScore: number;
+  currentEstimated: number;
+  remainingLessons: number;
+  remainingWeeks: number;
+  status: "주의 필요";
+  canReachTarget: boolean;
+  reachableScore: number;
+  reinforcementRequired: boolean;
+  examCoverageReady: number;
+  checkItems: Array<{
+    label: string;
+    done: boolean;
+  }>;
+};
+
+export const teacherComment: {
+  strengths: string[];
+  concerns: string[];
+  recentChange: string;
+  nextFocus: string;
+};
+
+export const nextDirection: {
+  nextLesson: string;
+  reinforcement: string[];
+  homeworkDirection: string;
+  explanationFocus: string[];
+  priority: string;
+};
+
+export const recentMilestones: Array<{
+  date: string;
+  type: "수업" | "과제" | "피드백" | "시험";
+  title: string;
+  detail: string;
+}>;
+```
+
+---
+
+## `src/lib/mock-data/report-hub-mock-data.ts`
+
+### exports
+
+- `ReportHubSummaryCard`
+- `reportHubSummaryCards`
+- `StudentReportItem`
+- `studentReports`
+- `ClassReportItem`
+- `classReports`
+- `ExamReadinessStudent`
+- `examReadinessStudents`
+- `ExamReadinessClass`
+- `examReadinessClasses`
+- `PeriodDataPoint`
+- `PeriodReportData`
+- `periodReports`
+
+### 형태
+
+```ts
+export type ReportHubSummaryCard = {
+  label: string;
+  value: string;
+  note: string;
+  emoji: string;
+  tone: "brand" | "warm" | "accent" | "soft" | "success" | "alert";
+  badge: string;
+};
+
+export const reportHubSummaryCards: ReportHubSummaryCard[];
+
+export type StudentReportItem = {
+  id: string;
+  name: string;
+  grade: string;
+  subject: string;
+  className: string;
+  achievement: number;
+  homework: number;
+  progress: number;
+  examReadiness: "양호" | "주의" | "위험";
+  insight: string;
+  lastUpdated: string;
+  status: "양호" | "주의" | "위험" | "관리 필요";
+  examDate: string;
+  dDay: string;
+  examUpcoming: boolean;
+};
+
+export const studentReports: StudentReportItem[];
+
+export type ClassReportItem = {
+  id: string;
+  name: string;
+  subject: string;
+  studentCount: number;
+  avgAchievement: number;
+  avgHomework: number;
+  avgProgress: number;
+  weakUnit: string;
+  commonMistake: string;
+  examRisk: "양호" | "주의" | "위험";
+  focusStudentCount: number;
+  teachingPoint: string;
+  progressStability: "안정" | "보통" | "불안정";
+  achievementTrend: number[];
+  homeworkTrend: number[];
+};
+
+export const classReports: ClassReportItem[];
+
+export type ExamReadinessStudent = {
+  id: string;
+  name: string;
+  grade: string;
+  subject: string;
+  examDate: string;
+  dDay: number;
+  readiness: number;
+  riskLevel: "양호" | "주의" | "위험";
+  onTrack: boolean;
+  needsExtra: boolean;
+  needsPlanAdjust: boolean;
+  riskNote: string;
+};
+
+export const examReadinessStudents: ExamReadinessStudent[];
+
+export type ExamReadinessClass = {
+  id: string;
+  name: string;
+  subject: string;
+  examDate: string;
+  dDay: number;
+  avgReadiness: number;
+  riskLevel: "양호" | "주의" | "위험";
+  completionRisk: boolean;
+  riskNote: string;
+};
+
+export const examReadinessClasses: ExamReadinessClass[];
+
+export type PeriodDataPoint = {
+  label: string;
+  value: number;
+};
+
+export type PeriodReportData = {
+  period: "1주" | "2주" | "4주" | "월간";
+  achievementTrend: PeriodDataPoint[];
+  homeworkTrend: PeriodDataPoint[];
+  progressTrend: PeriodDataPoint[];
+  questionCount: PeriodDataPoint[];
+  missedCount: PeriodDataPoint[];
+  riskCount: PeriodDataPoint[];
+  issues: Array<{
+    date: string;
+    title: string;
+    type: "숙제" | "성취도" | "진도" | "시험";
+    severity: "high" | "medium" | "low";
+  }>;
+};
+
+export const periodReports: Record<string, PeriodReportData>;
+```
+
+---
+
+## `src/lib/mock-data/today-lessons.ts`
+
+### exports
+
+- `todayLessonsSummary`
+- `LessonStatus`
+- `LessonScheduleItem`
+- `todaySchedule`
+- `HomeworkStatus`
+- `AchievementLevel`
+- `LessonPrep`
+- `todayLessonsPrep`
+- `weaknessOverview`
+- `homeworkReflection`
+- `todayMaterials`
+- `LessonNextActions`
+- `lessonNextActions`
+
+### 형태
+
+```ts
+export const todayLessonsSummary: {
+  totalLessons: number;
+  focusStudents: number;
+  homeworkIssues: number;
+  teachingPoints: number;
+  examImminentStudents: number;
+};
+
+export type LessonStatus = "집중 관리" | "정상" | "보강 필요" | "시험 임박";
+
+export type LessonScheduleItem = {
+  id: string;
+  time: string;
+  studentName: string;
+  grade: string;
+  subject: string;
+  lessonType: string;
+  todayGoal: string;
+  examDate: string;
+  dDay: string;
+  status: LessonStatus;
+};
+
+export const todaySchedule: LessonScheduleItem[];
+
+export type HomeworkStatus = "완료" | "미완료" | "부분 완료";
+export type AchievementLevel = "우수" | "보통" | "미흡";
+
+export type LessonPrep = {
+  id: string;
+  studentName: string;
+  grade: string;
+  subject: string;
+  time: string;
+  examDate: string;
+  dDay: string;
+  recentAchievement: AchievementLevel;
+  status: LessonStatus;
+  progress: {
+    todayUnit: string;
+    curriculumPosition: string;
+    completedRange: string;
+    targetRange: string;
+    planComparison: string;
+    isDelayed: boolean;
+    delayNote?: string;
+  };
+  explanation: {
+    keyConcepts: string[];
+    confusionPoints: string[];
+    conceptType: string;
+    misconceptions: string[];
+  };
+  materials: {
+    mainTextbook: string;
+    workbooks: string[];
+    printouts: string[];
+    priorityTag: string;
+  };
+  weaknesses: {
+    weakUnits: string[];
+    repeatMistakes: string[];
+    attentionPoints: string[];
+    todayFocusCheck: string[];
+  };
+  homework: {
+    status: HomeworkStatus;
+    completionRate: number;
+    errorTendencies: string[];
+    reflectionPoints: string[];
+    homeworkBasedExplanation: string[];
+    warning?: string;
+  };
+  lessonMemo: {
+    preClassCheck: string[];
+    questionPrompts: string[];
+    postClassNote: string;
+    nextLessonConnection: string;
+  };
+};
+
+export const todayLessonsPrep: LessonPrep[];
+
+export const weaknessOverview: Array<{
+  studentName: string;
+  grade: string;
+  subject: string;
+  focusReason: string;
+  overlappingWeakness: string;
+  action: string;
+  urgency: "높음" | "중간";
+}>;
+
+export const homeworkReflection: {
+  criticalItems: Array<{
+    studentName: string;
+    subject: string;
+    issue: string;
+    actionRequired: string;
+  }>;
+  incompleteHomework: Array<{
+    studentName: string;
+    completionRate: number;
+    subject: string;
+  }>;
+  commonReExplanation: string[];
+  reinforcementNeeded: string[];
+};
+
+export const todayMaterials: Array<{
+  id: string;
+  title: string;
+  type: "교재" | "프린트" | "정리표";
+  subject: string;
+  student: string;
+  priority: "필수" | "참고";
+  note: string;
+}>;
+
+export type LessonNextActions = {
+  lessonId: string;
+  studentName: string;
+  beforeClass: string[];
+  duringClass: string[];
+  afterClass: string[];
+  nextLessonPrep: string[];
+};
+
+export const lessonNextActions: LessonNextActions[];
+```
+
+---
+
+## `src/lib/curriculum-mock-data.ts`
+
+### exports
+
+- `CurriculumTone`
+- `CurriculumSummaryCard`
+- `CurriculumCalendarTone`
+- `CurriculumCalendarItem`
+- `CurriculumSubtopic`
+- `CurriculumRoadmapItem`
+- `CurriculumActionItem`
+- `CurriculumRiskItem`
+- `CurriculumNoteItem`
+- `CurriculumPageData`
+- `curriculumPageData`
+- `curriculumClasses`
+
+### 형태
+
+```ts
+export type CurriculumTone = "brand" | "warm" | "accent" | "soft" | "success" | "alert";
+
+export type CurriculumSummaryCard = {
+  label: string;
+  value: string;
+  note: string;
+  emoji: string;
+  badge: string;
+  tone: CurriculumTone;
+};
+
+export type CurriculumCalendarTone = "today" | "lesson" | "boost" | "check" | "exam";
+
+export type CurriculumCalendarItem = {
+  date: string;
+  label: string;
+  title: string;
+  note: string;
+  tone: CurriculumCalendarTone;
+};
+
+export type CurriculumSubtopic = {
+  title: string;
+  progress: number;
+  statusLabel: string;
+  note?: string;
+};
+
+export type CurriculumRoadmapItem = {
+  title: string;
+  period: string;
+  statusLabel: string;
+  tone: CurriculumTone;
+  plannedProgress: number;
+  actualProgress: number;
+  lessonNote: string;
+  assignmentNote: string;
+  commonMistakeNote: string;
+  reinforcementNote: string;
+  canFinishBeforeExam: string;
+  badges: string[];
+  subtopics: CurriculumSubtopic[];
+};
+
+export type CurriculumActionItem = {
+  title: string;
+  description: string;
+  tone: CurriculumTone;
+};
+
+export type CurriculumRiskItem = {
+  title: string;
+  reason: string;
+  target: string;
+  severity: "높음" | "중간" | "낮음";
+  nextStep: string;
+};
+
+export type CurriculumNoteItem = {
+  title: string;
+  detail: string;
+  reason: string;
+};
+
+export type CurriculumPageData = {
+  overview: {
+    school: string;
+    className: string;
+    subject: string;
+    examDate: string;
+    currentDate: string;
+    dDay: string;
+    remainingLessons: number;
+    totalLessons: number;
+    totalUnits: number;
+    plannedProgress: number;
+    actualProgress: number;
+    planStatus: string;
+    delayUnits: number;
+    reinforcementUnits: number;
+    completionChance: string;
+    currentPlannedPosition: string;
+    currentActualPosition: string;
+    finishEstimate: string;
+    nextCheckpoint: string;
+  };
+  summaryCards: CurriculumSummaryCard[];
+  reversePlan: {
+    totalPeriod: string;
+    totalUnits: number;
+    remainingUnits: number;
+    remainingLessons: number;
+    weeklyTarget: string;
+    algorithmTarget: string;
+    actualTarget: string;
+    gapSummary: string;
+    paceSummary: string;
+    completionEstimate: string;
+    focusUnit: string;
+    nextCheckpoint: string;
+  };
+  calendar: {
+    monthLabel: string;
+    periodLabel: string;
+    note: string;
+    items: CurriculumCalendarItem[];
+  };
+  comparison: {
+    totalUnits: number;
+    plannedUnits: number;
+    actualUnits: number;
+    plannedPercent: number;
+    actualPercent: number;
+    plannedMilestone: string;
+    actualMilestone: string;
+    goalMilestone: string;
+    finishEstimate: string;
+    gapSummary: string;
+    canFinishBeforeExam: string;
+    markers: Array<{
+      label: string;
+      value: string;
+      tone: CurriculumTone;
+    }>;
+  };
+  roadmap: CurriculumRoadmapItem[];
+  nextActions: {
+    nextUnit: string;
+    objective: string;
+    keyConcepts: string[];
+    homeworkReflection: string[];
+    commonMistakes: string[];
+    reinforcementTargets: string[];
+    preClassChecks: string[];
+    buttons: string[];
+  };
+  risks: {
+    highestRisk: string;
+    summary: string;
+    items: CurriculumRiskItem[];
+  };
+  notes: {
+    memoTitle: string;
+    memoSummary: string;
+    items: CurriculumNoteItem[];
+  };
+};
+
+export const curriculumPageData: CurriculumPageData;
+
+export const curriculumClasses: Array<{
+  id: string;
+  label: string;
+  grade: string;
+  subject: string;
+  data: CurriculumPageData;
+}>;
+```
+
+---
+
+## `src/lib/mock-data/assignment-mock-data.ts`
+
+### exports
+
+- `ViewTab`
+- `assignmentSummary`
+- `AssignmentStatus`
+- `SubmissionType`
+- `ClassAssignment`
+- `classAssignments`
+- `SubmitStatus`
+- `OmrItem`
+- `StudentSubmission`
+- `studentSubmissions`
+- `TopMistake`
+- `CommonMistakeAnalysis`
+- `commonMistakeAnalyses`
+- `LessonReflection`
+- `lessonReflections`
+- `assignmentInsights`
+
+### 형태
+
+```ts
+export type ViewTab = "class" | "student" | "unsubmitted" | "dueToday";
+
+export const assignmentSummary: {
+  activeAssignments: number;
+  dueTodayCount: number;
+  unsubmittedStudents: number;
+  studentsWithQuestions: number;
+  avgSubmissionRate: number;
+  reinforcementNeeded: number;
+};
+
+export type AssignmentStatus = "진행 중" | "마감 임박" | "검토 완료" | "보강 필요";
+export type SubmissionType = "사진 제출" | "OMR 제출" | null;
+
+export type ClassAssignment = {
+  id: string;
+  className: string;
+  subject: string;
+  studentCount: number;
+  assignmentTitle: string;
+  issuedDate: string;
+  dueDate: string;
+  submittedCount: number;
+  photoSubmissions: number;
+  omrSubmissions: number;
+  questionsCount: number;
+  status: AssignmentStatus;
+  topMistakeTopic: string;
+  repeatUnsubmitCount: number;
+};
+
+export const classAssignments: ClassAssignment[];
+
+export type SubmitStatus = "완료" | "미완료" | "부분 완료";
+
+export type OmrItem = {
+  questionNum: number;
+  studentAnswer: string;
+  correctAnswer: string;
+  correct: boolean;
+};
+
+export type StudentSubmission = {
+  id: string;
+  classId: string;
+  studentName: string;
+  status: SubmitStatus;
+  submittedAt?: string;
+  submissionType: SubmissionType;
+  ocrSummary?: string;
+  omrResult?: OmrItem[];
+  correctCount?: number;
+  totalQuestions?: number;
+  question?: string;
+  isRepeatNonSubmit: boolean;
+  needsReview: boolean;
+};
+
+export const studentSubmissions: StudentSubmission[];
+
+export type TopMistake = {
+  rank: number;
+  questionNum: number;
+  topic: string;
+  mistakeType: string;
+  incorrectCount: number;
+  totalStudents: number;
+};
+
+export type CommonMistakeAnalysis = {
+  classId: string;
+  topMistakes: TopMistake[];
+  weakConceptSummary: string[];
+  repeatMistakePatterns: string[];
+  explanationNeeded: string[];
+  topQuestions: string[];
+};
+
+export const commonMistakeAnalyses: CommonMistakeAnalysis[];
+
+export type LessonReflection = {
+  classId: string;
+  urgency: "높음" | "중간" | "낮음";
+  reExplainTopics: string[];
+  reinforcementItems: string[];
+  individualFeedbackNeeded: Array<{
+    studentName: string;
+    reason: string;
+  }>;
+  questionReflectionItems: string[];
+  homeworkFollowUp: string;
+};
+
+export const lessonReflections: LessonReflection[];
+
+export const assignmentInsights: {
+  repeatNonSubmitStudents: Array<{
+    name: string;
+    className: string;
+    count: number;
+    lastNote: string;
+  }>;
+  frequentQuestionStudents: Array<{
+    name: string;
+    className: string;
+    questionCount: number;
+    topic: string;
+  }>;
+  reinforcementPriority: Array<{
+    className: string;
+    reason: string;
+    urgency: "높음" | "중간" | "낮음";
+  }>;
+  recentOperationMemo: string;
+};
+```
+
+---
+
+## `src/lib/mock-data/issue-mock-data.ts`
+
+### exports
+
+- `IssueType`
+- `IssueUrgency`
+- `IssueStatus`
+- `IssueAction`
+- `Issue`
+- `IssueDetail`
+- `UnsubmittedDetail`
+- `ExamImmimentDetail`
+- `ProgressDelayDetail`
+- `QuestionDetail`
+- `OcrReviewDetail`
+- `CommonMistakeDetail`
+- `FocusMgmtDetail`
+- `issueSummary`
+- `issues`
+- `lessonReflectionIssues`
+- `issueInsights`
+
+### 형태
+
+```ts
+export type IssueType =
+  | "미제출"
+  | "시험 임박"
+  | "진도 지연"
+  | "계획 조정 필요"
+  | "질문 있음"
+  | "OCR 검토 필요"
+  | "OMR 오답 다수"
+  | "공통 오답 반영"
+  | "집중 관리";
+
+export type IssueUrgency = "긴급" | "높음" | "중간" | "낮음";
+export type IssueStatus = "미확인" | "확인됨" | "처리 완료";
+
+export type IssueAction = {
+  label: string;
+  href: string;
+  style: "primary" | "secondary";
+};
+
+export type Issue = {
+  id: string;
+  type: IssueType;
+  urgency: IssueUrgency;
+  status: IssueStatus;
+  studentName?: string;
+  className: string;
+  subject: string;
+  title: string;
+  description: string;
+  occurredAt: string;
+  actions: IssueAction[];
+  detail: IssueDetail;
+};
+
+export type UnsubmittedDetail = {
+  kind: "unsubmitted";
+  assignmentTitle: string;
+  dueDate: string;
+  missedCount: number;
+  teacherMemo: string;
+  nextAction: string;
+};
+
+export type ExamImmimentDetail = {
+  kind: "exam";
+  examDate: string;
+  dDay: string;
+  progressStatus: string;
+  needsReinforcement: boolean;
+  needsPlanAdjust: boolean;
+  note: string;
+};
+
+export type ProgressDelayDetail = {
+  kind: "progress";
+  plannedUnit: string;
+  actualUnit: string;
+  delayWeeks: number;
+  reason: string;
+  adjustmentNeeded: string;
+};
+
+export type QuestionDetail = {
+  kind: "question";
+  questionText: string;
+  relatedUnit: string;
+  assignmentTitle?: string;
+  needsInClassExplanation: boolean;
+};
+
+export type OcrReviewDetail = {
+  kind: "ocr";
+  assignmentTitle: string;
+  submittedAt: string;
+  ocrSummary: string;
+  reviewReason: string;
+};
+
+export type CommonMistakeDetail = {
+  kind: "commonMistake";
+  topMistakeQuestion: string;
+  mistakeType: string;
+  conceptToReExplain: string[];
+  todayLessonRecommendation: string;
+};
+
+export type FocusMgmtDetail = {
+  kind: "focus";
+  reasons: string[];
+  recentTrend: string;
+  teacherNote: string;
+};
+
+export type IssueDetail =
+  | UnsubmittedDetail
+  | ExamImmimentDetail
+  | ProgressDelayDetail
+  | QuestionDetail
+  | OcrReviewDetail
+  | CommonMistakeDetail
+  | FocusMgmtDetail;
+
+export const issueSummary: {
+  unreadCount: number;
+  urgentTodayCount: number;
+  examImminentCount: number;
+  assignmentIssueCount: number;
+  lessonReflectionCount: number;
+  focusStudentCount: number;
+};
+
+export const issues: Issue[];
+
+export const lessonReflectionIssues: {
+  reExplainNow: string[];
+  questionItems: string[];
+  individualNeed: Array<{
+    studentName: string;
+    reason: string;
+  }>;
+  homeworkPriority: string;
+};
+
+export const issueInsights: {
+  repeatNonSubmit: Array<{
+    name: string;
+    className: string;
+    count: number;
+    lastNote: string;
+  }>;
+  frequentQuestions: Array<{
+    name: string;
+    className: string;
+    count: number;
+    topic: string;
+  }>;
+  examImminent: Array<{
+    name: string;
+    className: string;
+    dDay: string;
+    subject: string;
+    urgency: "긴급" | "높음" | "중간";
+  }>;
+  delayRisk: Array<{
+    name: string;
+    className: string;
+    delayUnit: string;
+    weeks: number;
+  }>;
+  commonReinforcement: Array<{
+    className: string;
+    concept: string;
+    urgency: "긴급" | "높음" | "중간";
+  }>;
+};
+```
+
+---
+
+## `src/lib/mock-data/settings-mock-data.ts`
+
+### exports
+
+- `settingsProfile`
+- `NotificationSetting`
+- `notificationSettings`
+- `reportSettings`
+- `lessonSettings`
+- `assignmentSettings`
+- `basicInfoSettings`
+
+### 형태
+
+```ts
+export const settingsProfile: {
+  name: string;
+  affiliation: string;
+  role: string;
+  email: string;
+  phone: string;
+  joined: string;
+};
+
+export type NotificationSetting = {
+  key: string;
+  label: string;
+  description: string;
+  enabled: boolean;
+};
+
+export const notificationSettings: NotificationSetting[];
+
+export const reportSettings: {
+  defaultPeriod: "1주" | "2주" | "4주";
+  defaultView: "학생별" | "반별";
+  examEmphasisDDay: "D-7" | "D-14" | "D-21";
+};
+
+export const lessonSettings: {
+  defaultDuration: "60분" | "90분" | "120분";
+  showNextAction: boolean;
+  showLessonMemo: boolean;
+  todayPageInfoScope: "전체" | "요약만";
+};
+
+export const assignmentSettings: {
+  defaultDeadlineTime: string;
+  allowPhotoSubmit: boolean;
+  allowOMRSubmit: boolean;
+  questionEnabled: boolean;
+  ocrReviewHighlight: boolean;
+  commonMistakeAlert: boolean;
+};
+
+export const basicInfoSettings: {
+  classes: Array<{
+    name: string;
+    subject: string;
+    studentCount: number;
+    examDate: string;
+  }>;
+  subjects: string[];
+  examScheduleLinked: boolean;
+  curriculumTemplateLinked: boolean;
+};
+```
+
+---
+
+## `src/lib/mock-data/index.ts`
+
+### exports
+
+```ts
+export * from "./core";
+export * from "./dashboard";
+export * from "./students";
+```
+
+참고: `index.ts`는 현재 `core/dashboard/students`만 재-export합니다. 나머지 mock data 파일은 직접 경로 import로 사용 중입니다.
+
+---
+
+## 문서 유지 규칙
+
+- mock data export를 추가/삭제/리네임하면 이 문서의 해당 파일 섹션을 즉시 갱신합니다.
+- 타입이 없는 `const`는 코드 기준 추론 타입을 함께 유지합니다.
+- 페이지 라우트 변경 시 `core.ts`의 사이드바 링크와 실제 페이지 anchor/query 사용 여부를 함께 점검합니다.

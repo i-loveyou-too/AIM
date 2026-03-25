@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type ClassInsight = {
@@ -20,6 +21,7 @@ type StudentInsight = {
   title: string;
   subtitle: string;
   students: Array<{
+    id: string;
     name: string;
     className: string;
     badge: string;
@@ -62,8 +64,8 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
   }
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(300px,0.75fr)]">
-      <article className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
+    <section className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(300px,0.75fr)]">
+      <article className="flex h-full flex-col rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-3">
             <span className="inline-flex rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-brand">
@@ -149,7 +151,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
           <p className="text-sm font-semibold text-brand">{selectedInsight.focusValue}</p>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-auto pt-6">
           <button
             type="button"
             className="rounded-full bg-text px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
@@ -159,7 +161,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
         </div>
       </article>
 
-      <article className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
+      <article className="flex h-full flex-col rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
         <div className="space-y-2">
           <span className="inline-flex rounded-full bg-soft px-3 py-1 text-xs font-semibold tracking-[0.16em] text-brand">
             {studentInsight.label}
@@ -172,8 +174,10 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
 
         <div className="mt-5 space-y-3">
           {studentInsight.students.map((student) => (
-            <div
-              key={`${student.name}-${student.className}`}
+            <Link
+              key={student.id}
+              href={`/dashboard/students/${student.id}/report`}
+              aria-label={`${student.name} 학생 리포트 보기`}
               className="rounded-[24px] border border-border bg-background/70 p-4 transition duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:bg-white hover:shadow-glow"
             >
               <div className="flex items-start justify-between gap-3">
@@ -192,7 +196,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
                 </span>
               </div>
               <p className="mt-3 text-sm leading-6 text-muted">{student.note}</p>
-            </div>
+            </Link>
           ))}
         </div>
       </article>

@@ -1,4 +1,5 @@
 import { students, type StudentRecord } from "./mock-data/students";
+import { studentReports } from "./mock-data/report-hub-mock-data";
 
 type Tone = "rose" | "gold" | "peach" | "soft";
 
@@ -589,10 +590,51 @@ function buildStudentDetail(student: StudentRecord): StudentDetailData {
 }
 
 export function getStudentDetailById(id: string) {
-  const student = id ? students.find((item) => item.id === id) ?? null : null;
+  const student = id
+    ? students.find((item) => item.id === id) ?? buildLegacyStudentRecord(id)
+    : null;
   if (!student) {
     return null;
   }
 
   return buildStudentDetail(student);
+}
+
+function buildLegacyStudentRecord(id: string): StudentRecord | null {
+  const legacy = studentReports.find((item) => item.id === id);
+  if (!legacy) return null;
+
+  const parsedDays = Number(legacy.dDay.replace(/^D-/, ""));
+  const examDays = Number.isFinite(parsedDays) ? parsedDays : 14;
+  const assignmentTotal = 20;
+  const assignmentDone = Math.max(
+    0,
+    Math.min(assignmentTotal, Math.round((legacy.homework / 100) * assignmentTotal)),
+  );
+  const overdueAssignments = legacy.homework >= 90 ? 0 : legacy.homework >= 75 ? 1 : 2;
+  const status: StudentRecord["status"] =
+    legacy.examReadiness === "위험"
+      ? "시험 임박"
+      : legacy.examReadiness === "주의"
+        ? "주의"
+        : "안정";
+
+  return {
+    id: legacy.id,
+    name: legacy.name,
+    school: "서울고등학교",
+    grade: legacy.grade,
+    className: legacy.className,
+    subject: legacy.subject,
+    recentProgress: `${legacy.subject} 진도 점검`,
+    recentTag: "Report Hub",
+    score: legacy.achievement,
+    examDays,
+    overdueAssignments,
+    assignmentDone,
+    assignmentTotal,
+    weakTopic: legacy.insight.split(" ").slice(0, 2).join(" "),
+    status,
+    note: legacy.insight,
+  };
 }

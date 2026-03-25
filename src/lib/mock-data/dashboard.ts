@@ -19,9 +19,9 @@ export const summaryStats = [
     badge: "오늘 일정",
   },
   {
-    label: "미완료 과제 수",
+    label: "학생 미제출 과제 수",
     value: "14개",
-    note: "오늘 마감 기준 과제가 먼저 정리되어야 합니다.",
+    note: "학생이 아직 제출하지 않은 과제 기준으로 집계됩니다.",
     tone: "peach" as const,
     emoji: "📌",
     badge: "확인 필요",
@@ -194,18 +194,21 @@ export const aiInsights = {
     subtitle: "상승 흐름과 관리 포인트가 보이는 학생을 먼저 확인합니다.",
     students: [
       {
+        id: "AIM_24001",
         name: "김민주",
         className: "수학 A반",
         badge: "상승",
         note: "최근 2주 성취도가 빠르게 상승했습니다.",
       },
       {
+        id: "AIM_24012",
         name: "박하린",
         className: "영어 B반",
         badge: "주의",
         note: "독해는 안정적이지만 어휘 복습이 필요합니다.",
       },
       {
+        id: "AIM_24005",
         name: "이서준",
         className: "수학 A반",
         badge: "확인",

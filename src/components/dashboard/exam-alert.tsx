@@ -44,8 +44,8 @@ export function ExamAlert() {
         </label>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-        <div>
+      <div className="mt-6 space-y-5">
+        <div className="rounded-[28px] bg-white/5 p-5">
           <div className="flex items-center justify-between gap-4">
             <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-warm">
               {selectedSchool.examName}
@@ -66,7 +66,7 @@ export function ExamAlert() {
           </p>
 
           <div className="mt-7">
-            <div className="flex items-end justify-between">
+            <div className="flex items-end justify-between gap-3">
               <p className="text-[2.1rem] font-extrabold tracking-tight text-warm">
                 {selectedSchool.overallProgress}%
               </p>

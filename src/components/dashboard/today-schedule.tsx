@@ -23,19 +23,26 @@ export function TodaySchedule({ items }: TodayScheduleProps) {
     <section className="rounded-[40px] bg-soft px-5 py-6 shadow-none sm:px-8 sm:py-8">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.75rem]">
+          <a
+            href="/dashboard/today-lessons"
+            className="text-[1.45rem] font-extrabold tracking-tight text-text hover:text-brand transition sm:text-[1.75rem]"
+          >
             오늘의 수업 일정
-          </h2>
+          </a>
         </div>
-        <a href="#" className="text-sm font-extrabold text-brand sm:text-base">
+        <a href="/dashboard/today-lessons" className="text-sm font-extrabold text-brand sm:text-base">
           전체 일정 보기 &rsaquo;
         </a>
       </div>
 
       <div className="space-y-5">
         {items.map((item) => (
-          <article
+          <a
             key={`${item.time}-${item.title}`}
+            href="/dashboard/today-lessons"
+            className="block"
+          >
+          <article
             className="relative overflow-hidden rounded-[999px] border border-transparent bg-white p-4 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-glow sm:px-5 sm:py-5"
           >
             <div
@@ -86,6 +93,7 @@ export function TodaySchedule({ items }: TodayScheduleProps) {
               </div>
             </div>
           </article>
+          </a>
         ))}
       </div>
     </section>

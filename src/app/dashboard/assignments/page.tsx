@@ -3,7 +3,8 @@
 // 과제 관리 페이지
 // 반별 과제 운영 → 학생별 제출 확인 → 오답 분석 → 다음 수업 반영 흐름
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { ViewTab } from "@/lib/mock-data/assignment-mock-data";
 import { AssignmentSummaryCards } from "@/components/assignments/assignment-summary-cards";
 import { AssignmentViewTabs } from "@/components/assignments/assignment-view-tabs";
@@ -13,9 +14,21 @@ import { AssignmentInsightSection } from "@/components/assignments/assignment-in
 
 type CardId = "active" | "dueToday" | "unsubmitted" | "questions" | "avgRate" | "reinforcement";
 
-export default function AssignmentsPage() {
-  // 보기 탭
+const VALID_TABS: ViewTab[] = ["class", "student", "unsubmitted", "dueToday"];
+
+function AssignmentsPageContent() {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab") as ViewTab | null;
   const [activeTab, setActiveTab] = useState<ViewTab>("class");
+
+  // URL ?tab= 변경 시 보기 탭 동기화
+  useEffect(() => {
+    if (tabParam && VALID_TABS.includes(tabParam)) {
+      setActiveTab(tabParam);
+      return;
+    }
+    setActiveTab("class");
+  }, [tabParam]);
 
   // 필터 상태
   const [search,         setSearch]         = useState("");
@@ -149,5 +162,13 @@ export default function AssignmentsPage() {
       <AssignmentInsightSection />
 
     </div>
+  );
+}
+
+export default function AssignmentsPage() {
+  return (
+    <Suspense fallback={<div className="h-20 rounded-[28px] border border-border/80 bg-white/70" />}>
+      <AssignmentsPageContent />
+    </Suspense>
   );
 }

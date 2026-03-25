@@ -1,6 +1,7 @@
 // 오늘 수업 운영 페이지
 // 교사가 오늘 수업 전·중·후 흐름을 한 화면에서 준비하고 운영하는 핵심 페이지
 
+import Link from "next/link";
 import { TodayLessonsSummaryCards } from "@/components/today-lessons/today-summary-cards";
 import { TodayScheduleSection } from "@/components/today-lessons/today-schedule-section";
 import { LessonPrepCard } from "@/components/today-lessons/lesson-prep-card";
@@ -43,18 +44,18 @@ export default function TodayLessonsPage() {
             >
               진도 업데이트
             </button>
-            <button
-              type="button"
+            <Link
+              href="/dashboard/today-lessons#materials"
               className="rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
             >
               자료 보기
-            </button>
-            <button
-              type="button"
+            </Link>
+            <Link
+              href="/dashboard/curriculum#reverse-plan"
               className="rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
             >
               계획 보기
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -63,10 +64,12 @@ export default function TodayLessonsPage() {
       <TodayLessonsSummaryCards />
 
       {/* ── 오늘 수업 일정 ────────────────────────────────────── */}
-      <TodayScheduleSection />
+      <div id="schedule">
+        <TodayScheduleSection />
+      </div>
 
       {/* ── 수업별 준비 카드 ──────────────────────────────────── */}
-      <section className="space-y-4">
+      <section id="lesson-prep" className="space-y-4">
         <div className="px-1">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
             수업별 준비
@@ -84,13 +87,15 @@ export default function TodayLessonsPage() {
       </section>
 
       {/* ── 약점 / 집중 관리 + 숙제 반영 — 2컬럼 ────────────── */}
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div id="homework" className="grid gap-6 xl:grid-cols-2">
         <WeaknessOverviewSection />
         <HomeworkReflectionSection />
       </div>
 
       {/* ── 오늘 자료 패널 ────────────────────────────────────── */}
-      <MaterialsPanel />
+      <div id="materials" className="scroll-mt-24">
+        <MaterialsPanel />
+      </div>
 
     </div>
   );
