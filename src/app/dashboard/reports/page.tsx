@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { ReportHubHeader } from "@/components/reports/report-hub-header";
 import { ReportHubSummaryCards } from "@/components/reports/report-hub-summary-cards";
 import { ReportHubTabs } from "@/components/reports/report-hub-tabs";
-import { getTeacherReportsOverview } from "@/lib/api/teacher";
+import { loadTeacherReportsPageData } from "@/lib/services/teacher.service";
 
 export const metadata: Metadata = {
   title: "리포트 | Aim ON",
@@ -12,21 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ReportsPage() {
-  let data: any = null;
-  try {
-    data = await getTeacherReportsOverview();
-  } catch {
-    data = null;
-  }
-
-  const safeData = data ?? {
-    summaryCards: [],
-    studentReports: [],
-    classReports: [],
-    examReadinessStudents: [],
-    examReadinessClasses: [],
-    periodReports: {},
-  };
+  const { overview } = await loadTeacherReportsPageData();
 
   return (
     <main className="space-y-6">
@@ -34,11 +20,11 @@ export default async function ReportsPage() {
       <ReportHubHeader />
 
       {/* 상단 요약 카드 6개 */}
-      <ReportHubSummaryCards cards={safeData.summaryCards} />
+      <ReportHubSummaryCards cards={overview.summaryCards} />
 
       {/* 메인 탭: 학생별 / 반별 / 시험 대비 / 기간별 */}
       <Suspense fallback={<div className="h-14 rounded-[20px] border border-border/70 bg-white/70" />}>
-        <ReportHubTabs data={safeData} />
+        <ReportHubTabs data={overview} />
       </Suspense>
     </main>
   );

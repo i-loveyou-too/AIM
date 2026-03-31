@@ -1,22 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AssignmentSummaryCards } from "@/components/assignments/assignment-summary-cards";
 import { AssignmentViewTabs } from "@/components/assignments/assignment-view-tabs";
 import { AssignmentFilterBar } from "@/components/assignments/assignment-filter-bar";
 import { ClassAssignmentBoard } from "@/components/assignments/class-assignment-board";
 import { AssignmentInsightSection } from "@/components/assignments/assignment-insight-section";
-
-type ViewTab = "class" | "student" | "unsubmitted" | "dueToday";
-type CardId = "active" | "dueToday" | "unsubmitted" | "questions" | "avgRate" | "reinforcement";
+import {
+  getTeacherAssignmentBoardHeader,
+  normalizeTeacherAssignmentsOverview,
+  resolveTeacherAssignmentCardSelection,
+} from "@/lib/services/teacher-assignments.service";
+import type {
+  TeacherAssignmentCardId,
+  TeacherAssignmentViewTab,
+} from "@/types/view/teacher";
 
 type Props = {
-  initialTab: ViewTab;
-  data: any;
+  initialTab: TeacherAssignmentViewTab;
+  data: unknown;
 };
 
 export function AssignmentsPageContent({ initialTab, data }: Props) {
-  const [activeTab, setActiveTab] = useState<ViewTab>(initialTab);
+  const overview = useMemo(() => normalizeTeacherAssignmentsOverview(data), [data]);
+
+  const [activeTab, setActiveTab] = useState<TeacherAssignmentViewTab>(initialTab);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -27,49 +35,26 @@ export function AssignmentsPageContent({ initialTab, data }: Props) {
   const [status, setStatus] = useState("전체");
   const [submissionType, setSubmissionType] = useState("전체");
   const [hasQuestion, setHasQuestion] = useState<boolean | null>(null);
-  const [activeCardId, setActiveCardId] = useState<CardId | null>(null);
+  const [activeCardId, setActiveCardId] = useState<TeacherAssignmentCardId | null>(null);
 
-  function handleCardClick(cardId: CardId) {
-    if (activeCardId === cardId) {
-      setActiveCardId(null);
-      setActiveTab("class");
-      setStatus("전체");
-      setHasQuestion(null);
-      return;
-    }
+  function handleCardClick(cardId: TeacherAssignmentCardId) {
+    const next = resolveTeacherAssignmentCardSelection(
+      {
+        activeCardId,
+        activeTab,
+        status,
+        hasQuestion,
+      },
+      cardId,
+    );
 
-    setActiveCardId(cardId);
-
-    switch (cardId) {
-      case "active":
-        setActiveTab("class");
-        setStatus("전체");
-        setHasQuestion(null);
-        break;
-      case "dueToday":
-        setActiveTab("dueToday");
-        setStatus("전체");
-        setHasQuestion(null);
-        break;
-      case "unsubmitted":
-        setActiveTab("unsubmitted");
-        setStatus("전체");
-        setHasQuestion(null);
-        break;
-      case "questions":
-        setActiveTab("class");
-        setHasQuestion(true);
-        setStatus("전체");
-        break;
-      case "reinforcement":
-        setActiveTab("class");
-        setStatus("보강 필요");
-        setHasQuestion(null);
-        break;
-      default:
-        break;
-    }
+    setActiveCardId(next.activeCardId);
+    setActiveTab(next.activeTab);
+    setStatus(next.status);
+    setHasQuestion(next.hasQuestion);
   }
+
+  const boardHeader = getTeacherAssignmentBoardHeader(activeTab);
 
   return (
     <div className="space-y-6">
@@ -98,14 +83,7 @@ export function AssignmentsPageContent({ initialTab, data }: Props) {
       </header>
 
       <AssignmentSummaryCards
-        summary={data?.summary ?? {
-          activeAssignments: 0,
-          dueTodayCount: 0,
-          unsubmittedStudents: 0,
-          studentsWithQuestions: 0,
-          avgSubmissionRate: 0,
-          reinforcementNeeded: 0,
-        }}
+        summary={overview.summary}
         activeCardId={activeCardId}
         onCardClick={handleCardClick}
       />
@@ -128,24 +106,8 @@ export function AssignmentsPageContent({ initialTab, data }: Props) {
 
       <section>
         <div className="mb-4 px-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
-            {activeTab === "class"
-              ? "반별 보기"
-              : activeTab === "student"
-                ? "학생별 보기"
-                : activeTab === "unsubmitted"
-                  ? "미제출 현황"
-                  : "마감 임박 과제"}
-          </p>
-          <h2 className="mt-1 text-lg font-extrabold tracking-tight text-text">
-            {activeTab === "class"
-              ? "반/수업 단위 과제 현황"
-              : activeTab === "student"
-                ? "학생별 제출 상태"
-                : activeTab === "unsubmitted"
-                  ? "미제출 학생이 있는 과제"
-                  : "오늘 및 마감 임박 과제"}
-          </h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">{boardHeader.label}</p>
+          <h2 className="mt-1 text-lg font-extrabold tracking-tight text-text">{boardHeader.title}</h2>
           <p className="mt-1 text-sm text-muted">
             카드를 펼치면 학생별 제출 상태, 공통 오답 분석, 다음 수업 반영 포인트를 순서대로 확인할 수 있습니다.
           </p>
@@ -153,10 +115,10 @@ export function AssignmentsPageContent({ initialTab, data }: Props) {
 
         <ClassAssignmentBoard
           activeView={activeTab}
-          classAssignments={data?.classAssignments ?? []}
-          studentSubmissions={data?.studentSubmissions ?? []}
-          commonMistakeAnalyses={data?.commonMistakeAnalyses ?? []}
-          lessonReflections={data?.lessonReflections ?? []}
+          classAssignments={overview.classAssignments}
+          studentSubmissions={overview.studentSubmissions}
+          commonMistakeAnalyses={overview.commonMistakeAnalyses}
+          lessonReflections={overview.lessonReflections}
           filterSubject={subject}
           filterStatus={status}
           filterType={submissionType}
@@ -165,16 +127,7 @@ export function AssignmentsPageContent({ initialTab, data }: Props) {
         />
       </section>
 
-      <AssignmentInsightSection
-        insights={
-          data?.assignmentInsights ?? {
-            repeatNonSubmitStudents: [],
-            frequentQuestionStudents: [],
-            reinforcementPriority: [],
-            recentOperationMemo: "운영 메모 데이터가 없습니다.",
-          }
-        }
-      />
+      <AssignmentInsightSection insights={overview.assignmentInsights} />
     </div>
   );
 }

@@ -1,11 +1,15 @@
 import {
   getTeacherClasses,
+  getTeacherReportsOverview,
   getTeacherStudents,
   getTeacherTodayLessons,
+  getTeacherTodayLessonsOverview,
   toDisplayGrade,
   toDisplayStatus,
 } from "@/lib/api/teacher";
 import {
+  TEACHER_REPORTS_OVERVIEW_FALLBACK,
+  TEACHER_TODAY_LESSONS_OVERVIEW_FALLBACK,
   TEACHER_DASHBOARD_QUICK_ACTIONS,
   UNKNOWN_EXAM_DAYS,
 } from "@/lib/fallbacks/teacher";
@@ -19,6 +23,10 @@ import type {
   TeacherDashboardPageData,
   TeacherDashboardRecentActivityItem,
   TeacherDashboardStudentInsight,
+  TeacherReportsOverviewData,
+  TeacherReportsPageData,
+  TeacherTodayLessonsOverviewData,
+  TeacherTodayLessonsPageData,
   TeacherStudentsPageData,
   TeacherStudentsPageStudentRecord,
 } from "@/types/view/teacher";
@@ -56,6 +64,13 @@ function buildDuration(startTime: string | null, endTime: string | null) {
 function average(values: number[]) {
   if (values.length === 0) return 0;
   return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function asObject(value: unknown): Record<string, unknown> | null {
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
 }
 
 function toStatusLabel(value: string | null | undefined): TeacherStudentsPageStudentRecord["status"] {
@@ -475,4 +490,106 @@ export async function loadTeacherDashboardPageData(): Promise<TeacherDashboardPa
     operationsStatus: buildOperationsStatus(classes, lessons),
     quickActionItems: TEACHER_DASHBOARD_QUICK_ACTIONS,
   };
+}
+
+function readNumberValue(value: unknown, fallback = 0) {
+  if (typeof value === "number" || typeof value === "string") {
+    return toNumberWithFallback(value, fallback);
+  }
+  return fallback;
+}
+
+export function normalizeTeacherReportsOverview(raw: unknown): TeacherReportsOverviewData {
+  const fallback = TEACHER_REPORTS_OVERVIEW_FALLBACK;
+  const obj = asObject(raw);
+  if (!obj) return fallback;
+
+  return {
+    summaryCards: Array.isArray(obj.summaryCards)
+      ? (obj.summaryCards as TeacherReportsOverviewData["summaryCards"])
+      : fallback.summaryCards,
+    studentReports: Array.isArray(obj.studentReports)
+      ? (obj.studentReports as TeacherReportsOverviewData["studentReports"])
+      : fallback.studentReports,
+    classReports: Array.isArray(obj.classReports)
+      ? (obj.classReports as TeacherReportsOverviewData["classReports"])
+      : fallback.classReports,
+    examReadinessStudents: Array.isArray(obj.examReadinessStudents)
+      ? (obj.examReadinessStudents as TeacherReportsOverviewData["examReadinessStudents"])
+      : fallback.examReadinessStudents,
+    examReadinessClasses: Array.isArray(obj.examReadinessClasses)
+      ? (obj.examReadinessClasses as TeacherReportsOverviewData["examReadinessClasses"])
+      : fallback.examReadinessClasses,
+    periodReports: asObject(obj.periodReports)
+      ? (obj.periodReports as TeacherReportsOverviewData["periodReports"])
+      : fallback.periodReports,
+  };
+}
+
+export async function loadTeacherReportsPageData(): Promise<TeacherReportsPageData> {
+  try {
+    const raw = await getTeacherReportsOverview();
+    return {
+      overview: normalizeTeacherReportsOverview(raw),
+      loadFailed: false,
+    };
+  } catch {
+    return {
+      overview: TEACHER_REPORTS_OVERVIEW_FALLBACK,
+      loadFailed: true,
+    };
+  }
+}
+
+export function normalizeTeacherTodayLessonsOverview(raw: unknown): TeacherTodayLessonsOverviewData {
+  const fallback = TEACHER_TODAY_LESSONS_OVERVIEW_FALLBACK;
+  const obj = asObject(raw);
+  if (!obj) return fallback;
+
+  const summaryObj = asObject(obj.summary);
+  const fallbackSummary = fallback.summary;
+
+  return {
+    summary: {
+      totalLessons: readNumberValue(summaryObj?.totalLessons, fallbackSummary.totalLessons),
+      focusStudents: readNumberValue(summaryObj?.focusStudents, fallbackSummary.focusStudents),
+      homeworkIssues: readNumberValue(summaryObj?.homeworkIssues, fallbackSummary.homeworkIssues),
+      teachingPoints: readNumberValue(summaryObj?.teachingPoints, fallbackSummary.teachingPoints),
+      examImminentStudents: readNumberValue(
+        summaryObj?.examImminentStudents,
+        fallbackSummary.examImminentStudents,
+      ),
+    },
+    schedule: Array.isArray(obj.schedule)
+      ? (obj.schedule as TeacherTodayLessonsOverviewData["schedule"])
+      : fallback.schedule,
+    preps: Array.isArray(obj.preps) ? (obj.preps as TeacherTodayLessonsOverviewData["preps"]) : fallback.preps,
+    weaknessOverview: Array.isArray(obj.weaknessOverview)
+      ? (obj.weaknessOverview as TeacherTodayLessonsOverviewData["weaknessOverview"])
+      : fallback.weaknessOverview,
+    homeworkReflection: asObject(obj.homeworkReflection)
+      ? (obj.homeworkReflection as TeacherTodayLessonsOverviewData["homeworkReflection"])
+      : fallback.homeworkReflection,
+    materials: Array.isArray(obj.materials)
+      ? (obj.materials as TeacherTodayLessonsOverviewData["materials"])
+      : fallback.materials,
+    nextActions: Array.isArray(obj.nextActions)
+      ? (obj.nextActions as TeacherTodayLessonsOverviewData["nextActions"])
+      : fallback.nextActions,
+  };
+}
+
+export async function loadTeacherTodayLessonsPageData(): Promise<TeacherTodayLessonsPageData> {
+  try {
+    const raw = await getTeacherTodayLessonsOverview();
+    return {
+      overview: normalizeTeacherTodayLessonsOverview(raw),
+      loadFailed: false,
+    };
+  } catch {
+    return {
+      overview: TEACHER_TODAY_LESSONS_OVERVIEW_FALLBACK,
+      loadFailed: true,
+    };
+  }
 }

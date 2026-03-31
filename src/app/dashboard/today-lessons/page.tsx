@@ -8,35 +8,19 @@ import { LessonPrepCard } from "@/components/today-lessons/lesson-prep-card";
 import { WeaknessOverviewSection } from "@/components/today-lessons/weakness-overview-section";
 import { HomeworkReflectionSection } from "@/components/today-lessons/homework-reflection-section";
 import { MaterialsPanel } from "@/components/today-lessons/materials-panel";
-import { getTeacherTodayLessonsOverview } from "@/lib/api/teacher";
+import { loadTeacherTodayLessonsPageData } from "@/lib/services/teacher.service";
 
 export default async function TodayLessonsPage() {
-  let overview: any = null;
-  try {
-    overview = await getTeacherTodayLessonsOverview();
-  } catch {
-    overview = null;
-  }
-
-  const summary = overview?.summary ?? {
-    totalLessons: 0,
-    focusStudents: 0,
-    homeworkIssues: 0,
-    teachingPoints: 0,
-    examImminentStudents: 0,
-  };
-
-  const schedule = overview?.schedule ?? [];
-  const preps = overview?.preps ?? [];
-  const weaknessOverview = overview?.weaknessOverview ?? [];
-  const homeworkReflection = overview?.homeworkReflection ?? {
-    criticalItems: [],
-    incompleteHomework: [],
-    commonReExplanation: [],
-    reinforcementNeeded: [],
-  };
-  const materials = overview?.materials ?? [];
-  const nextActions = overview?.nextActions ?? [];
+  const { overview } = await loadTeacherTodayLessonsPageData();
+  const {
+    summary,
+    schedule,
+    preps,
+    weaknessOverview,
+    homeworkReflection,
+    materials,
+    nextActions,
+  } = overview;
 
   return (
     <div className="space-y-6">
@@ -108,7 +92,7 @@ export default async function TodayLessonsPage() {
             각 수업에서 다룰 진도, 설명 포인트, 약점, 숙제 반영, 운영 메모를 확인하세요.
           </p>
         </div>
-        {preps.map((lesson: any, idx: number) => (
+        {preps.map((lesson, idx) => (
           <LessonPrepCard key={lesson.id} lesson={lesson} index={idx} nextActions={nextActions} />
         ))}
       </section>
