@@ -1,3 +1,4 @@
+import { requestJson } from "@/lib/api/client";
 import type {
   StudentAssignment,
   StudentCoachQuestionType,
@@ -20,33 +21,19 @@ async function requestStudentApi<T>(path: string, options: RequestInit = {}): Pr
   const hasFormDataBody =
     typeof FormData !== "undefined" && options.body instanceof FormData;
 
-  const response = await fetch(`${STUDENT_API_BASE}${path}`, {
-    ...options,
-    headers: {
-      ...(hasFormDataBody ? {} : { "Content-Type": "application/json" }),
-      ...options.headers,
+  return requestJson<T>({
+    baseUrl: STUDENT_API_BASE,
+    path,
+    init: {
+      ...options,
+      headers: {
+        ...(hasFormDataBody ? {} : { "Content-Type": "application/json" }),
+        ...options.headers,
+      },
     },
+    errorMode: "detail",
+    defaultErrorMessage: "Student API request failed",
   });
-
-  let data: unknown = null;
-  try {
-    data = await response.json();
-  } catch {
-    data = null;
-  }
-
-  if (!response.ok) {
-    const detail =
-      typeof data === "object" &&
-      data !== null &&
-      "detail" in data &&
-      typeof (data as { detail?: unknown }).detail === "string"
-        ? (data as { detail: string }).detail
-        : `API Error: ${response.status}`;
-    throw new Error(detail);
-  }
-
-  return data as T;
 }
 
 export async function fetchTodayTasks(): Promise<StudentTodayTask[]> {

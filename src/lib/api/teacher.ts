@@ -1,3 +1,4 @@
+import { parseJsonSafe, requestApiResponse, requestJson } from "@/lib/api/client";
 import type {
   TeacherClassDetail,
   TeacherClassListItem,
@@ -11,20 +12,13 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
   "http://127.0.0.1:8000";
 
-function buildUrl(path: string) {
-  return `${API_BASE_URL}${path}`;
-}
-
 async function fetchJson<T>(path: string): Promise<T> {
-  const response = await fetch(buildUrl(path), {
+  return requestJson<T>({
+    baseUrl: API_BASE_URL,
+    path,
     cache: "no-store",
+    errorMode: "status",
   });
-
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status}`);
-  }
-
-  return (await response.json()) as T;
 }
 
 export function toDisplayGrade(value: string | null | undefined) {
@@ -61,7 +55,9 @@ export async function getTeacherClasses() {
 }
 
 export async function getTeacherClassDetail(classGroupId: number) {
-  const response = await fetch(buildUrl(`/api/teacher/classes/${classGroupId}`), {
+  const response = await requestApiResponse({
+    baseUrl: API_BASE_URL,
+    path: `/api/teacher/classes/${classGroupId}`,
     cache: "no-store",
   });
 
@@ -73,7 +69,7 @@ export async function getTeacherClassDetail(classGroupId: number) {
     throw new Error(`API request failed: ${response.status}`);
   }
 
-  const data = (await response.json()) as TeacherClassDetail;
+  const data = (await parseJsonSafe(response)) as TeacherClassDetail;
   return { status: 200 as const, data };
 }
 
@@ -82,7 +78,9 @@ export async function getTeacherTodayLessons() {
 }
 
 export async function getTeacherStudentDetail(studentId: number) {
-  const response = await fetch(buildUrl(`/api/teacher/students/${studentId}`), {
+  const response = await requestApiResponse({
+    baseUrl: API_BASE_URL,
+    path: `/api/teacher/students/${studentId}`,
     cache: "no-store",
   });
 
@@ -94,7 +92,7 @@ export async function getTeacherStudentDetail(studentId: number) {
     throw new Error(`API request failed: ${response.status}`);
   }
 
-  const raw = (await response.json()) as TeacherStudentDetail & {
+  const raw = (await parseJsonSafe(response)) as TeacherStudentDetail & {
     weak_topics: unknown;
     studyti_tags: unknown;
   };
@@ -104,11 +102,23 @@ export async function getTeacherStudentDetail(studentId: number) {
     ...raw,
     weak_topics:
       typeof raw.weak_topics === "string"
-        ? (() => { try { return JSON.parse(raw.weak_topics as string); } catch { return null; } })()
+        ? (() => {
+            try {
+              return JSON.parse(raw.weak_topics as string);
+            } catch {
+              return null;
+            }
+          })()
         : (raw.weak_topics as TeacherStudentDetail["weak_topics"]),
     studyti_tags:
       typeof raw.studyti_tags === "string"
-        ? (() => { try { return JSON.parse(raw.studyti_tags as string); } catch { return null; } })()
+        ? (() => {
+            try {
+              return JSON.parse(raw.studyti_tags as string);
+            } catch {
+              return null;
+            }
+          })()
         : (raw.studyti_tags as TeacherStudentDetail["studyti_tags"]),
   };
 
@@ -136,23 +146,25 @@ export async function getTeacherProfile() {
 }
 
 export async function getTeacherTodayLessonsOverview() {
-  return fetchJson<any>("/api/teacher/today-lessons/overview");
+  return fetchJson<unknown>("/api/teacher/today-lessons/overview");
 }
 
 export async function getTeacherAssignmentsOverview() {
-  return fetchJson<any>("/api/teacher/assignments/overview");
+  return fetchJson<unknown>("/api/teacher/assignments/overview");
 }
 
 export async function getTeacherCurriculumOverview() {
-  return fetchJson<any>("/api/teacher/curriculum/overview");
+  return fetchJson<unknown>("/api/teacher/curriculum/overview");
 }
 
 export async function getTeacherReportsOverview() {
-  return fetchJson<any>("/api/teacher/reports/overview");
+  return fetchJson<unknown>("/api/teacher/reports/overview");
 }
 
 export async function getTeacherReportStudentDetail(studentId: number) {
-  const response = await fetch(buildUrl(`/api/teacher/reports/students/${studentId}/detail`), {
+  const response = await requestApiResponse({
+    baseUrl: API_BASE_URL,
+    path: `/api/teacher/reports/students/${studentId}/detail`,
     cache: "no-store",
   });
 
@@ -164,10 +176,10 @@ export async function getTeacherReportStudentDetail(studentId: number) {
     throw new Error(`API request failed: ${response.status}`);
   }
 
-  const data = (await response.json()) as any;
+  const data = await parseJsonSafe(response);
   return { status: 200 as const, data };
 }
 
 export async function getTeacherSettingsOverview() {
-  return fetchJson<any>("/api/teacher/settings/overview");
+  return fetchJson<unknown>("/api/teacher/settings/overview");
 }

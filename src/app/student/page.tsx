@@ -1,35 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { StudentEmptyState, StudentErrorState } from "@/components/student/student-empty-state";
 import { StudentHeader } from "@/components/student/student-header";
-import { fetchLatestReport, fetchTodayTasks } from "@/lib/api/student";
+import {
+  formatStudentTaskDueDateLabel,
+  formatStudentTodayLabel,
+  getStudentWeakTopicsText,
+  loadStudentHomeData,
+  toStudentTaskStatusLabel,
+} from "@/lib/services/student.service";
 import type { StudentLatestReport, StudentTodayTask } from "@/types/student";
-
-function formatDateLabel(dateText?: string | null) {
-  if (!dateText) {
-    return "기한 없음";
-  }
-  const date = new Date(dateText);
-  if (Number.isNaN(date.getTime())) {
-    return dateText;
-  }
-  return date.toLocaleDateString("ko-KR", {
-    month: "numeric",
-    day: "numeric",
-  });
-}
-
-function taskStatusLabel(status: string) {
-  if (status === "completed") {
-    return "완료";
-  }
-  if (status === "overdue") {
-    return "기한 지남";
-  }
-  return "진행 중";
-}
 
 export default function StudentHomePage() {
   const [tasks, setTasks] = useState<StudentTodayTask[]>([]);
@@ -39,33 +21,10 @@ export default function StudentHomePage() {
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    setError(null);
-
-    const [taskResult, reportResult] = await Promise.allSettled([
-      fetchTodayTasks(),
-      fetchLatestReport(),
-    ]);
-
-    if (taskResult.status === "fulfilled") {
-      setTasks(taskResult.value);
-    } else {
-      setTasks([]);
-    }
-
-    if (reportResult.status === "fulfilled") {
-      setReport(reportResult.value);
-    } else {
-      setReport(null);
-    }
-
-    if (taskResult.status === "rejected" && reportResult.status === "rejected") {
-      setError("오늘 할 일과 리포트를 불러오지 못했습니다.");
-    } else if (taskResult.status === "rejected") {
-      setError("오늘 할 일 데이터를 불러오지 못했습니다.");
-    } else if (reportResult.status === "rejected") {
-      setError("리포트 요약 데이터를 불러오지 못했습니다.");
-    }
-
+    const result = await loadStudentHomeData();
+    setTasks(result.tasks);
+    setReport(result.report);
+    setError(result.error);
     setLoading(false);
   }, []);
 
@@ -73,12 +32,7 @@ export default function StudentHomePage() {
     void loadData();
   }, [loadData]);
 
-  const weakTopicsText = useMemo(() => {
-    if (!report?.weak_topics || report.weak_topics.length === 0) {
-      return "취약 단원 없음";
-    }
-    return report.weak_topics.join(", ");
-  }, [report]);
+  const weakTopicsText = getStudentWeakTopicsText(report);
 
   return (
     <>
@@ -86,13 +40,7 @@ export default function StudentHomePage() {
       <div className="space-y-4 px-4 py-5">
         <section className="rounded-2xl border border-border bg-white p-5 shadow-soft">
           <p className="text-sm text-muted">오늘 날짜</p>
-          <p className="mt-1 text-xl font-extrabold text-text">
-            {new Date().toLocaleDateString("ko-KR", {
-              month: "long",
-              day: "numeric",
-              weekday: "short",
-            })}
-          </p>
+          <p className="mt-1 text-xl font-extrabold text-text">{formatStudentTodayLabel()}</p>
         </section>
 
         <section className="rounded-2xl border border-border bg-white p-5 shadow-soft">
@@ -116,12 +64,11 @@ export default function StudentHomePage() {
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-sm font-semibold text-text">{task.title}</p>
                     <span className="rounded-full bg-soft px-2 py-1 text-xs text-muted">
-                      {taskStatusLabel(task.status)}
+                      {toStudentTaskStatusLabel(task.status)}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted">
-                    기한 {formatDateLabel(task.due_date)} · 예상{" "}
-                    {task.estimated_minutes ?? 0}분
+                    기한 {formatStudentTaskDueDateLabel(task.due_date)} · 예상 {task.estimated_minutes ?? 0}분
                   </p>
                 </li>
               ))}
@@ -144,8 +91,7 @@ export default function StudentHomePage() {
                 제출률: <span className="font-semibold">{report.submission_rate ?? "-"}%</span>
               </p>
               <p>
-                최근 성취도:{" "}
-                <span className="font-semibold">{report.achievement_score ?? "-"}</span>
+                최근 성취도: <span className="font-semibold">{report.achievement_score ?? "-"}</span>
               </p>
               <p>
                 취약 단원: <span className="font-semibold">{weakTopicsText}</span>
