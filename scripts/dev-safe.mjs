@@ -77,7 +77,7 @@ async function startDev(port) {
 
   const child = spawn(
     npmPath,
-    ["run", "dev", "--", "--hostname", host, "--port", String(port)],
+    ["run", "dev:raw", "--", "--hostname", host, "--port", String(port)],
     {
       cwd: root,
       env: {

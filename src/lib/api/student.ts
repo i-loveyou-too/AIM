@@ -1,4 +1,4 @@
-import { requestJson } from "@/lib/api/client";
+import { getApiBaseUrl, requestJson } from "@/lib/api/client";
 import type {
   StudentAssignment,
   StudentCoachQuestionType,
@@ -10,19 +10,12 @@ import type {
   StudentTodayTask,
 } from "@/types/student";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  "http://127.0.0.1:8000";
-
-const STUDENT_API_BASE = `${BASE_URL}/api/student`;
-
 async function requestStudentApi<T>(path: string, options: RequestInit = {}): Promise<T> {
   const hasFormDataBody =
     typeof FormData !== "undefined" && options.body instanceof FormData;
 
   return requestJson<T>({
-    baseUrl: STUDENT_API_BASE,
+    baseUrl: `${getApiBaseUrl()}/api/student`,
     path,
     init: {
       ...options,

@@ -22,8 +22,8 @@
 | --- | --- | --- |
 | 루트 설정 | `README.md`, `package.json`, `next.config.mjs`, `postcss.config.mjs`, `tailwind.config.ts`, `tsconfig.json`, `next-env.d.ts` | 프로젝트 기본 안내와 실행 / 설정 파일 |
 | 문서 | `docs/FILE_STRUCTURE.md`, `docs/aim_on_dev_note.md`, `docs/MOCK_DATA.md`, `docs/DASHBOARD_DATA.md`, `docs/PROJECT_CHECKLIST.md`, `docs/deployment-plan.md`, `docs/api-contract.yaml` | 구조 정리, 개발 노트, mock data 설명, MVP 체크리스트, 배포 계획, API 계약 |
-| DB 스키마 | `database/01_create_schema.sql` ~ `database/07_views_and_queries.sql` | PostgreSQL 스키마, seed 데이터, VIEW 정의 |
-| 백엔드 | `backend/manage.py`, `backend/config/*`, `backend/teacher_api/*`, `backend/student_api/*` | Django raw SQL 기반 교사용 및 학생용 Stub API |
+| DB 스키마 | `database/01_create_schema.sql` ~ `database/08_seed_demo_updates.sql` | PostgreSQL 스키마, seed 데이터, VIEW 정의 및 데모 데이터 |
+| 백엔드 | `backend/manage.py`, `backend/config/*`, `backend/teacher_api/*` | Django raw SQL 기반 교사용 API 및 학생용 Stub API (`config/views.py` 통합) |
 | 실행 스크립트 | `scripts/dev-safe.sh`, `scripts/dev-safe.mjs`, `scripts/build-safe.sh` | stale cache와 중복 dev 서버를 정리하고 `.next`를 비운 뒤 시작하는 안전 실행 명령 |
 | 정적 자산 | `public/aim-on-logo.png` | Aim ON 브랜드 로고 |
 | 앱 라우트 | `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/dashboard/page.tsx`, `src/app/dashboard/curriculum/page.tsx`, `src/app/dashboard/students/page.tsx`, `src/app/dashboard/students/[id]/page.tsx`, `src/app/dashboard/students/[id]/report/page.tsx`, `src/app/dashboard/today-lessons/page.tsx` | 공통 레이아웃과 화면 라우트 |
@@ -75,10 +75,7 @@ project/
       views.py
       urls.py
       apps.py
-    student_api/
-      views.py
-      urls.py
-      apps.py
+    # student_api 기능은 현재 config/views.py 및 config/urls.py에 통합됨
   scripts/
     dev-safe.sh
     dev-safe.mjs

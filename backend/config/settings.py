@@ -1,13 +1,45 @@
 import os
 from pathlib import Path
+from typing import Optional
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-aim-on-development-key'
 
-DEBUG = True
+def _get_env_bool(key: str, default: bool = False) -> bool:
+    raw = os.getenv(key)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "t", "yes", "y", "on"}
 
-ALLOWED_HOSTS = ['*']
+
+def _get_env_list(key: str, default=None):
+    raw = os.getenv(key)
+    if raw is None:
+        return list(default or [])
+    values = [item.strip() for item in raw.split(",")]
+    return [item for item in values if item]
+
+
+def _get_required_env(primary_key: str, legacy_key: Optional[str] = None) -> str:
+    value = os.getenv(primary_key)
+    if value:
+        return value
+
+    if legacy_key:
+        legacy = os.getenv(legacy_key)
+        if legacy:
+            return legacy
+
+    raise ImproperlyConfigured(
+        f"Required environment variable is missing: {primary_key}"
+        + (f" (or legacy {legacy_key})" if legacy_key else "")
+    )
+
+
+SECRET_KEY = _get_required_env("DJANGO_SECRET_KEY")
+DEBUG = _get_env_bool("DJANGO_DEBUG", default=False)
+ALLOWED_HOSTS = _get_env_list("DJANGO_ALLOWED_HOSTS", default=[])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -51,15 +83,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database: PostgreSQL localhost:5432
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'aimon_Teacher'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'qusrudfla1!'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'NAME': _get_required_env('DJANGO_DB_NAME', legacy_key='DB_NAME'),
+        'USER': _get_required_env('DJANGO_DB_USER', legacy_key='DB_USER'),
+        'PASSWORD': _get_required_env('DJANGO_DB_PASSWORD', legacy_key='DB_PASSWORD'),
+        'HOST': _get_required_env('DJANGO_DB_HOST', legacy_key='DB_HOST'),
+        'PORT': _get_required_env('DJANGO_DB_PORT', legacy_key='DB_PORT'),
     }
 }
 
@@ -84,9 +115,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:3007",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:3007",
-]
+CORS_ALLOWED_ORIGINS = _get_env_list("DJANGO_CORS_ALLOWED_ORIGINS", default=[])

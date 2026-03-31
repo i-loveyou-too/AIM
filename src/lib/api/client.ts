@@ -12,8 +12,25 @@ export type ApiJsonRequestOptions = ApiRequestOptions & {
   defaultErrorMessage?: string;
 };
 
+function normalizeBaseUrl(baseUrl: string) {
+  return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+}
+
+export function getApiBaseUrl() {
+  const value =
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    process.env.API_BASE_URL ??
+    "";
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw new Error("Missing env: NEXT_PUBLIC_API_BASE_URL");
+  }
+  return normalizeBaseUrl(trimmed);
+}
+
 function buildUrl(baseUrl: string, path: string) {
-  return `${baseUrl}${path}`;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${normalizeBaseUrl(baseUrl)}${normalizedPath}`;
 }
 
 export async function requestApiResponse({

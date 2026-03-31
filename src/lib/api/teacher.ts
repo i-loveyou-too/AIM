@@ -1,4 +1,4 @@
-import { parseJsonSafe, requestApiResponse, requestJson } from "@/lib/api/client";
+import { getApiBaseUrl, parseJsonSafe, requestApiResponse, requestJson } from "@/lib/api/client";
 import type {
   TeacherClassDetail,
   TeacherClassListItem,
@@ -7,14 +7,9 @@ import type {
   TeacherTodayLessonItem,
 } from "@/types/teacher";
 
-const API_BASE_URL =
-  process.env.API_BASE_URL ??
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "http://127.0.0.1:8000";
-
 async function fetchJson<T>(path: string): Promise<T> {
   return requestJson<T>({
-    baseUrl: API_BASE_URL,
+    baseUrl: getApiBaseUrl(),
     path,
     cache: "no-store",
     errorMode: "status",
@@ -56,7 +51,7 @@ export async function getTeacherClasses() {
 
 export async function getTeacherClassDetail(classGroupId: number) {
   const response = await requestApiResponse({
-    baseUrl: API_BASE_URL,
+    baseUrl: getApiBaseUrl(),
     path: `/api/teacher/classes/${classGroupId}`,
     cache: "no-store",
   });
@@ -79,7 +74,7 @@ export async function getTeacherTodayLessons() {
 
 export async function getTeacherStudentDetail(studentId: number) {
   const response = await requestApiResponse({
-    baseUrl: API_BASE_URL,
+    baseUrl: getApiBaseUrl(),
     path: `/api/teacher/students/${studentId}`,
     cache: "no-store",
   });
@@ -163,7 +158,7 @@ export async function getTeacherReportsOverview() {
 
 export async function getTeacherReportStudentDetail(studentId: number) {
   const response = await requestApiResponse({
-    baseUrl: API_BASE_URL,
+    baseUrl: getApiBaseUrl(),
     path: `/api/teacher/reports/students/${studentId}/detail`,
     cache: "no-store",
   });

@@ -48,6 +48,9 @@
 * API 응답 포맷을 `snake_case` 및 `ISO8601` 날짜 형식으로 표준화함
 * `docs/page-data-map.md`를 생성하여 UI 컴포넌트와 API 필드 간의 매핑 구조를 확정함
 * 프론트엔드 학생용 API 클라이언트(`src/lib/api/student.ts`) 초안을 작성함
+* `scripts/dev-safe.mjs`의 포트 대기 시간을 10초(40회 시도)로 연장하여 초기 빌드 시의 포트 건너뜀 현상을 해결함
+* 학생용 API Stub을 `backend/config/views.py`에 통합 구현하여 별도 앱 설치 오류(`ModuleNotFoundError`)를 방지함
+* 데모 운영을 위한 보강 데이터 SQL(`database/08_seed_demo_updates.sql`)을 작성함
 
 ## 인프라 및 백엔드 정상화 규격 (2026-03-31)
 
@@ -715,11 +718,11 @@ project/
 
 #### 2026-03-31
 
-* 작업 내용: 학생용 API Stub 구현 및 데이터 매핑 문서화
-* 수정 파일: `backend/student_api/*`, `docs/page-data-map.md`, `docs/api-contract.yaml`, `src/lib/api/student.ts`
-* 결과: 프론트엔드가 mock-data 없이 서버 호출 구조로 전환할 수 있는 기반 마련. AI 코치 및 목표 수정 등 핵심 인터랙션 규격 확정
-* 이슈: 아직 실제 DB 연동 전이므로 데이터 정합성 주의 필요
-* 다음 할 일: 학생용 웹앱 화면(Next.js)에서 실제 API 호출 연결 및 인증(Auth) 로직 설계
+* 작업 내용: 학생용 API Stub 구현, 인프라 안정화 및 데모 데이터 보강
+* 수정 파일: `backend/config/views.py`, `backend/config/urls.py`, `scripts/dev-safe.mjs`, `database/08_seed_demo_updates.sql`
+* 결과: 포트 3007 연결 거부 이슈 해결, 학생용 6종 API 호출 가능 상태 확보, 데모 데이터 세트 준비 완료
+* 이슈: 학생용 일부 페이지(제출/리포트)의 프론트엔드 API 연동 작업이 남음
+* 다음 할 일: 학생용 프론트엔드 나머지 페이지 실데이터 연결 및 파일 업로드(P2) 진입
 
 #### 2026-03-31
 

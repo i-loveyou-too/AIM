@@ -60,10 +60,10 @@
 
 | 페이지 | 상태 | 현재 데이터 소스 | 메모 |
 |---|---|---|---|
-| `src/app/student/page.tsx` | API 기반 | `GET /api/student/today-tasks`, `GET /api/student/reports/latest` | 로딩/에러/빈 상태 처리됨 |
-| `src/app/student/tasks/page.tsx` | API 기반 | `GET /api/student/assignments` | pending 우선 정렬 처리됨 |
-| `src/app/student/profile/page.tsx` | API 기반 | `PATCH /api/student/goals` | 저장 성공/실패 메시지 처리됨 |
-| `src/app/student/coach/page.tsx` | API 기반 | `POST /api/student/coach` | 버튼형 질문 3개 연결됨 |
+| `src/app/student/page.tsx` | API 연결 중 | `GET /api/student/today-tasks` | Stub API 호출 준비 완료 |
+| `src/app/student/tasks/page.tsx` | API 연결 중 | `GET /api/student/assignments` | Stub API 호출 준비 완료 |
+| `src/app/student/profile/page.tsx` | API 연결 중 | `PATCH /api/student/goals` | Stub API 호출 준비 완료 |
+| `src/app/student/coach/page.tsx` | API 연결 중 | `POST /api/student/coach` | Stub API 호출 준비 완료 |
 | `src/app/student/submissions/page.tsx` | 미연결(placeholder) | 없음 | 고정 UI + "데이터를 불러오는 중" 문구만 있음 |
 | `src/app/student/reports/page.tsx` | 미연결(placeholder) | 없음 | 고정 UI + "데이터를 불러오는 중" 문구만 있음 |
 

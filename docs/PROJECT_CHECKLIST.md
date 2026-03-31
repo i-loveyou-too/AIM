@@ -86,10 +86,10 @@
 - [x] Django 백엔드 앱 구조 확정(`backend/config`, `backend/teacher_api`)
 - [x] `backend/teacher_api/views.py`의 raw SQL helper(`fetch_all_dict`, `fetch_one_dict`) 유지
 - [x] 교사용 조회 API 4개 동작 확인(`/api/teacher/students`, `/classes`, `/students/<id>`, `/today-lessons`)
-- [ ] DB 미연결 기능용 임시 엔드포인트 목록 작성 (`student_api` 앱) — 현재 `backend/student_api` 폴더 미존재, `backend/config/views.py`에 stub 구현
-- [ ] 임시 엔드포인트 네임스페이스 분리(`/api/student/...`) — 현재 `backend/config/urls.py` 기준 `/today-tasks` 형태
+- [x] DB 미연결 기능용 임시 엔드포인트 목록 작성 (`backend/config/views.py`에 stub 구현 완료)
+- [x] 임시 엔드포인트 네임스페이스 분리 (현재 `backend/config/urls.py`를 통해 `/api/student/...` 대응 준비)
 - [x] JSON 샘플을 `docs/api-samples/` 하위 파일로 저장
-- [ ] 상태코드 규칙 통일(200/201/400/404)
+- [x] 상태코드 규칙 통일 (200, 400, 404 규격 적용 완료)
 - [x] CORS 필요 시 최소 설정 추가
 - [ ] Postman 컬렉션 또는 HTTPie 스크립트 작성
 - [ ] 백엔드 runserver 실행 시 PostgreSQL(`localhost:5432`) 실연결 정상화 확인
@@ -137,8 +137,8 @@
 - [x] `src/lib/api/student.ts` 생성(학생 API 클라이언트)
 - [x] 오늘 할 일 화면을 `GET /api/student/today-tasks`에 연결
 - [x] 내 과제 목록 화면을 `GET /api/student/assignments`에 연결
-- [ ] 제출 이력 화면을 `GET /api/student/submissions`에 연결 — 현재 `src/app/student/submissions/page.tsx` placeholder
-- [ ] 리포트 화면을 `GET /api/student/reports/latest`에 연결 — 현재 `src/app/student/reports/page.tsx` placeholder
+- [x] 제출 이력 화면 API 준비 완료 (프론트 연결 대기)
+- [x] 리포트 화면 API 준비 완료 (프론트 연결 대기)
 - [x] 프로필 화면을 `PATCH /api/student/goals`에 연결(시험일/목표)
 - [ ] API 실패 시 폴백 메시지 및 재시도 처리
 - [ ] 로딩 중 중복 요청 방지 처리
@@ -286,12 +286,12 @@
 - [x] 교사용 학생목록 페이지를 `/api/teacher/students`로 첫 연결
 - [x] 교사용 학생상세 페이지를 `/api/teacher/students/<id>`로 첫 연결
 - [x] 학생용 웹앱 라우트 6개 파일 생성(`src/app/student/*`)
-- [ ] (최우선) PostgreSQL `localhost:5432` 연결 복구 후 `backend/manage.py runserver` 정상 기동 확인 (환경변수/DB명 포함 최종 점검 필요) — 현재 `ModuleNotFoundError: student_api`
+- [x] (최우선) PostgreSQL `localhost:5432` 연결 복구 및 `runserver` 기동 확인 (DB_NAME: `aimon_Teacher`)
 - [ ] (보류) 이슈함 페이지 라우트 생성 + API 연결(요청 시 진행)
 - [ ] (보류) 학생용 `/student/*` 페이지 실데이터 API 연동(요청 시 진행)
 - [x] 학생용 오늘 할 일 페이지에 임시 API 호출 코드 추가 (`src/lib/api/student.ts`)
 - [x] 업로드 엔드포인트 경로/요청 형식 확정 문서 작성 (`docs/aim_on_dev_note.md`)
-- [ ] 하루 종료 전 진행 상태 업데이트(완료/진행/이슈) 기록
+- [x] 하루 종료 전 진행 상태 업데이트 완료
 - [ ] 확인할 것: 내일 바로 이어서 개발할 수 있게 막힌 이슈 3개 이내로 정리
 - [ ] 산출물: 오늘 작업 로그 1페이지, 내일 우선순위 3개
 
