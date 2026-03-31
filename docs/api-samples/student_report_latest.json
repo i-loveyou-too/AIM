@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "report": {
+    "student_name": "이서준",
+    "period": "2026-03-24 ~ 2026-03-31",
+    "achievement_score": 78,
+    "submission_rate": 92,
+    "weak_topics": ["로그 함수의 미분", "삼각함수의 주기"],
+    "ai_insight": "최근 수학 문제 풀이 속도가 개선되었으나, 로그 계산 실수 방지가 필요합니다."
+  }
+}

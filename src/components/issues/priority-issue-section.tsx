@@ -1,8 +1,8 @@
 // 이슈함 — 오늘 우선순위 섹션
 // 선생님이 첫눈에 가장 먼저 처리해야 할 이슈 강조 표시
 
-import { issues } from "@/lib/mock-data/issue-mock-data";
 import Link from "next/link";
+import type { Issue } from "@/types/issues";
 
 const urgencyDot: Record<string, string> = {
   긴급: "bg-brand",
@@ -23,7 +23,7 @@ const typeBadge: Record<string, string> = {
   "계획 조정 필요": "bg-soft text-muted",
 };
 
-export function PriorityIssueSection() {
+export function PriorityIssueSection({ issues = [] }: { issues?: Issue[] }) {
   const urgent = issues.filter((i) => i.urgency === "긴급" && i.status !== "처리 완료");
 
   return (

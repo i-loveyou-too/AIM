@@ -1,15 +1,6 @@
 // 이슈함 — 상단 KPI 요약 카드
 
-import { issueSummary } from "@/lib/mock-data/issue-mock-data";
-
-const cards = [
-  { id: "unread",       label: "미확인 이슈",          value: issueSummary.unreadCount,          icon: "🔴", tone: "brand"  as const, note: "즉시 확인 필요" },
-  { id: "urgent",       label: "오늘 긴급 이슈",        value: issueSummary.urgentTodayCount,      icon: "⚡", tone: "alert"  as const, note: "오늘 내 처리" },
-  { id: "exam",         label: "시험 임박 이슈",        value: issueSummary.examImminentCount,     icon: "📅", tone: "warn"   as const, note: "D-21 이내 학생" },
-  { id: "assignment",   label: "과제 관련 이슈",        value: issueSummary.assignmentIssueCount,  icon: "📋", tone: "accent" as const, note: "미제출·검토·오답" },
-  { id: "reflection",   label: "수업 반영 필요",        value: issueSummary.lessonReflectionCount, icon: "🎯", tone: "soft"   as const, note: "다음 수업 반영" },
-  { id: "focusStudent", label: "집중 관리 학생",        value: issueSummary.focusStudentCount,     icon: "👤", tone: "soft"   as const, note: "개별 챙김 필요" },
-];
+import type { IssueSummaryData } from "@/types/issues";
 
 const toneStyle: Record<string, { icon: string; value: string; hover: string }> = {
   brand:  { icon: "bg-brand/10 text-brand",    value: "text-brand",     hover: "hover:border-brand/30"  },
@@ -19,7 +10,24 @@ const toneStyle: Record<string, { icon: string; value: string; hover: string }> 
   soft:   { icon: "bg-soft text-muted",        value: "text-text",      hover: "hover:border-border"    },
 };
 
-export function IssueSummaryCards() {
+const defaultSummary: IssueSummaryData = {
+  unreadCount: 0,
+  urgentTodayCount: 0,
+  examImminentCount: 0,
+  assignmentIssueCount: 0,
+  lessonReflectionCount: 0,
+  focusStudentCount: 0,
+};
+
+export function IssueSummaryCards({ summary = defaultSummary }: { summary?: IssueSummaryData }) {
+  const cards = [
+    { id: "unread",       label: "미확인 이슈",          value: summary.unreadCount,          icon: "🔴", tone: "brand"  as const, note: "즉시 확인 필요" },
+    { id: "urgent",       label: "오늘 긴급 이슈",        value: summary.urgentTodayCount,      icon: "⚡", tone: "alert"  as const, note: "오늘 내 처리" },
+    { id: "exam",         label: "시험 임박 이슈",        value: summary.examImminentCount,     icon: "📅", tone: "warn"   as const, note: "D-21 이내 학생" },
+    { id: "assignment",   label: "과제 관련 이슈",        value: summary.assignmentIssueCount,  icon: "📋", tone: "accent" as const, note: "미제출·검토·오답" },
+    { id: "reflection",   label: "수업 반영 필요",        value: summary.lessonReflectionCount, icon: "🎯", tone: "soft"   as const, note: "다음 수업 반영" },
+    { id: "focusStudent", label: "집중 관리 학생",        value: summary.focusStudentCount,     icon: "👤", tone: "soft"   as const, note: "개별 챙김 필요" },
+  ];
   return (
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {cards.map((c) => {

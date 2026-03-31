@@ -144,30 +144,39 @@ INSERT INTO student_submissions (assignment_id, student_id, submit_status, submi
 
 -- ────────────────────────────────────────────────────────────
 -- OMR 답안 항목 (submission_omr_items)
--- submission_id 참조: assignment_id=1의 student_id=3 → id=2
---                     assignment_id=1의 student_id=8 → id=4
+-- 하드코딩 id 대신 서브쿼리로 submission_id 참조 (실행 환경 무관)
 -- ────────────────────────────────────────────────────────────
 
--- 과제1, 학생 3 (박지호) OMR — submission_id=2
-INSERT INTO submission_omr_items (submission_id, question_num, student_answer, correct_answer, is_correct) VALUES
-(2, 1,  '②', '②', TRUE),
-(2, 2,  '③', '③', TRUE),
-(2, 3,  '①', '④', FALSE),
-(2, 4,  '②', '②', TRUE),
-(2, 5,  '⑤', '③', FALSE),
-(2, 6,  '③', '③', TRUE),
-(2, 7,  '②', '④', FALSE),
-(2, 8,  '①', '①', TRUE),
-(2, 9,  '④', '④', TRUE),
-(2, 10, '③', '②', FALSE);
+-- 과제1, 학생 3 (박지호) OMR
+INSERT INTO submission_omr_items (submission_id, question_num, student_answer, correct_answer, is_correct)
+SELECT s.id, q.question_num, q.student_answer, q.correct_answer, q.is_correct
+FROM student_submissions s
+CROSS JOIN (VALUES
+    (1,  '②', '②', TRUE),
+    (2,  '③', '③', TRUE),
+    (3,  '①', '④', FALSE),
+    (4,  '②', '②', TRUE),
+    (5,  '⑤', '③', FALSE),
+    (6,  '③', '③', TRUE),
+    (7,  '②', '④', FALSE),
+    (8,  '①', '①', TRUE),
+    (9,  '④', '④', TRUE),
+    (10, '③', '②', FALSE)
+) AS q(question_num, student_answer, correct_answer, is_correct)
+WHERE s.assignment_id = 1 AND s.student_id = 3;
 
--- 과제1, 학생 8 (임준서) OMR — submission_id=4
-INSERT INTO submission_omr_items (submission_id, question_num, student_answer, correct_answer, is_correct) VALUES
-(4, 1, '②', '②', TRUE),
-(4, 2, '①', '③', FALSE),
-(4, 3, '④', '④', TRUE),
-(4, 4, '③', '②', FALSE),
-(4, 5, '①', '③', FALSE);
+-- 과제1, 학생 8 (임준서) OMR
+INSERT INTO submission_omr_items (submission_id, question_num, student_answer, correct_answer, is_correct)
+SELECT s.id, q.question_num, q.student_answer, q.correct_answer, q.is_correct
+FROM student_submissions s
+CROSS JOIN (VALUES
+    (1, '②', '②', TRUE),
+    (2, '①', '③', FALSE),
+    (3, '④', '④', TRUE),
+    (4, '③', '②', FALSE),
+    (5, '①', '③', FALSE)
+) AS q(question_num, student_answer, correct_answer, is_correct)
+WHERE s.assignment_id = 1 AND s.student_id = 8;
 
 -- 과제12, 학생 18 (전지원) OMR — 수능반 — submission_id 계산
 -- assignment_id=12 submissions: 10=s17, 18=s18, 24=s19, 30=s20, 35=s21, 38=s22, 41=s23, 43=s24, 45=s25

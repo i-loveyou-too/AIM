@@ -1,8 +1,11 @@
 import Link from "next/link";
-import type { CurriculumPageData } from "@/lib/curriculum-mock-data";
-
 type CurriculumPageHeaderProps = {
-  overview: CurriculumPageData["overview"];
+  overview: {
+    school: string;
+    className: string;
+    examDate: string;
+    dDay: string;
+  };
 };
 
 export function CurriculumPageHeader({ overview }: CurriculumPageHeaderProps) {

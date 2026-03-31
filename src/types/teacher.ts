@@ -1,0 +1,95 @@
+export type TeacherStudentListItem = {
+  student_id: number;
+  student_code: string | null;
+  name: string;
+  school_name: string | null;
+  grade: string | null;
+  status: string | null;
+  class_name: string | null;
+  track: string | null;
+  recent_progress_unit: string | null;
+  recent_tag: string | null;
+  score: number | null;
+  assignment_done: number | null;
+  assignment_total: number | null;
+  overdue_assignments: number | null;
+  assignment_rate: number | string | null;
+  top_weak_topics: string | null;
+  next_exam_date: string | null;
+  exam_days_left: number | null;
+  note: string | null;
+};
+
+export type TeacherStudentDetail = {
+  student_id: number;
+  student_code: string | null;
+  name: string;
+  school_name: string | null;
+  grade: string | null;
+  status: string | null;
+  note: string | null;
+  class_name: string | null;
+  track: string | null;
+  recent_progress_unit: string | null;
+  recent_tag: string | null;
+  current_score: number | null;
+  assignment_done: number | null;
+  assignment_total: number | null;
+  overdue_assignments: number | null;
+  goal_score: number | null;
+  current_level: string | null;
+  study_goal: string | null;
+  studyti_summary: string | null;
+  next_exam_date: string | null;
+  exam_readiness: number | null;
+  needs_reinforcement: boolean | null;
+  exam_progress_status: string | null;
+  weak_topics: Array<{ topic?: string; severity?: string }> | null;
+  latest_feedback: string | null;
+  latest_next_action: string | null;
+  feedback_logged_at: string | null;
+  studyti_tags: string[] | null;
+};
+
+export type TeacherClassListItem = {
+  class_group_id: number;
+  class_name: string | null;
+  grade: string | null;
+  track: string | null;
+  level: string | null;
+  teacher_name: string | null;
+  enrolled_count: number;
+  max_students: number | null;
+  next_exam_date: string | null;
+  exam_days_left: number | null;
+  avg_score: number | null;
+  avg_assignment_rate: number | null;
+  curriculum_status: string | null;
+  actual_progress: number | null;
+  planned_progress: number | null;
+  delay_units: number | null;
+  is_active: boolean | null;
+};
+
+export type TeacherClassDetail = TeacherClassListItem;
+
+export type TeacherTodayLessonItem = {
+  schedule_id: number;
+  scheduled_date: string;
+  start_time: string | null;
+  end_time: string | null;
+  class_name: string | null;
+  grade: string | null;
+  track: string | null;
+  teacher_name: string | null;
+  topic: string | null;
+  status: string | null;
+  student_count: number;
+  unsubmitted_count: number;
+  needs_review_count: number;
+  open_issue_count: number;
+  weak_topic_overview: unknown;
+  homework_reflection: unknown;
+  materials_needed: unknown;
+  ai_suggestions: string | null;
+};

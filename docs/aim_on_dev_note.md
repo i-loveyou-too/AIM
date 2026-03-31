@@ -29,9 +29,34 @@
 * 이 작업공간에 로컬 Node.js LTS를 `.tooling/node`로 깔아, 여기서 직접 빌드를 돌릴 수 있게 세팅함
 * `scripts/dev-safe.sh`와 `scripts/dev-safe.mjs`, `scripts/build-safe.sh`를 만들어, `.next` 캐시와 중복 dev 서버를 먼저 정리하고 시작하는 안전 실행 경로를 추가함
 * `scripts/dev-safe.mjs`는 시작할 때마다 `.next`를 먼저 지우고, 기본 `3007`부터 시작하되 실패하면 다음 포트로 자동 재시도하도록 바꿈
+* PostgreSQL 스키마/VIEW 실행 중 발생한 `immutable`, `GROUP BY` 관련 에러를 SQL에서 직접 수정해 재실행 가능 상태로 정리함
+* Django 백엔드를 `backend/`에 생성하고, ORM 없이 `raw SQL + VIEW 조회` 방식의 교사용 API를 붙임
+* OpenAPI 초안(`docs/api-contract.yaml`)을 추가하고 교사용 조회 API 4개를 문서로 고정함
+* 학생목록/학생상세/반목록/반상세를 실데이터 API로 연결하고, 로딩/빈 상태/에러 상태를 화면에 명시적으로 표시하도록 정리함
+* 대시보드 핵심 영역을 실데이터 기반으로 바꾸고, 조용한 mock fallback 없이 API 실패 상태를 직접 노출하도록 변경함
 * 작업은 먼저 라우트 / 에러를 정리하고, 없는 페이지 이동 / 콘솔 에러 / 빌드 에러 / import 에러를 없앤 뒤 UI를 손보는 순서로 진행함
 * 현재 코드는 GitHub 원격 저장소 `https://github.com/i-loveyou-too/AIM`에 업로드해 둔 상태임
 * 계획/커리큘럼의 `계획 진도` 바가 회색이라 잘 안 보이던 문제를 수정해, 점/텍스트/진도 바 톤을 더 선명하게 올려 가독성을 개선함
+* `django-cors-headers`를 백엔드에 추가하고, 로컬 프론트(3000/3007) 요청을 허용하는 CORS 설정을 `settings.py`에 적용함
+* `weak_topics`, `studyti_tags` 필드가 API에서 JSON 문자열로 내려오는 문제를 `getTeacherStudentDetail`에서 자동 파싱하도록 수정함
+* 학생용 웹앱 라우트 골격을 `src/app/student/` 아래에 생성함 (홈/과제/제출/리포트/프로필/코치 + 하단 네비/헤더 컴포넌트)
+* OCR stub 엔드포인트 (`POST /api/ocr/request`)를 Django에 추가하고, `OCR_PROVIDER=stub` 환경변수로 실제 OCR과 교체 지점을 분리해 둠
+* `.env.example`, `scripts/start-backend.sh`, `scripts/start-frontend.sh`를 추가해 실행 절차를 문서화함
+* `docs/mvp-scope.md`를 작성해 MVP 포함/제외 기능을 확정하고 기능 요청 수용 기준을 명시함
+* `docs/api-contract.yaml`에 공통 응답 규칙, 페이지네이션 정책, 변경 이력 v0.1, 학생용/OCR API 스펙을 추가함
+* 학생용 웹앱 전용 API Stub(6종)을 `student_api` 앱에 구현함 (오늘 할 일, 과제, 제출, 리포트, 목표 수정, AI 코치)
+* API 응답 포맷을 `snake_case` 및 `ISO8601` 날짜 형식으로 표준화함
+* `docs/page-data-map.md`를 생성하여 UI 컴포넌트와 API 필드 간의 매핑 구조를 확정함
+* 프론트엔드 학생용 API 클라이언트(`src/lib/api/student.ts`) 초안을 작성함
+
+## 인프라 및 백엔드 정상화 규격 (2026-03-31)
+
+### 1. 과제 파일 업로드 규격
+* **Endpoint:** `POST /api/student/submissions/upload`
+* **Format:** `multipart/form-data`
+* **Fields:** `file` (Image/PDF), `assignment_id` (Integer)
+* **Response:** `{"success": true, "file_url": "...", "submission_id": 123}`
+* **Limit:** 최대 10MB, 허용 확장자(jpg, png, heic)
 
 ## 개발 대원칙
 
@@ -200,8 +225,11 @@
 * 대시보드 홈
 * 학생 관리 페이지
 * 학생 상세 페이지
+* 반 목록 페이지
+* 반 상세 페이지
 * 과제 관리 페이지
 * 학습 계획 페이지
+* 교사용 조회 API (Django + PostgreSQL VIEW)
 
 ### 이번 단계에서 아직 안 하는 것
 
@@ -362,75 +390,30 @@
 
 ---
 
-## 8. 폴더 구조 초안
+## 8. 폴더 구조
+
+> 실제 확정 구조 기준 (2026-03-31). 상세 역할은 `docs/FILE_STRUCTURE.md` 참조.
 
 ```text
 project/
-├─ config/
-├─ dashboard/
-│  ├─ templates/
-│  │  ├─ base/
-│  │  │  ├─ base.html
-│  │  │  ├─ sidebar.html
-│  │  │  └─ header.html
-│  │  ├─ pages/
-│  │  │  ├─ login.html
-│  │  │  ├─ dashboard_home.html
-│  │  │  ├─ students.html
-│  │  │  ├─ student_detail.html
-│  │  │  ├─ assignments.html
-│  │  │  └─ study_plan.html
-│  │  └─ components/
-│  │     ├─ summary_card.html
-│  │     ├─ status_badge.html
-│  │     ├─ student_table.html
-│  │     └─ quick_action.html
-│  ├─ static/
-│  │  ├─ css/
-│  │  │  ├─ base.css
-│  │  │  ├─ layout.css
-│  │  │  ├─ components.css
-│  │  │  └─ pages/
-│  │  │     ├─ login.css
-│  │  │     ├─ dashboard.css
-│  │  │     ├─ students.css
-│  │  │     ├─ assignments.css
-│  │  │     └─ study_plan.css
-│  │  ├─ js/
-│  │  │  ├─ main.js
-│  │  │  └─ pages/
-│  │  │     ├─ students.js
-│  │  │     ├─ assignments.js
-│  │  │     └─ study_plan.js
-│  │  └─ images/
-│  ├─ views/
-│  │  ├─ dashboard_views.py
-│  │  ├─ student_views.py
-│  │  ├─ assignment_views.py
-│  │  └─ plan_views.py
-│  ├─ services/
-│  │  ├─ dashboard_service.py
-│  │  ├─ student_service.py
-│  │  ├─ assignment_service.py
-│  │  └─ plan_service.py
-│  ├─ mock_data/
-│  │  ├─ dashboard_mock.py
-│  │  ├─ student_mock.py
-│  │  ├─ assignment_mock.py
-│  │  └─ plan_mock.py
-│  ├─ urls.py
-│  └─ utils.py
-├─ manage.py
-└─ requirements.txt
+├─ database/          PostgreSQL 스키마 + seed + VIEW (01~07.sql)
+├─ backend/           Django raw SQL 기반 교사용 조회 API
+│  ├─ config/         설정, 라우트
+│  └─ teacher_api/    views.py (5개 엔드포인트), urls.py
+├─ docs/              개발 노트, 구조 문서, API 계약, 체크리스트
+├─ scripts/           dev-safe.sh/mjs, build-safe.sh
+├─ public/            aim-on-logo.png
+└─ src/
+   ├─ app/
+   │  └─ dashboard/   page, assignments, classes, curriculum,
+   │                  reports, settings, today-lessons, students/[id]
+   ├─ components/     layout, dashboard, curriculum, students,
+   │                  today-lessons, reports
+   ├─ lib/
+   │  ├─ api/         teacher.ts (fetch wrapper)
+   │  └─ mock-data/   기능별 mock data (11개 파일)
+   └─ types/          teacher.ts (API 응답 타입)
 ```
-
-### 메모
-
-* 초기에는 mock data 중심
-* template 분리 철저히
-* base layout 재사용
-* view / service / mock_data를 역할별로 분리
-* 페이지가 늘어나도 같은 기준으로 확장 가능하게 유지
 
 ### 파일 분리 기준
 
@@ -615,42 +598,16 @@ project/
 
 ---
 
-## 13. 작업 로그
+## 13. 의사결정 기록
 
 > 형식: 날짜 / 결정 내용 / 이유 / 영향 범위
 
-### 예시
-
 * 2026-03-24 / 교사용 대시보드를 가장 먼저 개발하기로 결정 / 운영 핵심 기능이 먼저 필요해서 / 전체 MVP 방향
-* 2026-03-24 / 대시보드 홈에 시험일 임박 학생 하이라이트 섹션을 추가함 / 우선 대응이 필요한 학생을 바로 보이게 하기 위해 / dashboard page
-* 2026-03-24 / 로고를 사이드바 상단에 삽입함 / 브랜드 인지와 완성도를 높이기 위해 / sidebar component
-* 2026-03-24 / `npm install` 후 `npm run build`로 빌드 통과를 확인함 / 실제 실행 전 코드 유효성을 먼저 검증하기 위해 / 프로젝트 전체
-* 2026-03-24 / dev server를 3002 포트로 새로 띄우고 브라우저를 다시 열어 확인함 / 이전 3001 세션의 꼬인 상태를 피하기 위해 / local preview
-* 2026-03-24 / 대시보드 요약 카드의 배지를 카드별 상태 정보로 바꾸고, 인사이트/알림 컴포넌트를 새로 분리함 / 참고 이미지 느낌을 더 가깝게 반영하기 위해 / dashboard components
-* 2026-03-24 / 메인 화면 상단 히어로 블록을 줄이고 요약 카드부터 바로 보이게 정리함 / 참고 이미지의 첫 화면 밀도를 맞추기 위해 / dashboard page
-* 2026-03-24 / 빠른 실행 섹션을 카드형으로 복구한 뒤 빌드로 확인함 / 예쁜 버전으로 되돌렸을 때 레이아웃이 유지되는지 확인하기 위해 / quick actions refinement
-* 2026-03-24 / 전역 폰트와 카드 타이포를 조정한 뒤 `npm run build`로 다시 검증함 / 글꼴 변경이 레이아웃을 깨지 않는지 확인하기 위해 / global typography
-* 2026-03-24 / 오늘 일정 카드의 시간, 기간, 버튼 스타일을 이미지처럼 조정하고 두 개 항목만 보이도록 정리함 / 첫 번째 눈에 들어오는 섹션 완성도를 높이기 위해 / today schedule mock data + component
-* 2026-03-24 / 헤더와 카드 타이포를 낮춘 뒤 다시 빌드로 확인함 / 과하게 커 보이는 부분만 줄여 화면 균형을 맞추기 위해 / typography refinement
-* 2026-03-24 / 시험 알림을 인터랙티브 컴포넌트로 교체한 뒤 빌드로 확인함 / 학교 선택이 동작하는지 검증하기 위해 / exam alert component
-* 2026-03-24 / 오늘 일정 섹션만 추가로 축소한 뒤 다시 빌드 확인 예정 / 사용자가 특정 영역의 크기만 더 줄이길 원했기 때문 / schedule refinement
-* 2026-03-24 / AI 인사이트를 반별/학생별 카드로 분리한 뒤 빌드로 확인함 / 정보 우선순위를 더 잘 보이게 하기 위해 / ai insight component
-
----
-
-## 14. 작업 로그
-
-> 형식: 날짜 / 작업 내용 / 결과 / 다음 할 일
-
-### 작업 로그 템플릿
-
-#### YYYY-MM-DD
-
-* 작업 내용:
-* 수정 파일:
-* 결과:
-* 이슈:
-* 다음 할 일:
+* 2026-03-24 / 프론트엔드 MVP는 Next.js + TypeScript + Tailwind CSS + shadcn/ui 조합으로 진행하기로 결정 / 빠른 구현과 유지보수 균형이 좋기 때문 / 프론트엔드 전체
+* 2026-03-24 / 색상 방향을 Clean & Vivid 1안으로 확정하고 배경은 흰색 중심으로 유지하기로 결정 / 스타트업 데모에 맞는 선명하고 정돈된 인상을 주기 위해 / 전역 색상 토큰
+* 2026-03-24 / 정상 동작 중인 레이아웃 공통 구조는 유지하기로 결정 / 기능 확장 시 안정성 확보가 더 중요해서 / base template 전체
+* 2026-03-31 / Django 백엔드를 ORM 없이 raw SQL + VIEW 조회 방식으로 구현하기로 결정 / 기존 PostgreSQL VIEW와 직결되어 유지보수가 단순해서 / backend 전체
+* 2026-03-31 / DB 상태 값은 영어 enum으로 저장하고 한국어 레이블은 프론트에서 매핑하기로 결정 / DB 이식성 확보와 다국어 대응 구조를 유지하기 위해 / DB 스키마 + 프론트 전체
 
 ---
 
@@ -708,21 +665,31 @@ project/
 
 ## 17. 다음 우선순위
 
+> 2026-03-31 기준. 완료된 항목은 ~~취소선~~ 처리.
+
+### 완료
+
+* ~~Django 프로젝트 생성 및 raw SQL API 구현~~
+* ~~기본 레이아웃 구축 (사이드바, 헤더)~~
+* ~~대시보드 홈 UI 제작~~
+* ~~학생 관리 / 학생 상세 / 학생 리포트 페이지 제작~~
+* ~~반 목록 / 반 상세 페이지 제작~~
+* ~~오늘 수업, 커리큘럼, 과제, 리포트, 설정 페이지 제작~~
+* ~~학생목록 / 학생상세 / 반목록 / 반상세 / 대시보드 실데이터 API 연결~~
+* ~~PostgreSQL 스키마 + seed + VIEW 7개 파일 완성~~
+
 ### 당장 할 일
 
-1. VSCode용 개발 프롬프트 정리
-2. Django 프로젝트 생성
-3. 기본 레이아웃 구축
-4. 대시보드 홈 UI 제작
-5. 학생 관리 페이지 제작
+1. 백엔드 실행 확인 (로컬 DB 연결 후 curl/Postman 테스트)
+2. API 실패 메시지 문구 통일
+3. 대시보드 보조 섹션 mock → 실데이터 전환 (aiInsights, examSchools 등)
+4. 배포 준비: `deployment-plan.md` 8단계 체크리스트 순서대로 진행
 
 ### 그다음
 
-1. 학생 상세 페이지 고도화
-2. 과제 관리 페이지 제작
-3. 학습 계획 페이지 제작
-4. 더미 데이터 정리
-5. 홍보 웹사이트 방향 초안
+1. Vercel + Neon 실배포
+2. 파일럿 운영 (3~5명 학생 먼저 입력)
+3. 학생용 서비스 방향 초안
 
 ---
 
@@ -745,6 +712,38 @@ project/
 ## 19. 작업 로그
 
 > 형식: 날짜 / 작업 내용 / 결과 / 다음 할 일
+
+#### 2026-03-31
+
+* 작업 내용: 학생용 API Stub 구현 및 데이터 매핑 문서화
+* 수정 파일: `backend/student_api/*`, `docs/page-data-map.md`, `docs/api-contract.yaml`, `src/lib/api/student.ts`
+* 결과: 프론트엔드가 mock-data 없이 서버 호출 구조로 전환할 수 있는 기반 마련. AI 코치 및 목표 수정 등 핵심 인터랙션 규격 확정
+* 이슈: 아직 실제 DB 연동 전이므로 데이터 정합성 주의 필요
+* 다음 할 일: 학생용 웹앱 화면(Next.js)에서 실제 API 호출 연결 및 인증(Auth) 로직 설계
+
+#### 2026-03-31
+
+* 작업 내용: PostgreSQL SQL 실행 오류(`generation expression is not immutable`, `GROUP BY` 집계 에러)를 수정함
+* 수정 파일: `database/01_create_schema.sql`, `database/07_views_and_queries.sql`
+* 결과: 생성 컬럼과 VIEW 구문이 PostgreSQL 제약에 맞게 정리되어 DBeaver에서 재실행 가능한 상태가 됨
+* 이슈: DB 재실행 순서(01~07)를 유지하지 않으면 기존 생성 객체와 충돌 가능성이 있음
+* 다음 할 일: 02~06 seed 실행/건수 검증과 인덱스 확인 쿼리까지 체크리스트에 맞춰 마무리하기
+
+#### 2026-03-31
+
+* 작업 내용: Django 백엔드 최소 구조를 생성하고, `raw SQL` 기반 교사용 조회 API를 구현함
+* 수정 파일: `backend/manage.py`, `backend/config/settings.py`, `backend/config/urls.py`, `backend/teacher_api/views.py`, `backend/teacher_api/urls.py`, `backend/requirements.txt`
+* 결과: `/api/teacher/students`, `/api/teacher/classes`, `/api/teacher/students/<id>`, `/api/teacher/today-lessons`, `/api/teacher/classes/<id>` 엔드포인트가 준비됨
+* 이슈: 로컬에서 Django 패키지 설치 전에는 서버 실행이 불가함
+* 다음 할 일: 실제 DB 비밀번호 반영 후 백엔드 실행/응답 확인(curl/Postman) 로그 남기기
+
+#### 2026-03-31
+
+* 작업 내용: API 계약 문서와 체크리스트 문서를 업데이트하고, 교사용 실데이터 연결을 진행함
+* 수정 파일: `docs/api-contract.yaml`, `docs/PROJECT_CHECKLIST.md`, `src/lib/api/teacher.ts`, `src/types/teacher.ts`, `src/app/dashboard/students/page.tsx`, `src/app/dashboard/students/[id]/page.tsx`, `src/app/dashboard/classes/page.tsx`, `src/app/dashboard/classes/[id]/page.tsx`, `src/app/dashboard/page.tsx`, `src/components/classes/class-directory.tsx`
+* 결과: 학생목록/학생상세/반목록/반상세/대시보드가 API 응답 기반으로 렌더링되며, loading/empty/error 상태가 화면에 표시됨
+* 이슈: 대시보드 일부 보조 섹션은 여전히 mock 디자인 구조를 유지하고 있어 추가 정리가 필요함
+* 다음 할 일: API 실패 메시지 문구 통일, 반 상세 API 스펙을 OpenAPI 문서에 추가 반영
 
 #### 2026-03-24
 

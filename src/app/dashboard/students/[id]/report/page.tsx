@@ -8,10 +8,7 @@ import { WeaknessAnalysisSection } from "@/components/reports/weakness-analysis-
 import { ExamReadinessSection } from "@/components/reports/exam-readiness-section";
 import { TeacherReportComment } from "@/components/reports/teacher-report-comment";
 import { NextDirectionSection } from "@/components/reports/next-direction-section";
-import {
-  reportStudent,
-  recentMilestones,
-} from "@/lib/mock-data/student-report-mock-data";
+import { getTeacherReportStudentDetail } from "@/lib/api/teacher";
 
 export const metadata: Metadata = {
   title: "학생 리포트 | Aim ON",
@@ -25,8 +22,43 @@ const milestoneTypeStyle: Record<string, { bg: string; text: string; dot: string
   시험:    { bg: "bg-warm/50",     text: "text-[#7a6200]",   dot: "bg-warm"        },
 };
 
-export default function StudentReportPage() {
-  const student = reportStudent;
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
+
+export default async function StudentReportPage({ params }: PageProps) {
+  const studentId = Number(params.id);
+  if (!Number.isInteger(studentId) || studentId <= 0) {
+    return (
+      <main className="space-y-6">
+        <section className="rounded-[28px] border border-border/80 bg-white px-6 py-10 shadow-soft">
+          <p className="text-base font-extrabold tracking-tight text-text">학생 리포트 대상을 찾을 수 없습니다.</p>
+        </section>
+      </main>
+    );
+  }
+
+  let result: { status: 200 | 404; data: any } = { status: 404, data: null };
+  try {
+    result = await getTeacherReportStudentDetail(studentId);
+  } catch {
+    result = { status: 404, data: null };
+  }
+  if (result.status === 404 || !result.data) {
+    return (
+      <main className="space-y-6">
+        <section className="rounded-[28px] border border-border/80 bg-white px-6 py-10 shadow-soft">
+          <p className="text-base font-extrabold tracking-tight text-text">학생 리포트 데이터가 없습니다.</p>
+        </section>
+      </main>
+    );
+  }
+
+  const data = result.data;
+  const student = data.reportStudent;
+  const recentMilestones = data.recentMilestones ?? [];
 
   return (
     <main className="space-y-6">
@@ -92,7 +124,7 @@ export default function StudentReportPage() {
       </section>
 
       {/* ── KPI 요약 카드 ─────────────────────────────── */}
-      <ReportSummaryCards />
+      <ReportSummaryCards data={data.reportKPIs ?? []} />
 
       {/* ── 최근 주요 이력 타임라인 ───────────────────── */}
       <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">
@@ -104,7 +136,7 @@ export default function StudentReportPage() {
           <div className="relative space-y-3 pl-5">
             {/* 타임라인 세로선 */}
             <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border/60" />
-            {recentMilestones.map((m, i) => {
+            {recentMilestones.map((m: any, i: number) => {
               const style = milestoneTypeStyle[m.type] ?? milestoneTypeStyle["피드백"];
               return (
                 <div key={i} className="relative flex items-start gap-4">
@@ -129,23 +161,30 @@ export default function StudentReportPage() {
 
       {/* ── 성취도 추이 + 숙제 수행률 ─────────────────── */}
       <div className="grid gap-6 xl:grid-cols-2">
-        <AchievementTrendChart />
-        <HomeworkTrendChart />
+        <AchievementTrendChart data={data.achievementTrend ?? []} />
+        <HomeworkTrendChart data={data.homeworkTrend ?? []} />
       </div>
 
       {/* ── 진도 달성 현황 ────────────────────────────── */}
-      <ProgressVsPlanChart />
+      <ProgressVsPlanChart data={data.progressVsPlan} />
 
       {/* ── 취약 단원 분석 ────────────────────────────── */}
-      <WeaknessAnalysisSection />
+      <WeaknessAnalysisSection
+        weakTopics={data.weakTopics ?? []}
+        repeatMistakePatterns={data.repeatMistakePatterns ?? []}
+      />
 
       {/* ── 시험 준비도 ───────────────────────────────── */}
-      <ExamReadinessSection />
+      <ExamReadinessSection data={data.examReadiness} />
 
       {/* ── 선생님 코멘트 + 다음 방향 ─────────────────── */}
       <div className="grid gap-6 xl:grid-cols-2">
-        <TeacherReportComment />
-        <NextDirectionSection />
+        <TeacherReportComment
+          data={data.teacherComment}
+          studentName={student.name}
+          reportPeriod={student.reportPeriod}
+        />
+        <NextDirectionSection data={data.nextDirection} />
       </div>
     </main>
   );

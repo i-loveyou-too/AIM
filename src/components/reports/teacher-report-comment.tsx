@@ -1,20 +1,37 @@
 // 선생님 종합 코멘트 섹션
 // 강점 / 우려사항 / 최근 변화 / 다음 집중 방향
 
-import { teacherComment, reportStudent } from "@/lib/mock-data/student-report-mock-data";
-
-export function TeacherReportComment() {
-  const data = teacherComment;
+export function TeacherReportComment({
+  data,
+  studentName,
+  reportPeriod,
+}: {
+  data: {
+    strengths: string[];
+    concerns: string[];
+    recentChange: string;
+    nextFocus: string;
+  } | null | undefined;
+  studentName: string;
+  reportPeriod: string;
+}) {
+  if (!data) {
+    return (
+      <section className="rounded-[28px] border border-border/80 bg-white px-6 py-8 shadow-soft">
+        <p className="text-sm font-semibold text-muted">선생님 코멘트 데이터가 없습니다.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">
       <div className="border-b border-border/60 px-6 py-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">선생님 종합 코멘트</p>
         <h2 className="mt-1 text-lg font-extrabold tracking-tight text-text">
-          {reportStudent.name} 학생 종합 평가
+          {studentName} 학생 종합 평가
         </h2>
         <p className="mt-1 text-sm text-muted">
-          {reportStudent.reportPeriod} 기간 기준 담당 선생님의 종합 평가입니다.
+          {reportPeriod} 기간 기준 담당 선생님의 종합 평가입니다.
         </p>
       </div>
 

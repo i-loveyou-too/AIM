@@ -1,0 +1,526 @@
+openapi: 3.0.3
+info:
+  title: Aim ON API (MVP Draft)
+  version: 0.1.0
+  description: |
+    Aim ON MVP API 계약서
+
+    ## 공통 응답 규칙
+    - 성공: HTTP 200 (조회), 201 (생성)
+    - 실패: HTTP 400 (잘못된 요청), 404 (리소스 없음), 500 (서버 오류)
+    - 에러 응답 형식: `{"detail": "<에러 메시지>"}`
+    - 날짜/시간 포맷: ISO 8601 (`YYYY-MM-DD`, `YYYY-MM-DDTHH:MM:SS+09:00`)
+    - 필드명 표기: snake_case
+
+    ## 페이지네이션 정책
+    - 현재 MVP: 전체 목록 반환 (LIMIT 100 고정)
+    - 추후 확장: `?page=1&page_size=20` 방식으로 전환 예정
+
+    ## 변경 이력
+    - v0.1.0 (2026-03-31): 교사용 조회 API 4개 초안 작성
+
+servers:
+  - url: http://127.0.0.1:8000
+paths:
+  # ── 인증 (Auth) ─────────────────────────────────────────────────────────────
+  /api/auth/login:
+    post:
+      summary: 로그인
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: {type: string}
+                password: {type: string}
+                role: {type: string, enum: [teacher, student]}
+      responses:
+        "200":
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: {type: string}
+                  user: {type: object}
+
+  /api/teacher/students:
+    get:
+      summary: Teacher student list
+      operationId: getTeacherStudents
+      responses:
+        "200":
+          description: Student list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentListItem"
+  /api/teacher/classes:
+    get:
+      summary: Teacher class list
+      operationId: getTeacherClasses
+      responses:
+        "200":
+          description: Class list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClassListItem"
+  /api/teacher/students/{studentId}:
+    get:
+      summary: Teacher student detail
+      operationId: getTeacherStudentDetail
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDetailItem"
+        "404":
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+  /api/teacher/classes/{classGroupId}:
+    get:
+      summary: Teacher class detail
+      operationId: getTeacherClassDetail
+      parameters:
+        - name: classGroupId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Class detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClassListItem"
+        "404":
+          description: Class not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+  /api/teacher/today-lessons:
+    get:
+      summary: Teacher today lessons
+      operationId: getTeacherTodayLessons
+      responses:
+        "200":
+          description: Today lessons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TodayLessonItem"
+
+  # ── 학생용 API ──────────────────────────────────────────────────────────────
+  /api/student/today-tasks:
+    get:
+      summary: 학생 오늘 할 일 목록
+      operationId: getStudentTodayTasks
+      responses:
+        "200":
+          description: 오늘 할 일 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentTodayTask"
+
+  /api/student/assignments:
+    get:
+      summary: 학생 과제 목록
+      operationId: getStudentAssignments
+      responses:
+        "200":
+          description: 과제 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentAssignmentItem"
+
+  /api/student/submissions:
+    get:
+      summary: 학생 제출 이력
+      operationId: getStudentSubmissions
+      responses:
+        "200":
+          description: 제출 이력
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentSubmissionItem"
+
+  /api/student/reports/latest:
+    get:
+      summary: 학생 최신 리포트
+      operationId: getStudentLatestReport
+      responses:
+        "200":
+          description: 최신 리포트
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentReport"
+        "404":
+          description: 리포트 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+
+  /api/student/goals:
+    patch:
+      summary: 학생 시험일/목표 수정
+      operationId: patchStudentGoals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentGoalsPatch"
+      responses:
+        "200":
+          description: 수정 완료
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentGoalsPatch"
+        "400":
+          description: 잘못된 입력
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+
+  # ── OCR ──────────────────────────────────────────────────────────────────────
+  /api/ocr/request:
+    post:
+      summary: OCR 요청 (stub)
+      operationId: postOcrRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                submission_id:
+                  type: integer
+                file_url:
+                  type: string
+              required: [submission_id]
+      responses:
+        "200":
+          description: OCR 결과
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OcrResult"
+
+components:
+  schemas:
+    NotFound:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: not found
+      required: [detail]
+
+    WeakTopicItem:
+      type: object
+      properties:
+        topic:
+          type: string
+        severity:
+          type: string
+      required: [topic, severity]
+
+    StudentListItem:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        student_code:
+          type: string
+          nullable: true
+        name:
+          type: string
+        school_name:
+          type: string
+          nullable: true
+        grade:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        class_name:
+          type: string
+          nullable: true
+        track:
+          type: string
+          nullable: true
+        recent_progress_unit:
+          type: string
+          nullable: true
+        recent_tag:
+          type: string
+          nullable: true
+        score:
+          type: integer
+          nullable: true
+        assignment_done:
+          type: integer
+          nullable: true
+        assignment_total:
+          type: integer
+          nullable: true
+        overdue_assignments:
+          type: integer
+          nullable: true
+        assignment_rate:
+          type: number
+          format: float
+          nullable: true
+        top_weak_topics:
+          type: string
+          nullable: true
+        next_exam_date:
+          type: string
+          format: date
+          nullable: true
+        exam_days_left:
+          type: integer
+          nullable: true
+        note:
+          type: string
+          nullable: true
+      required: [student_id, name]
+
+    ClassListItem:
+      type: object
+      properties:
+        class_group_id:
+          type: integer
+        class_name:
+          type: string
+          nullable: true
+        grade:
+          type: string
+          nullable: true
+        track:
+          type: string
+          nullable: true
+        level:
+          type: string
+          nullable: true
+        teacher_name:
+          type: string
+          nullable: true
+        enrolled_count:
+          type: integer
+        max_students:
+          type: integer
+          nullable: true
+        next_exam_date:
+          type: string
+          format: date
+          nullable: true
+        exam_days_left:
+          type: integer
+          nullable: true
+        avg_score:
+          type: number
+          format: float
+          nullable: true
+        avg_assignment_rate:
+          type: number
+          format: float
+          nullable: true
+        curriculum_status:
+          type: string
+          nullable: true
+        actual_progress:
+          type: integer
+          nullable: true
+        planned_progress:
+          type: integer
+          nullable: true
+        delay_units:
+          type: integer
+          nullable: true
+        is_active:
+          type: boolean
+          nullable: true
+      required: [class_group_id, enrolled_count]
+
+    StudentDetailItem:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        student_code:
+          type: string
+          nullable: true
+        name:
+          type: string
+        school_name:
+          type: string
+          nullable: true
+        grade:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        class_name:
+          type: string
+          nullable: true
+        track:
+          type: string
+          nullable: true
+        recent_progress_unit:
+          type: string
+          nullable: true
+        recent_tag:
+          type: string
+          nullable: true
+        current_score:
+          type: integer
+          nullable: true
+        assignment_done:
+          type: integer
+          nullable: true
+        assignment_total:
+          type: integer
+          nullable: true
+        overdue_assignments:
+          type: integer
+          nullable: true
+        goal_score:
+          type: integer
+          nullable: true
+        current_level:
+          type: string
+          nullable: true
+        study_goal:
+          type: string
+          nullable: true
+        studyti_summary:
+          type: string
+          nullable: true
+        next_exam_date:
+          type: string
+          format: date
+          nullable: true
+        exam_readiness:
+          type: integer
+          nullable: true
+        needs_reinforcement:
+          type: boolean
+          nullable: true
+        exam_progress_status:
+          type: string
+          nullable: true
+        weak_topics:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/WeakTopicItem"
+        latest_feedback:
+          type: string
+          nullable: true
+        latest_next_action:
+          type: string
+          nullable: true
+        feedback_logged_at:
+          type: string
+          format: date-time
+          nullable: true
+        studyti_tags:
+          type: array
+          nullable: true
+          items:
+            type: string
+      required: [student_id, name]
+
+    TodayLessonItem:
+      type: object
+      properties:
+        schedule_id:
+          type: integer
+        scheduled_date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          nullable: true
+        end_time:
+          type: string
+          nullable: true
+        class_name:
+          type: string
+          nullable: true
+        grade:
+          type: string
+          nullable: true
+        track:
+          type: string
+          nullable: true
+        teacher_name:
+          type: string
+          nullable: true
+        topic:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        student_count:
+          type: integer
+        unsubmitted_count:
+          type: integer
+        needs_review_count:
+          type: integer
+        open_issue_count:
+          type: integer
+        weak_topic_overview:
+          nullable: true
+        homework_reflection:
+          nullable: true
+        materials_needed:
+          nullable: true
+        ai_suggestions:
+          type: string
+          nullable: true
+      required: [schedule_id, scheduled_date, student_count, unsubmitted_count, needs_review_count, open_issue_count]

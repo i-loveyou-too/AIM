@@ -5,13 +5,58 @@ import { ReportSettingsSection } from "@/components/settings/report-settings";
 import { LessonSettings } from "@/components/settings/lesson-settings";
 import { AssignmentSettings } from "@/components/settings/assignment-settings";
 import { BasicInfoSettings } from "@/components/settings/basic-info-settings";
+import { getTeacherSettingsOverview } from "@/lib/api/teacher";
 
 export const metadata: Metadata = {
   title: "설정 | Aim ON",
   description: "교사용 대시보드의 기본 운영 환경과 알림, 리포트, 수업, 과제 관련 설정을 관리합니다.",
 };
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  let data: any = null;
+  try {
+    data = await getTeacherSettingsOverview();
+  } catch {
+    data = null;
+  }
+
+  const safeData = data ?? {
+    profile: {
+      name: "김민정",
+      affiliation: "-",
+      role: "-",
+      email: "-",
+      phone: "-",
+      joined: "-",
+    },
+    notificationSettings: [],
+    reportSettings: {
+      defaultPeriod: "4주",
+      defaultView: "학생별",
+      examEmphasisDDay: "D-14",
+    },
+    lessonSettings: {
+      defaultDuration: "90분",
+      showNextAction: true,
+      showLessonMemo: true,
+      todayPageInfoScope: "전체",
+    },
+    assignmentSettings: {
+      defaultDeadlineTime: "23:59",
+      allowPhotoSubmit: true,
+      allowOMRSubmit: true,
+      questionEnabled: true,
+      ocrReviewHighlight: true,
+      commonMistakeAlert: true,
+    },
+    basicInfoSettings: {
+      classes: [],
+      subjects: [],
+      examScheduleLinked: false,
+      curriculumTemplateLinked: false,
+    },
+  };
+
   return (
     <main className="space-y-6">
       {/* 페이지 헤더 */}
@@ -27,20 +72,20 @@ export default function SettingsPage() {
 
       {/* 2열 레이아웃: 프로필 + 알림 */}
       <div className="grid gap-6 xl:grid-cols-2">
-        <ProfileSettings />
-        <NotificationSettings />
+        <ProfileSettings profile={safeData.profile} />
+        <NotificationSettings initialSettings={safeData.notificationSettings} />
       </div>
 
       {/* 2열 레이아웃: 리포트 + 수업 */}
       <div className="grid gap-6 xl:grid-cols-2">
-        <ReportSettingsSection />
-        <LessonSettings />
+        <ReportSettingsSection initialSettings={safeData.reportSettings} />
+        <LessonSettings initialSettings={safeData.lessonSettings} />
       </div>
 
       {/* 2열 레이아웃: 과제 + 반/과목 정보 */}
       <div className="grid gap-6 xl:grid-cols-2">
-        <AssignmentSettings />
-        <BasicInfoSettings />
+        <AssignmentSettings initialSettings={safeData.assignmentSettings} />
+        <BasicInfoSettings data={safeData.basicInfoSettings} />
       </div>
 
       {/* 하단 액션 영역 */}

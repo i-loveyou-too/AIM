@@ -1,10 +1,22 @@
 // 다음 관리 방향 섹션
 // 다음 수업 방향 + 보강 항목 + 숙제 방향 + 설명 집중 포인트
 
-import { nextDirection } from "@/lib/mock-data/student-report-mock-data";
+type NextDirectionData = {
+  priority: string;
+  nextLesson: string;
+  reinforcement: string[];
+  homeworkDirection: string;
+  explanationFocus: string[];
+};
 
-export function NextDirectionSection() {
-  const data = nextDirection;
+export function NextDirectionSection({ data }: { data: NextDirectionData | null | undefined }) {
+  if (!data) {
+    return (
+      <section className="rounded-[28px] border border-border/80 bg-white px-6 py-8 shadow-soft">
+        <p className="text-sm font-semibold text-muted">다음 관리 방향 데이터가 없습니다.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">

@@ -3,71 +3,20 @@
 // 과제 관리 — 상단 KPI 요약 카드
 // 카드 클릭 시 아래 보드 필터/탭 전환
 
-import { assignmentSummary } from "@/lib/mock-data/assignment-mock-data";
-
 type CardId = "active" | "dueToday" | "unsubmitted" | "questions" | "avgRate" | "reinforcement";
 
 type Props = {
+  summary: {
+    activeAssignments: number;
+    dueTodayCount: number;
+    unsubmittedStudents: number;
+    studentsWithQuestions: number;
+    avgSubmissionRate: number;
+    reinforcementNeeded: number;
+  };
   activeCardId?: CardId | null;
   onCardClick?: (id: CardId) => void;
 };
-
-const cards: { id: CardId; label: string; value: string; icon: string; note: string; tone: "brand" | "alert" | "warn" | "accent" | "soft"; clickable: boolean }[] = [
-  {
-    id: "active",
-    label: "진행 중 과제",
-    value: `${assignmentSummary.activeAssignments}개`,
-    icon: "📋",
-    note: "전체 반 기준",
-    tone: "brand",
-    clickable: true,
-  },
-  {
-    id: "dueToday",
-    label: "오늘 마감",
-    value: `${assignmentSummary.dueTodayCount}개`,
-    icon: "⏰",
-    note: "오늘 자정 마감",
-    tone: "alert",
-    clickable: true,
-  },
-  {
-    id: "unsubmitted",
-    label: "미제출 학생",
-    value: `${assignmentSummary.unsubmittedStudents}명`,
-    icon: "⚠️",
-    note: "즉시 확인 필요",
-    tone: "warn",
-    clickable: true,
-  },
-  {
-    id: "questions",
-    label: "질문 남긴 학생",
-    value: `${assignmentSummary.studentsWithQuestions}명`,
-    icon: "💬",
-    note: "다음 수업 반영 필요",
-    tone: "accent",
-    clickable: true,
-  },
-  {
-    id: "avgRate",
-    label: "평균 제출률",
-    value: `${assignmentSummary.avgSubmissionRate}%`,
-    icon: "📊",
-    note: "전체 반 평균",
-    tone: "soft",
-    clickable: false,
-  },
-  {
-    id: "reinforcement",
-    label: "보강 필요 과제",
-    value: `${assignmentSummary.reinforcementNeeded}개`,
-    icon: "🔧",
-    note: "오답률 기준",
-    tone: "soft",
-    clickable: true,
-  },
-];
 
 const toneStyle: Record<string, { icon: string; value: string; hover: string; active: string }> = {
   brand:  { icon: "bg-brand/10 text-brand",    value: "text-brand",     hover: "hover:border-brand/30",  active: "border-brand bg-brand/5"  },
@@ -77,7 +26,64 @@ const toneStyle: Record<string, { icon: string; value: string; hover: string; ac
   soft:   { icon: "bg-soft text-muted",        value: "text-text",      hover: "hover:border-border",    active: "border-border bg-soft"    },
 };
 
-export function AssignmentSummaryCards({ activeCardId, onCardClick }: Props) {
+export function AssignmentSummaryCards({ summary, activeCardId, onCardClick }: Props) {
+  const cards: { id: CardId; label: string; value: string; icon: string; note: string; tone: "brand" | "alert" | "warn" | "accent" | "soft"; clickable: boolean }[] = [
+    {
+      id: "active",
+      label: "진행 중 과제",
+      value: `${summary.activeAssignments}개`,
+      icon: "📋",
+      note: "전체 반 기준",
+      tone: "brand",
+      clickable: true,
+    },
+    {
+      id: "dueToday",
+      label: "오늘 마감",
+      value: `${summary.dueTodayCount}개`,
+      icon: "⏰",
+      note: "오늘 자정 마감",
+      tone: "alert",
+      clickable: true,
+    },
+    {
+      id: "unsubmitted",
+      label: "미제출 학생",
+      value: `${summary.unsubmittedStudents}명`,
+      icon: "⚠️",
+      note: "즉시 확인 필요",
+      tone: "warn",
+      clickable: true,
+    },
+    {
+      id: "questions",
+      label: "질문 남긴 학생",
+      value: `${summary.studentsWithQuestions}명`,
+      icon: "💬",
+      note: "다음 수업 반영 필요",
+      tone: "accent",
+      clickable: true,
+    },
+    {
+      id: "avgRate",
+      label: "평균 제출률",
+      value: `${summary.avgSubmissionRate}%`,
+      icon: "📊",
+      note: "전체 반 평균",
+      tone: "soft",
+      clickable: false,
+    },
+    {
+      id: "reinforcement",
+      label: "보강 필요 과제",
+      value: `${summary.reinforcementNeeded}개`,
+      icon: "🔧",
+      note: "오답률 기준",
+      tone: "soft",
+      clickable: true,
+    },
+  ];
+
   return (
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {cards.map((card) => {

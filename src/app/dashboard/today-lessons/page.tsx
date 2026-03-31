@@ -8,9 +8,36 @@ import { LessonPrepCard } from "@/components/today-lessons/lesson-prep-card";
 import { WeaknessOverviewSection } from "@/components/today-lessons/weakness-overview-section";
 import { HomeworkReflectionSection } from "@/components/today-lessons/homework-reflection-section";
 import { MaterialsPanel } from "@/components/today-lessons/materials-panel";
-import { todayLessonsPrep } from "@/lib/mock-data/today-lessons";
+import { getTeacherTodayLessonsOverview } from "@/lib/api/teacher";
 
-export default function TodayLessonsPage() {
+export default async function TodayLessonsPage() {
+  let overview: any = null;
+  try {
+    overview = await getTeacherTodayLessonsOverview();
+  } catch {
+    overview = null;
+  }
+
+  const summary = overview?.summary ?? {
+    totalLessons: 0,
+    focusStudents: 0,
+    homeworkIssues: 0,
+    teachingPoints: 0,
+    examImminentStudents: 0,
+  };
+
+  const schedule = overview?.schedule ?? [];
+  const preps = overview?.preps ?? [];
+  const weaknessOverview = overview?.weaknessOverview ?? [];
+  const homeworkReflection = overview?.homeworkReflection ?? {
+    criticalItems: [],
+    incompleteHomework: [],
+    commonReExplanation: [],
+    reinforcementNeeded: [],
+  };
+  const materials = overview?.materials ?? [];
+  const nextActions = overview?.nextActions ?? [];
+
   return (
     <div className="space-y-6">
       {/* ── 페이지 헤더 ──────────────────────────────────────── */}
@@ -61,11 +88,11 @@ export default function TodayLessonsPage() {
       </header>
 
       {/* ── 상단 요약 카드 ────────────────────────────────────── */}
-      <TodayLessonsSummaryCards />
+      <TodayLessonsSummaryCards summary={summary} />
 
       {/* ── 오늘 수업 일정 ────────────────────────────────────── */}
       <div id="schedule">
-        <TodayScheduleSection />
+        <TodayScheduleSection schedule={schedule} />
       </div>
 
       {/* ── 수업별 준비 카드 ──────────────────────────────────── */}
@@ -81,20 +108,20 @@ export default function TodayLessonsPage() {
             각 수업에서 다룰 진도, 설명 포인트, 약점, 숙제 반영, 운영 메모를 확인하세요.
           </p>
         </div>
-        {todayLessonsPrep.map((lesson, idx) => (
-          <LessonPrepCard key={lesson.id} lesson={lesson} index={idx} />
+        {preps.map((lesson: any, idx: number) => (
+          <LessonPrepCard key={lesson.id} lesson={lesson} index={idx} nextActions={nextActions} />
         ))}
       </section>
 
       {/* ── 약점 / 집중 관리 + 숙제 반영 — 2컬럼 ────────────── */}
       <div id="homework" className="grid gap-6 xl:grid-cols-2">
-        <WeaknessOverviewSection />
-        <HomeworkReflectionSection />
+        <WeaknessOverviewSection weaknessOverview={weaknessOverview} />
+        <HomeworkReflectionSection homeworkReflection={homeworkReflection} />
       </div>
 
       {/* ── 오늘 자료 패널 ────────────────────────────────────── */}
       <div id="materials" className="scroll-mt-24">
-        <MaterialsPanel />
+        <MaterialsPanel materials={materials} />
       </div>
 
     </div>

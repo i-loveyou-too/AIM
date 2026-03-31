@@ -4,7 +4,16 @@
 // 항목별 준비 상태(준비 완료 / 준비 필요)를 직접 체크할 수 있음
 
 import { useState } from "react";
-import { todayMaterials } from "@/lib/mock-data/today-lessons";
+
+type TodayMaterial = {
+  id: string;
+  subject: string;
+  student: string;
+  type: "교재" | "프린트" | "정리표" | "기출" | "링크";
+  title: string;
+  priority: "필수" | "참고";
+  note?: string;
+};
 
 type MaterialType = "교재" | "프린트" | "정리표" | "기출" | "링크";
 type Priority = "필수" | "참고";
@@ -31,26 +40,30 @@ const priorityStyles: Record<Priority, { badge: string; border: string; borderRe
 };
 
 // 과목별로 자료를 그룹핑
-function groupBySubject(materials: typeof todayMaterials) {
-  return materials.reduce<Record<string, typeof todayMaterials>>((acc, mat) => {
+function groupBySubject(materials: TodayMaterial[]) {
+  return materials.reduce<Record<string, TodayMaterial[]>>((acc, mat) => {
     if (!acc[mat.subject]) acc[mat.subject] = [];
     acc[mat.subject].push(mat);
     return acc;
   }, {});
 }
 
-export function MaterialsPanel() {
+type Props = {
+  materials: TodayMaterial[];
+};
+
+export function MaterialsPanel({ materials }: Props) {
   // 각 자료 id를 키로 준비 완료 여부 관리
   const [readyMap, setReadyMap] = useState<Record<string, boolean>>({});
 
   const toggle = (id: string) =>
     setReadyMap((prev) => ({ ...prev, [id]: !prev[id] }));
 
-  const grouped = groupBySubject(todayMaterials);
+  const grouped = groupBySubject(materials);
   const subjectKeys = Object.keys(grouped);
 
   const readyCount = Object.values(readyMap).filter(Boolean).length;
-  const totalCount = todayMaterials.length;
+  const totalCount = materials.length;
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">
@@ -78,10 +91,10 @@ export function MaterialsPanel() {
             </span>
           </div>
           <span className="rounded-full border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-bold text-brand">
-            필수 {todayMaterials.filter((m) => m.priority === "필수").length}개
+            필수 {materials.filter((m) => m.priority === "필수").length}개
           </span>
           <span className="rounded-full border border-border bg-soft px-3 py-1.5 text-xs font-semibold text-muted">
-            참고 {todayMaterials.filter((m) => m.priority === "참고").length}개
+            참고 {materials.filter((m) => m.priority === "참고").length}개
           </span>
         </div>
       </div>

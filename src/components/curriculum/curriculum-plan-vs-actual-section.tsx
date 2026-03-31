@@ -1,7 +1,21 @@
-import type { CurriculumPageData } from "@/lib/curriculum-mock-data";
-
 type CurriculumPlanVsActualSectionProps = {
-  comparison: CurriculumPageData["comparison"];
+  comparison: {
+    totalUnits: number;
+    plannedUnits: number;
+    plannedPercent: number;
+    actualUnits: number;
+    actualPercent: number;
+    gapSummary: string;
+    canFinishBeforeExam: string;
+    markers: Array<{
+      label: string;
+      value: string;
+      tone: "brand" | "warm" | "accent" | "soft";
+    }>;
+    plannedMilestone: string;
+    actualMilestone: string;
+    finishEstimate: string;
+  };
 };
 
 export function CurriculumPlanVsActualSection({ comparison }: CurriculumPlanVsActualSectionProps) {

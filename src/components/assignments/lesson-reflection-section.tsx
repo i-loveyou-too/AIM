@@ -1,7 +1,19 @@
 // 과제 관리 — 다음 수업 반영 포인트 섹션
 // 이 페이지의 핵심 차별점: 과제 → 수업 반영 흐름 연결
 
-import type { LessonReflection } from "@/lib/mock-data/assignment-mock-data";
+type FeedbackTarget = {
+  studentName: string;
+  reason: string;
+};
+
+type LessonReflection = {
+  urgency: string;
+  reExplainTopics: string[];
+  reinforcementItems: string[];
+  individualFeedbackNeeded: FeedbackTarget[];
+  questionReflectionItems: string[];
+  homeworkFollowUp: string;
+};
 
 const urgencyStyle: Record<string, { bg: string; text: string; border: string }> = {
   높음: { bg: "bg-brand/10",  text: "text-brand",       border: "border-brand/20"   },

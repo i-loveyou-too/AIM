@@ -1,7 +1,13 @@
-import type { CurriculumPageData } from "@/lib/curriculum-mock-data";
-
 type CurriculumPlanningNotesSectionProps = {
-  notes: CurriculumPageData["notes"];
+  notes: {
+    memoTitle: string;
+    memoSummary: string;
+    items: Array<{
+      title: string;
+      detail: string;
+      reason: string;
+    }>;
+  };
 };
 
 export function CurriculumPlanningNotesSection({ notes }: CurriculumPlanningNotesSectionProps) {

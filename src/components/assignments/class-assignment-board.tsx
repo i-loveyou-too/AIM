@@ -4,22 +4,74 @@
 // 각 반 카드 → 학생별 drill-down → 공통 오답 분석 → 다음 수업 반영 순으로 펼쳐짐
 
 import { useState } from "react";
-import type {
-  ClassAssignment,
-  ViewTab,
-} from "@/lib/mock-data/assignment-mock-data";
-import {
-  classAssignments,
-  studentSubmissions,
-  commonMistakeAnalyses,
-  lessonReflections,
-} from "@/lib/mock-data/assignment-mock-data";
 import { StudentAssignmentPanel } from "./student-assignment-panel";
 import { CommonMistakeAnalysisSection } from "./common-mistake-analysis";
 import { LessonReflectionSection } from "./lesson-reflection-section";
 
-// 뷰탭 타입은 mock-data에서 직접 가져오지 않고 여기서 재선언
-type LocalViewTab = ViewTab;
+// 뷰 탭 타입 재선언
+type LocalViewTab = "class" | "student" | "unsubmitted" | "dueToday";
+type ClassAssignment = {
+  id: string;
+  className: string;
+  subject: string;
+  status: string;
+  assignmentTitle: string;
+  issuedDate: string;
+  dueDate: string;
+  studentCount: number;
+  submittedCount: number;
+  photoSubmissions: number;
+  omrSubmissions: number;
+  questionsCount: number;
+  topMistakeTopic: string;
+  repeatUnsubmitCount: number;
+};
+
+type StudentSubmission = {
+  id: string;
+  classId: string;
+  studentName: string;
+  status: string;
+  submissionType?: string | null;
+  question?: string | null;
+  submittedAt?: string | null;
+  isRepeatNonSubmit?: boolean;
+  needsReview?: boolean;
+  ocrSummary?: string | null;
+  omrResult?: Array<{
+    questionNum: number;
+    correct: boolean;
+    studentAnswer: string;
+    correctAnswer: string;
+  }> | null;
+  correctCount?: number;
+  totalQuestions?: number;
+};
+
+type CommonMistakeAnalysis = {
+  classId: string;
+  topMistakes: Array<{
+    rank: number;
+    questionNum: number;
+    topic: string;
+    mistakeType: string;
+    incorrectCount: number;
+  }>;
+  weakConceptSummary: string[];
+  repeatMistakePatterns: string[];
+  explanationNeeded: string[];
+  topQuestions: string[];
+};
+
+type LessonReflection = {
+  classId: string;
+  urgency: string;
+  reExplainTopics: string[];
+  reinforcementItems: string[];
+  individualFeedbackNeeded: Array<{ studentName: string; reason: string }>;
+  questionReflectionItems: string[];
+  homeworkFollowUp: string;
+};
 
 const statusBadge: Record<string, string> = {
   "진행 중":   "bg-emerald-50 text-emerald-700",
@@ -32,6 +84,10 @@ type CardTab = "students" | "analysis" | "reflection";
 
 type Props = {
   activeView: LocalViewTab;
+  classAssignments: ClassAssignment[];
+  studentSubmissions: StudentSubmission[];
+  commonMistakeAnalyses: CommonMistakeAnalysis[];
+  lessonReflections: LessonReflection[];
   filterSubject: string;
   filterStatus: string;
   filterType: string;
@@ -41,6 +97,10 @@ type Props = {
 
 export function ClassAssignmentBoard({
   activeView,
+  classAssignments,
+  studentSubmissions,
+  commonMistakeAnalyses,
+  lessonReflections,
   filterSubject,
   filterStatus,
   filterType,

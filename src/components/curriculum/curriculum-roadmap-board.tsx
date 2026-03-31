@@ -1,10 +1,26 @@
-import type { CurriculumPageData } from "@/lib/curriculum-mock-data";
-
 type CurriculumRoadmapBoardProps = {
-  roadmap: CurriculumPageData["roadmap"];
+  roadmap: Array<{
+    title: string;
+    period: string;
+    statusLabel: string;
+    actualProgress: number;
+    plannedProgress: number;
+    lessonNote: string;
+    assignmentNote: string;
+    commonMistakeNote: string;
+    reinforcementNote: string;
+    badges: string[];
+    subtopics: Array<{
+      title: string;
+      note?: string;
+      progress: number;
+    }>;
+    canFinishBeforeExam: string;
+    tone: "brand" | "warm" | "accent" | "soft" | "success" | "alert";
+  }>;
 };
 
-const toneStyles: Record<CurriculumPageData["roadmap"][number]["tone"], { chip: string; bar: string }> = {
+const toneStyles: Record<string, { chip: string; bar: string }> = {
   brand: {
     chip: "bg-brand/10 text-brand",
     bar: "bg-brand",

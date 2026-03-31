@@ -4,12 +4,34 @@
 // 시험 준비도와 위험도 중심 - "누가 위험한가"를 가장 빠르게 보여주는 탭
 
 import Link from "next/link";
-import {
-  examReadinessStudents,
-  examReadinessClasses,
-  type ExamReadinessStudent,
-  type ExamReadinessClass,
-} from "@/lib/mock-data/report-hub-mock-data";
+
+type RiskLevel = "위험" | "주의" | "양호";
+
+type ExamReadinessStudent = {
+  id: string;
+  name: string;
+  grade: string;
+  subject: string;
+  examDate: string;
+  dDay: number;
+  riskLevel: RiskLevel;
+  readiness: number;
+  onTrack: boolean;
+  needsExtra: boolean;
+  needsPlanAdjust: boolean;
+  riskNote: string;
+};
+
+type ExamReadinessClass = {
+  id: string;
+  name: string;
+  examDate: string;
+  dDay: number;
+  riskLevel: RiskLevel;
+  avgReadiness: number;
+  completionRisk: boolean;
+  riskNote: string;
+};
 
 const studentRiskStyle: Record<ExamReadinessStudent["riskLevel"], { bg: string; text: string; bar: string; dot: string }> = {
   위험: { bg: "bg-brand/10", text: "text-brand", bar: "bg-brand", dot: "bg-brand" },
@@ -43,13 +65,19 @@ function DDayBadge({ dDay }: { dDay: number }) {
   );
 }
 
-export function ExamReadinessHub() {
+export function ExamReadinessHub({
+  studentData,
+  classData,
+}: {
+  studentData: ExamReadinessStudent[];
+  classData: ExamReadinessClass[];
+}) {
   // 위험도순 정렬: 위험 > 주의 > 양호, 동일 위험도면 dDay 오름차순
   const riskOrder = { 위험: 0, 주의: 1, 양호: 2 };
-  const sortedStudents = [...examReadinessStudents].sort(
+  const sortedStudents = [...studentData].sort(
     (a, b) => riskOrder[a.riskLevel] - riskOrder[b.riskLevel] || a.dDay - b.dDay,
   );
-  const sortedClasses = [...examReadinessClasses].sort(
+  const sortedClasses = [...classData].sort(
     (a, b) => riskOrder[a.riskLevel] - riskOrder[b.riskLevel] || a.dDay - b.dDay,
   );
 

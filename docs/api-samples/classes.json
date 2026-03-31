@@ -1,0 +1,40 @@
+[
+  {
+    "class_group_id": 21,
+    "class_name": "고3 수능 공통+확률과통계 B반",
+    "grade": "grade3",
+    "track": "suneung",
+    "level": "B",
+    "teacher_name": "이수진",
+    "enrolled_count": 0,
+    "max_students": 10,
+    "next_exam_date": null,
+    "exam_days_left": null,
+    "avg_score": null,
+    "avg_assignment_rate": null,
+    "curriculum_status": null,
+    "actual_progress": null,
+    "planned_progress": null,
+    "delay_units": null,
+    "is_active": true
+  },
+  {
+    "class_group_id": 20,
+    "class_name": "고3 수능 공통+확률과통계 A반",
+    "grade": "grade3",
+    "track": "suneung",
+    "level": "A",
+    "teacher_name": "이수진",
+    "enrolled_count": 0,
+    "max_students": 10,
+    "next_exam_date": null,
+    "exam_days_left": null,
+    "avg_score": null,
+    "avg_assignment_rate": null,
+    "curriculum_status": null,
+    "actual_progress": null,
+    "planned_progress": null,
+    "delay_units": null,
+    "is_active": true
+  }
+]

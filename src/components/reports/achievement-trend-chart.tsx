@@ -1,8 +1,6 @@
 // 성취도 추이 차트 — SVG 기반 라인 차트 (외부 라이브러리 없음)
 // 최근 8회차 점수 변화를 선·점·라벨로 시각화
 
-import { achievementTrend } from "@/lib/mock-data/student-report-mock-data";
-
 const W = 640;   // viewBox 가로
 const H = 180;   // viewBox 세로 (라벨 제외)
 const PAD_LEFT  = 36;
@@ -12,6 +10,13 @@ const PAD_BTM   = 8;
 
 const MIN_SCORE = 40;
 const MAX_SCORE = 100;
+
+type AchievementPoint = {
+  score: number;
+  date: string;
+  session: string;
+  note?: string;
+};
 
 function toX(index: number, total: number): number {
   const usable = W - PAD_LEFT - PAD_RIGHT;
@@ -23,8 +28,15 @@ function toY(score: number): number {
   return PAD_TOP + ((MAX_SCORE - score) / (MAX_SCORE - MIN_SCORE)) * usable;
 }
 
-export function AchievementTrendChart() {
-  const data  = achievementTrend;
+export function AchievementTrendChart({ data }: { data: AchievementPoint[] }) {
+  if (!data || data.length === 0) {
+    return (
+      <section className="rounded-[28px] border border-border/80 bg-white px-6 py-8 shadow-soft">
+        <p className="text-sm font-semibold text-muted">성취도 추이 데이터가 없습니다.</p>
+      </section>
+    );
+  }
+
   const total = data.length;
 
   // 폴리라인 포인트 문자열

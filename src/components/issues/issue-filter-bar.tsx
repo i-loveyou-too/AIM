@@ -2,7 +2,7 @@
 
 // 이슈함 — 탭 + 필터 바
 
-import type { IssueType, IssueUrgency } from "@/lib/mock-data/issue-mock-data";
+import type { IssueUrgency } from "@/types/issues";
 
 export type IssueTab =
   | "전체" | "과제" | "시험" | "진도" | "질문" | "OCR·검토" | "집중 관리";

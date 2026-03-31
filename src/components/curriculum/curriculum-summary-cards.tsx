@@ -1,10 +1,15 @@
-import type { CurriculumSummaryCard } from "@/lib/curriculum-mock-data";
-
 type CurriculumSummaryCardsProps = {
-  cards: CurriculumSummaryCard[];
+  cards: Array<{
+    label: string;
+    value: string;
+    note: string;
+    emoji: string;
+    badge: string;
+    tone: "brand" | "warm" | "accent" | "soft" | "success" | "alert";
+  }>;
 };
 
-const toneStyles: Record<CurriculumSummaryCard["tone"], { icon: string; badge: string; border: string }> = {
+const toneStyles: Record<string, { icon: string; badge: string; border: string }> = {
   brand: {
     icon: "bg-brand/10 text-brand",
     badge: "bg-brand/10 text-brand",

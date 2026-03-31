@@ -2,9 +2,17 @@
 
 // 설정 > 계정 / 프로필 섹션
 
-import { settingsProfile } from "@/lib/mock-data/settings-mock-data";
+type ProfileData = {
+  name: string;
+  affiliation: string;
+  role: string;
+  email: string;
+  phone: string;
+  joined: string;
+};
 
-export function ProfileSettings() {
+export function ProfileSettings({ profile }: { profile: ProfileData }) {
+  const settingsProfile = profile;
   return (
     <section className="rounded-[24px] border border-border/80 bg-white shadow-soft">
       <div className="border-b border-border/60 px-6 py-5">

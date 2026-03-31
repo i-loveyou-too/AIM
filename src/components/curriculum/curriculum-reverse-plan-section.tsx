@@ -1,8 +1,20 @@
 // 시험일 역산 계획 섹션 — 계획 vs 실제 현황 요약
 
-import type { CurriculumPageData } from "@/lib/curriculum-mock-data";
-
-type Props = { reversePlan: CurriculumPageData["reversePlan"] };
+type Props = {
+  reversePlan: {
+    totalPeriod: string;
+    gapSummary: string;
+    completionEstimate: string;
+    remainingUnits: number;
+    remainingLessons: number;
+    algorithmTarget: string;
+    actualTarget: string;
+    weeklyTarget: string;
+    nextCheckpoint: string;
+    paceSummary: string;
+    focusUnit: string;
+  };
+};
 
 export function CurriculumReversePlanSection({ reversePlan }: Props) {
   return (

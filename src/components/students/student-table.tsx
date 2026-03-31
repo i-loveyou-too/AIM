@@ -1,5 +1,22 @@
 import Link from "next/link";
-import type { StudentRecord } from "@/lib/mock-data/index";
+
+type StudentRecord = {
+  id: string;
+  studentCode?: string | null;
+  name: string;
+  grade: string;
+  subject: string;
+  status: string;
+  recentProgress: string;
+  recentTag: string;
+  score: number;
+  examDays: number;
+  nextExamDate?: string | null;
+  assignmentDone: number;
+  assignmentTotal: number;
+  assignmentRate?: number;
+  overdueAssignments: number;
+};
 
 type StudentTableProps = {
   students: StudentRecord[];
@@ -8,6 +25,20 @@ type StudentTableProps = {
   totalCount: number;
   onPageChange: (page: number) => void;
 };
+
+function getVisiblePageNumbers(page: number, totalPages: number, maxVisible = 7) {
+  if (totalPages <= maxVisible) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  const half = Math.floor(maxVisible / 2);
+  let start = Math.max(1, page - half);
+  let end = Math.min(totalPages, start + maxVisible - 1);
+
+  start = Math.max(1, end - maxVisible + 1);
+
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+}
 
 const managementStyles = {
   우수: {
@@ -43,6 +74,8 @@ export function StudentTable({
   totalCount,
   onPageChange,
 }: StudentTableProps) {
+  const visiblePageNumbers = getVisiblePageNumbers(page, totalPages);
+
   if (students.length === 0) {
     return (
       <section className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
@@ -82,7 +115,11 @@ export function StudentTable({
         <div className="divide-y divide-border">
           {students.map((student) => {
             const managementLevel = getManagementLevel(student);
-            const assignmentRate = Math.round((student.assignmentDone / student.assignmentTotal) * 100);
+            const assignmentRate =
+              student.assignmentTotal > 0
+                ? Math.round((student.assignmentDone / student.assignmentTotal) * 100)
+                : Math.round(student.assignmentRate ?? 0);
+            const hasExamDays = Number.isFinite(student.examDays) && student.examDays >= 0 && student.examDays <= 365;
 
             return (
               <article
@@ -101,7 +138,7 @@ export function StudentTable({
                     <p className="text-[1.02rem] font-extrabold tracking-tight text-text transition group-hover:text-brand">
                       {student.name}
                     </p>
-                    <p className="mt-1 text-xs text-muted">학생 ID: {student.id}</p>
+                    <p className="mt-1 text-xs text-muted">학생 코드: {student.studentCode ?? "-"}</p>
                   </div>
                 </Link>
 
@@ -124,13 +161,15 @@ export function StudentTable({
                 </div>
 
                 <div>
-                  <p className="text-sm font-extrabold text-text">D-{student.examDays}</p>
+                  <p className="text-sm font-extrabold text-text">
+                    {hasExamDays ? `D-${student.examDays}` : student.nextExamDate ?? "-"}
+                  </p>
                   <p className="mt-1 text-xs text-muted">시험까지 남음</p>
                 </div>
 
                 <div>
                   <p className="text-sm font-extrabold text-text">
-                    {student.assignmentDone}/{student.assignmentTotal}
+                    {student.assignmentTotal > 0 ? `${student.assignmentDone}/${student.assignmentTotal}` : "-"}
                   </p>
                   <div className="mt-2 h-2 rounded-full bg-soft">
                     <div
@@ -145,6 +184,7 @@ export function StudentTable({
                       ? `미완료 ${student.overdueAssignments}건`
                       : "과제 정리 완료"}
                   </p>
+                  <p className="mt-1 text-[11px] text-muted">달성률 {assignmentRate}%</p>
                 </div>
 
                 <div>
@@ -193,7 +233,7 @@ export function StudentTable({
           페이지 {page} / {totalPages}
         </p>
 
-        <div className="flex items-center gap-2">
+        <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1">
           <button
             type="button"
             onClick={() => onPageChange(Math.max(1, page - 1))}
@@ -204,7 +244,7 @@ export function StudentTable({
             ‹
           </button>
 
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+          {visiblePageNumbers.map((pageNumber) => (
             <button
               key={pageNumber}
               type="button"

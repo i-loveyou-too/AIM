@@ -1,7 +1,14 @@
 // 리포트 허브 상단 요약 카드
 // 6개 핵심 지표를 프리미엄 카드 형태로 표시
 
-import { reportHubSummaryCards, type ReportHubSummaryCard } from "@/lib/mock-data/report-hub-mock-data";
+type ReportHubSummaryCard = {
+  label: string;
+  value: string;
+  note: string;
+  emoji: string;
+  tone: "brand" | "warm" | "accent" | "soft" | "success" | "alert";
+  badge: string;
+};
 
 const toneStyles: Record<ReportHubSummaryCard["tone"], { icon: string; badge: string; border: string }> = {
   brand: {
@@ -36,10 +43,10 @@ const toneStyles: Record<ReportHubSummaryCard["tone"], { icon: string; badge: st
   },
 };
 
-export function ReportHubSummaryCards() {
+export function ReportHubSummaryCards({ cards }: { cards: ReportHubSummaryCard[] }) {
   return (
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-      {reportHubSummaryCards.map((card) => {
+      {cards.map((card) => {
         const styles = toneStyles[card.tone];
         return (
           <div

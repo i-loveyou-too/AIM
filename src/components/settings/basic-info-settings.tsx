@@ -1,9 +1,20 @@
 // 설정 > 반 / 과목 기본 정보 섹션
 // 현재 설정 상태 확인 카드
 
-import { basicInfoSettings } from "@/lib/mock-data/settings-mock-data";
+type BasicInfoSettingsData = {
+  examScheduleLinked: boolean;
+  curriculumTemplateLinked: boolean;
+  subjects: string[];
+  classes: Array<{
+    name: string;
+    subject: string;
+    studentCount: number;
+    examDate: string;
+  }>;
+};
 
-export function BasicInfoSettings() {
+export function BasicInfoSettings({ data }: { data: BasicInfoSettingsData }) {
+  const basicInfoSettings = data;
   return (
     <section className="rounded-[24px] border border-border/80 bg-white shadow-soft">
       <div className="border-b border-border/60 px-6 py-5">

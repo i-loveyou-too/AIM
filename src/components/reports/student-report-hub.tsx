@@ -5,7 +5,23 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { studentReports, type StudentReportItem } from "@/lib/mock-data/report-hub-mock-data";
+
+type StudentReportItem = {
+  id: string;
+  name: string;
+  grade: string;
+  subject: string;
+  className: string;
+  status: "양호" | "주의" | "위험" | "관리 필요";
+  examReadiness: "양호" | "주의" | "위험";
+  examUpcoming: boolean;
+  dDay: string;
+  achievement: number;
+  homework: number;
+  progress: number;
+  lastUpdated: string;
+  insight: string;
+};
 
 const statusStyle: Record<StudentReportItem["status"], { bg: string; text: string }> = {
   양호: { bg: "bg-emerald-50", text: "text-emerald-600" },
@@ -31,19 +47,19 @@ function ProgressBar({ value, color = "bg-brand" }: { value: number; color?: str
   );
 }
 
-export function StudentReportHub() {
+export function StudentReportHub({ data }: { data: StudentReportItem[] }) {
   const [search, setSearch] = useState("");
   const [gradeFilter, setGradeFilter] = useState("전체");
   const [subjectFilter, setSubjectFilter] = useState("전체");
   const [statusFilter, setStatusFilter] = useState("전체");
   const [examFilter, setExamFilter] = useState(false);
 
-  const grades = ["전체", ...Array.from(new Set(studentReports.map((s) => s.grade)))];
-  const subjects = ["전체", ...Array.from(new Set(studentReports.map((s) => s.subject)))];
+  const grades = ["전체", ...Array.from(new Set(data.map((s) => s.grade)))];
+  const subjects = ["전체", ...Array.from(new Set(data.map((s) => s.subject)))];
   const statuses = ["전체", "양호", "주의", "위험", "관리 필요"];
 
   const filtered = useMemo(() => {
-    return studentReports.filter((s) => {
+    return data.filter((s) => {
       if (search && !s.name.includes(search)) return false;
       if (gradeFilter !== "전체" && s.grade !== gradeFilter) return false;
       if (subjectFilter !== "전체" && s.subject !== subjectFilter) return false;
@@ -51,7 +67,7 @@ export function StudentReportHub() {
       if (examFilter && !s.examUpcoming) return false;
       return true;
     });
-  }, [search, gradeFilter, subjectFilter, statusFilter, examFilter]);
+  }, [data, search, gradeFilter, subjectFilter, statusFilter, examFilter]);
 
   return (
     <div id="student-report" className="space-y-4">

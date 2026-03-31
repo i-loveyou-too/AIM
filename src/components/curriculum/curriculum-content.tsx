@@ -2,7 +2,6 @@
 
 // 커리큘럼 페이지 콘텐츠 — 학년/반 2단계 선택 + 데이터 전달
 import { useState, useRef, useEffect } from "react";
-import { curriculumClasses } from "@/lib/curriculum-mock-data";
 import { CurriculumExamCalendar } from "@/components/curriculum/curriculum-exam-calendar";
 import { CurriculumNextActions } from "@/components/curriculum/curriculum-next-actions";
 import { CurriculumPageHeader } from "@/components/curriculum/curriculum-page-header";
@@ -13,8 +12,13 @@ import { CurriculumRiskSection } from "@/components/curriculum/curriculum-risk-s
 import { CurriculumReversePlanSection } from "@/components/curriculum/curriculum-reverse-plan-section";
 import { CurriculumSummaryCards } from "@/components/curriculum/curriculum-summary-cards";
 
-// 고유 학년 목록
-const grades = [...new Set(curriculumClasses.map((c) => c.grade))];
+type CurriculumClassItem = {
+  id: string;
+  label: string;
+  grade: string;
+  subject: string;
+  data: any;
+};
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -79,17 +83,20 @@ function Dropdown({
   );
 }
 
-export function CurriculumContent() {
-  const [selectedId, setSelectedId] = useState(curriculumClasses[0].id);
+export function CurriculumContent({ classes }: { classes: CurriculumClassItem[] }) {
+  const safeClasses = classes.length > 0 ? classes : [{ id: "empty", label: "데이터 없음", grade: "-", subject: "-", data: null }];
+  const grades = [...new Set(safeClasses.map((c) => c.grade))];
+
+  const [selectedId, setSelectedId] = useState(safeClasses[0].id);
   const [gradeOpen, setGradeOpen] = useState(false);
   const [classOpen, setClassOpen] = useState(false);
 
-  const selected = curriculumClasses.find((c) => c.id === selectedId)!;
-  const classesForGrade = curriculumClasses.filter((c) => c.grade === selected.grade);
+  const selected = safeClasses.find((c) => c.id === selectedId) ?? safeClasses[0];
+  const classesForGrade = safeClasses.filter((c) => c.grade === selected.grade);
   const data = selected.data;
 
   function selectGrade(grade: string) {
-    const first = curriculumClasses.find((c) => c.grade === grade)!;
+    const first = safeClasses.find((c) => c.grade === grade) ?? safeClasses[0];
     setSelectedId(first.id);
     setGradeOpen(false);
   }
@@ -183,38 +190,31 @@ export function CurriculumContent() {
         </div>
       </div>
 
-      {/* 페이지 헤더 */}
-      <CurriculumPageHeader overview={data.overview} />
-
-      {/* 요약 카드 */}
-      <CurriculumSummaryCards cards={data.summaryCards} />
-
-      {/* 역산 계획 + 캘린더 */}
-      <div id="reverse-plan" className="grid gap-6 xl:grid-cols-2">
-        <CurriculumReversePlanSection reversePlan={data.reversePlan} />
-        <CurriculumExamCalendar calendar={data.calendar} />
-      </div>
-
-      {/* 계획 vs 실제 */}
-      <div id="plan-vs-actual">
-        <CurriculumPlanVsActualSection comparison={data.comparison} />
-      </div>
-
-      {/* 로드맵 */}
-      <div id="roadmap">
-        <CurriculumRoadmapBoard roadmap={data.roadmap} />
-      </div>
-
-      {/* 다음 수업 액션 */}
-      <CurriculumNextActions nextActions={data.nextActions} />
-
-      {/* 위험 신호 */}
-      <div id="risk">
-        <CurriculumRiskSection risks={data.risks} />
-      </div>
-
-      {/* 운영 메모 */}
-      <CurriculumPlanningNotesSection notes={data.notes} />
+      {data ? (
+        <>
+          <CurriculumPageHeader overview={data.overview} />
+          <CurriculumSummaryCards cards={data.summaryCards} />
+          <div id="reverse-plan" className="grid gap-6 xl:grid-cols-2">
+            <CurriculumReversePlanSection reversePlan={data.reversePlan} />
+            <CurriculumExamCalendar calendar={data.calendar} />
+          </div>
+          <div id="plan-vs-actual">
+            <CurriculumPlanVsActualSection comparison={data.comparison} />
+          </div>
+          <div id="roadmap">
+            <CurriculumRoadmapBoard roadmap={data.roadmap} />
+          </div>
+          <CurriculumNextActions nextActions={data.nextActions} />
+          <div id="risk">
+            <CurriculumRiskSection risks={data.risks} />
+          </div>
+          <CurriculumPlanningNotesSection notes={data.notes} />
+        </>
+      ) : (
+        <section className="rounded-[28px] border border-border/80 bg-white px-6 py-10 shadow-soft">
+          <p className="text-base font-extrabold tracking-tight text-text">커리큘럼 데이터를 불러올 수 없습니다.</p>
+        </section>
+      )}
     </div>
   );
 }

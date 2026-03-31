@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { sidebarMenu, sidebarNotice, type SidebarMenuItem } from "@/lib/mock-data/index";
+import { sidebarMenu, sidebarNotice, type SidebarMenuItem } from "@/lib/layout-config";
 
 function isChildHrefActive(
   href: string,

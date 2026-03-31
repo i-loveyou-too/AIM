@@ -3,7 +3,23 @@
 // 탭 2: 반별 리포트 허브
 // 운영자/강사 관점에서 반 단위 리포트 탐색
 
-import { classReports, type ClassReportItem } from "@/lib/mock-data/report-hub-mock-data";
+type ClassReportItem = {
+  id: string;
+  name: string;
+  subject: string;
+  studentCount: number;
+  examRisk: "양호" | "주의" | "위험";
+  progressStability: "안정" | "보통" | "불안정";
+  avgAchievement: number;
+  avgHomework: number;
+  avgProgress: number;
+  achievementTrend: number[];
+  homeworkTrend: number[];
+  weakUnit: string;
+  commonMistake: string;
+  teachingPoint: string;
+  focusStudentCount: number;
+};
 
 const riskStyle: Record<ClassReportItem["examRisk"], { bg: string; text: string }> = {
   양호: { bg: "bg-emerald-50", text: "text-emerald-600" },
@@ -42,7 +58,7 @@ function ProgressBar({ value, color = "bg-brand" }: { value: number; color?: str
   );
 }
 
-export function ClassReportHub() {
+export function ClassReportHub({ data }: { data: ClassReportItem[] }) {
   return (
     <div id="class-report" className="space-y-4">
       {/* 안내 배너 */}
@@ -55,7 +71,7 @@ export function ClassReportHub() {
 
       {/* 반 카드 목록 */}
       <div className="grid gap-4 xl:grid-cols-2">
-        {classReports.map((cls) => {
+        {data.map((cls) => {
           const risk = riskStyle[cls.examRisk];
           const stab = stabilityStyle[cls.progressStability];
 

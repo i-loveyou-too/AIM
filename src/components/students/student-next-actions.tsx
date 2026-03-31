@@ -1,4 +1,4 @@
-import type { StudentDetailData } from "@/lib/student-detail-mock-data";
+import type { StudentDetailData } from "@/types/student-detail";
 
 const toneStyles = {
   rose: "bg-brand/10 text-brand",

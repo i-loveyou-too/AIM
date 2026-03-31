@@ -4,13 +4,66 @@
 // 헤더는 항상 보이고, 버튼 클릭으로 상세 내용을 열고 닫을 수 있음
 
 import { useState } from "react";
-import type {
-  LessonPrep,
-  LessonStatus,
-  HomeworkStatus,
-  AchievementLevel,
-} from "@/lib/mock-data/today-lessons";
-import { lessonNextActions } from "@/lib/mock-data/today-lessons";
+
+type LessonStatus = "집중 관리" | "정상" | "보강 필요" | "시험 임박";
+type HomeworkStatus = "완료" | "미완료" | "부분 완료";
+type AchievementLevel = "우수" | "보통" | "미흡";
+type LessonPrep = {
+  id: string;
+  studentName: string;
+  grade: string;
+  subject: string;
+  time: string;
+  dDay: string;
+  status: LessonStatus;
+  recentAchievement: AchievementLevel;
+  progress: {
+    todayUnit: string;
+    completedRange: string;
+    targetRange: string;
+    curriculumPosition: string;
+    isDelayed: boolean;
+    planComparison?: string;
+    delayNote?: string;
+  };
+  explanation: {
+    conceptType: string;
+    keyConcepts: string[];
+    confusionPoints: string[];
+    misconceptions: string[];
+  };
+  materials: {
+    priorityTag: string;
+    mainTextbook: string;
+    workbooks: string[];
+    printouts: string[];
+  };
+  weaknesses: {
+    weakUnits: string[];
+    repeatMistakes: string[];
+    todayFocusCheck: string[];
+    attentionPoints: string[];
+  };
+  homework: {
+    status: HomeworkStatus;
+    completionRate: number;
+    warning?: string;
+    errorTendencies: string[];
+    homeworkBasedExplanation: string[];
+  };
+  lessonMemo: {
+    preClassCheck: string[];
+    questionPrompts: string[];
+    nextLessonConnection: string;
+  };
+};
+type LessonNextAction = {
+  lessonId: string;
+  beforeClass: string[];
+  duringClass: string[];
+  afterClass: string[];
+  nextLessonPrep: string[];
+};
 
 // ── 스타일 맵 ─────────────────────────────────────────────────
 
@@ -87,7 +140,15 @@ function BulletList({
 
 // ── 메인 카드 ─────────────────────────────────────────────────
 
-export function LessonPrepCard({ lesson, index }: { lesson: LessonPrep; index: number }) {
+export function LessonPrepCard({
+  lesson,
+  index,
+  nextActions,
+}: {
+  lesson: LessonPrep;
+  index: number;
+  nextActions: LessonNextAction[];
+}) {
   const [open, setOpen] = useState(true);
 
   const st  = statusStyles[lesson.status];
@@ -372,7 +433,7 @@ export function LessonPrepCard({ lesson, index }: { lesson: LessonPrep; index: n
 
         {/* ── 단계별 액션 플랜 ──────────────────────────────── */}
         {(() => {
-          const actions = lessonNextActions.find((a) => a.lessonId === lesson.id);
+          const actions = nextActions.find((a) => a.lessonId === lesson.id);
           if (!actions) return null;
 
           const phases = [

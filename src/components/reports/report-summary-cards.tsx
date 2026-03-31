@@ -1,8 +1,6 @@
 // 리포트 KPI 요약 카드
 // 대시보드 summaryCard와 달리 "변화 추이" 정보를 함께 보여주는 분석형 카드
 
-import { reportKPIs } from "@/lib/mock-data/student-report-mock-data";
-
 type Tone = "brand" | "warm" | "accent" | "soft" | "alert";
 type ChangeDir = "up" | "down" | "neutral";
 
@@ -20,10 +18,21 @@ const changeDirStyle: Record<ChangeDir, { text: string; arrow: string }> = {
   neutral: { text: "text-muted",       arrow: "→" },
 };
 
-export function ReportSummaryCards() {
+type ReportSummaryCard = {
+  id: string;
+  tone: Tone;
+  changeDir: ChangeDir;
+  icon: string;
+  change: string;
+  label: string;
+  value: string;
+  note: string;
+};
+
+export function ReportSummaryCards({ data }: { data: ReportSummaryCard[] }) {
   return (
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {reportKPIs.map((kpi) => {
+      {data.map((kpi) => {
         const tone = toneMap[kpi.tone];
         const dir  = changeDirStyle[kpi.changeDir];
         return (

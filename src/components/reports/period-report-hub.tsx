@@ -4,9 +4,30 @@
 // 시간에 따른 변화 추이 분석 탭 - 차트 중심
 
 import { useState } from "react";
-import { periodReports, type PeriodDataPoint } from "@/lib/mock-data/report-hub-mock-data";
+
+type PeriodDataPoint = {
+  label: string;
+  value: number;
+};
 
 type PeriodKey = "1주" | "2주" | "4주" | "월간";
+
+type PeriodIssue = {
+  type: "숙제" | "성취도" | "진도" | "시험" | string;
+  severity: "high" | "medium" | "low";
+  date: string;
+  title: string;
+};
+
+type PeriodReportBlock = {
+  achievementTrend: PeriodDataPoint[];
+  homeworkTrend: PeriodDataPoint[];
+  progressTrend: PeriodDataPoint[];
+  questionCount: PeriodDataPoint[];
+  missedCount: PeriodDataPoint[];
+  riskCount: PeriodDataPoint[];
+  issues: PeriodIssue[];
+};
 
 const PERIOD_OPTIONS: PeriodKey[] = ["1주", "2주", "4주", "월간"];
 
@@ -94,9 +115,17 @@ function TrendCard({
   );
 }
 
-export function PeriodReportHub() {
+export function PeriodReportHub({ data }: { data: Partial<Record<PeriodKey, PeriodReportBlock>> }) {
   const [period, setPeriod] = useState<PeriodKey>("4주");
-  const data = periodReports[period];
+  const periodData: PeriodReportBlock = data?.[period] ?? {
+    achievementTrend: [],
+    homeworkTrend: [],
+    progressTrend: [],
+    questionCount: [],
+    missedCount: [],
+    riskCount: [],
+    issues: [],
+  };
 
   return (
     <div id="period-report" className="space-y-6">
@@ -123,17 +152,17 @@ export function PeriodReportHub() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <TrendCard
           label="성취도 추이"
-          data={data.achievementTrend}
+          data={periodData.achievementTrend}
           color="bg-brand/70"
         />
         <TrendCard
           label="숙제 수행률 추이"
-          data={data.homeworkTrend}
+          data={periodData.homeworkTrend}
           color="bg-emerald-400/70"
         />
         <TrendCard
           label="진도 달성률 추이"
-          data={data.progressTrend}
+          data={periodData.progressTrend}
           color="bg-accent/70"
         />
       </div>
@@ -142,19 +171,19 @@ export function PeriodReportHub() {
       <div className="grid gap-4 sm:grid-cols-3">
         <TrendCard
           label="질문 수 변화"
-          data={data.questionCount}
+          data={periodData.questionCount}
           color="bg-soft border border-border/60"
           unit="건"
         />
         <TrendCard
           label="미제출 변화"
-          data={data.missedCount}
+          data={periodData.missedCount}
           color="bg-warm/50"
           unit="건"
         />
         <TrendCard
           label="위험 학생 수 변화"
-          data={data.riskCount}
+          data={periodData.riskCount}
           color="bg-brand/40"
           unit="명"
         />
@@ -172,7 +201,7 @@ export function PeriodReportHub() {
           <div className="relative space-y-3 pl-5">
             {/* 타임라인 세로선 */}
             <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border/60" />
-            {data.issues.map((issue, i) => {
+            {periodData.issues.map((issue, i) => {
               const sev = issueSeverityStyle[issue.severity];
               const typ = issueTypeStyle[issue.type] ?? issueTypeStyle["진도"];
               return (

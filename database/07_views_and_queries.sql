@@ -27,11 +27,14 @@ SELECT
          ELSE 0
     END                         AS assignment_rate,
     (
-        SELECT string_agg(wt.topic, ', ')
-        FROM student_weak_topics wt
-        WHERE wt.student_id = s.id
-        ORDER BY wt.severity DESC, wt.created_at DESC
-        LIMIT 2
+        SELECT string_agg(t.topic, ', ' ORDER BY t.severity DESC, t.created_at DESC)
+        FROM (
+            SELECT wt.topic, wt.severity, wt.created_at
+            FROM student_weak_topics wt
+            WHERE wt.student_id = s.id
+            ORDER BY wt.severity DESC, wt.created_at DESC
+            LIMIT 2
+        ) t
     )                           AS top_weak_topics,
     (
         SELECT e.exam_date
@@ -133,16 +136,18 @@ SELECT
     gp.study_goal,
     gp.studyti_summary,
     -- 시험 정보
-    e.exam_date                 AS next_exam_date,
-    ser.readiness_score         AS exam_readiness,
-    ser.needs_reinforcement,
-    ser.progress_status         AS exam_progress_status,
+    edata.exam_date             AS next_exam_date,
+    edata.readiness_score       AS exam_readiness,
+    edata.needs_reinforcement,
+    edata.progress_status       AS exam_progress_status,
     -- 취약 주제 (jsonb 배열)
     (
-        SELECT jsonb_agg(jsonb_build_object('topic', wt.topic, 'severity', wt.severity))
+        SELECT jsonb_agg(
+            jsonb_build_object('topic', wt.topic, 'severity', wt.severity)
+            ORDER BY wt.severity DESC, wt.created_at DESC
+        )
         FROM student_weak_topics wt
         WHERE wt.student_id = s.id
-        ORDER BY wt.severity DESC
     )                           AS weak_topics,
     -- 최근 피드백
     fl.feedback_text            AS latest_feedback,
@@ -161,16 +166,14 @@ LEFT JOIN class_groups    cg  ON en.class_group_id     = cg.id
 LEFT JOIN student_profiles sp ON sp.student_id         = s.id
 LEFT JOIN student_goal_profiles gp ON gp.student_id   = s.id
 LEFT JOIN LATERAL (
-    SELECT e.exam_date, se.readiness_score, se.needs_reinforcement, se.progress_status
-    FROM exams e
-    JOIN student_exam_readiness se ON se.exam_id = e.id AND se.student_id = s.id
-    WHERE e.class_group_id = cg.id
-      AND e.exam_date >= CURRENT_DATE
-    ORDER BY e.exam_date
+    SELECT ex.exam_date, se.readiness_score, se.needs_reinforcement, se.progress_status
+    FROM exams ex
+    JOIN student_exam_readiness se ON se.exam_id = ex.id AND se.student_id = s.id
+    WHERE ex.class_group_id = cg.id
+      AND ex.exam_date >= CURRENT_DATE
+    ORDER BY ex.exam_date
     LIMIT 1
 ) AS edata ON TRUE
-LEFT JOIN exams e         ON e.exam_date = edata.exam_date AND e.class_group_id = cg.id
-LEFT JOIN student_exam_readiness ser ON ser.student_id = s.id AND ser.exam_id = e.id
 LEFT JOIN LATERAL (
     SELECT feedback_text, next_action, logged_at
     FROM student_feedback_logs
@@ -243,6 +246,7 @@ GROUP BY cg.id, cc.status, cc.actual_progress, cc.planned_progress;
 
 -- ────────────────────────────────────────────────────────────
 -- VIEW 6: v_today_lessons — 오늘 수업 탭
+-- 특정 날짜로 필터하려면: SELECT * FROM v_today_lessons WHERE scheduled_date = '2026-03-30';
 -- ────────────────────────────────────────────────────────────
 CREATE OR REPLACE VIEW v_today_lessons AS
 SELECT
@@ -289,7 +293,7 @@ JOIN class_groups cg    ON ls.class_group_id = cg.id
 JOIN teachers t         ON ls.teacher_id     = t.id
 LEFT JOIN enrollments en ON en.class_group_id = cg.id AND en.is_active = TRUE
 LEFT JOIN lesson_preps lp ON lp.lesson_schedule_id = ls.id
-WHERE ls.scheduled_date = CURRENT_DATE
+WHERE ls.scheduled_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
 GROUP BY ls.id, cg.id, t.name, lp.weak_topic_overview, lp.homework_reflection, lp.materials_needed, lp.ai_suggestions;
 
 -- ────────────────────────────────────────────────────────────

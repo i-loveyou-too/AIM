@@ -1,7 +1,21 @@
 // 과제 관리 — 공통 오답 분석 섹션
 // 가장 많이 틀린 문제 TOP 5, 취약 개념, 반복 패턴, 재설명 필요 개념
 
-import type { CommonMistakeAnalysis } from "@/lib/mock-data/assignment-mock-data";
+type MistakeItem = {
+  rank: number;
+  questionNum: number;
+  topic: string;
+  mistakeType: string;
+  incorrectCount: number;
+};
+
+type CommonMistakeAnalysis = {
+  topMistakes: MistakeItem[];
+  weakConceptSummary: string[];
+  repeatMistakePatterns: string[];
+  explanationNeeded: string[];
+  topQuestions: string[];
+};
 
 const mistakeTypeStyle: Record<string, string> = {
   "계산 실수": "bg-brand/10 text-brand",

@@ -1,8 +1,6 @@
 // 취약 단원 분석 섹션
 // 반복 오답 단원 목록 + 실수 패턴 분석
 
-import { weakTopics, repeatMistakePatterns } from "@/lib/mock-data/student-report-mock-data";
-
 const severityStyle: Record<string, { bg: string; text: string; dot: string }> = {
   높음:  { bg: "bg-brand/10",    text: "text-brand",       dot: "bg-brand"       },
   중간:  { bg: "bg-warm/50",     text: "text-[#7a6200]",   dot: "bg-warm"        },
@@ -22,7 +20,32 @@ const mistakeTypeStyle: Record<string, string> = {
   "절차 누락":  "bg-warm/50 text-[#7a6200]",
 };
 
-export function WeaknessAnalysisSection() {
+export function WeaknessAnalysisSection({
+  weakTopics,
+  repeatMistakePatterns,
+}: {
+  weakTopics: Array<{
+    topic: string;
+    severity: "높음" | "중간" | "낮음";
+    category: "계산" | "개념" | "서술" | "응용";
+    frequency: number;
+    lastOccurred: string;
+    riskBeforeExam: boolean;
+  }>;
+  repeatMistakePatterns: Array<{
+    type: "계산 실수" | "개념 혼동" | "절차 누락" | string;
+    pattern: string;
+    count: number;
+  }>;
+}) {
+  if (!weakTopics || weakTopics.length === 0) {
+    return (
+      <section className="rounded-[28px] border border-border/80 bg-white px-6 py-8 shadow-soft">
+        <p className="text-sm font-semibold text-muted">취약 단원 데이터가 없습니다.</p>
+      </section>
+    );
+  }
+
   const riskTopics = weakTopics.filter((t) => t.riskBeforeExam);
   const maxFreq = Math.max(...weakTopics.map((t) => t.frequency));
 

@@ -4,10 +4,28 @@
 // 학생/반 탭을 선택하면 해당 수업의 4단계 액션 플랜만 표시
 
 import { useState } from "react";
-import { lessonNextActions, todaySchedule } from "@/lib/mock-data/today-lessons";
+
+type TodayScheduleItem = {
+  id: string;
+  studentName: string;
+  grade: string;
+  subject: string;
+  time: string;
+  dDay: string;
+  todayGoal: string;
+};
+
+type LessonNextAction = {
+  lessonId: string;
+  studentName: string;
+  beforeClass: string[];
+  duringClass: string[];
+  afterClass: string[];
+  nextLessonPrep: string[];
+};
 
 type Phase = {
-  key: keyof Omit<(typeof lessonNextActions)[0], "lessonId" | "studentName">;
+  key: keyof Omit<LessonNextAction, "lessonId" | "studentName">;
   label: string;
   icon: string;
   color: string;
@@ -35,15 +53,19 @@ const bulletChar: Record<string, string> = {
 };
 
 // 오늘 일정 순서에 맞춰 탭 목록 생성 (데이터 없는 lesson은 제외)
-const tabList = todaySchedule.filter((s) =>
-  lessonNextActions.some((a) => a.lessonId === s.id)
-);
+type Props = {
+  nextActions: LessonNextAction[];
+  schedule: TodayScheduleItem[];
+};
 
-export function NextActionsSection() {
+export function NextActionsSection({ nextActions, schedule }: Props) {
+  const tabList = schedule.filter((s) =>
+    nextActions.some((a) => a.lessonId === s.id)
+  );
   const [activeId, setActiveId] = useState(tabList[0]?.id ?? "lesson-1");
 
-  const current = lessonNextActions.find((a) => a.lessonId === activeId);
-  const scheduleItem = todaySchedule.find((s) => s.id === activeId);
+  const current = nextActions.find((a) => a.lessonId === activeId);
+  const scheduleItem = schedule.find((s) => s.id === activeId);
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">

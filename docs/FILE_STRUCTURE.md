@@ -21,7 +21,9 @@
 | 영역 | 대표 파일 | 역할 |
 | --- | --- | --- |
 | 루트 설정 | `README.md`, `package.json`, `next.config.mjs`, `postcss.config.mjs`, `tailwind.config.ts`, `tsconfig.json`, `next-env.d.ts` | 프로젝트 기본 안내와 실행 / 설정 파일 |
-| 문서 | `docs/FILE_STRUCTURE.md`, `docs/aim_on_dev_note.md`, `docs/MOCK_DATA.md`, `docs/DASHBOARD_DATA.md` | 구조 정리, 개발 노트, mock data 설명 |
+| 문서 | `docs/FILE_STRUCTURE.md`, `docs/aim_on_dev_note.md`, `docs/MOCK_DATA.md`, `docs/DASHBOARD_DATA.md`, `docs/PROJECT_CHECKLIST.md`, `docs/deployment-plan.md`, `docs/api-contract.yaml` | 구조 정리, 개발 노트, mock data 설명, MVP 체크리스트, 배포 계획, API 계약 |
+| DB 스키마 | `database/01_create_schema.sql` ~ `database/07_views_and_queries.sql` | PostgreSQL 스키마, seed 데이터, VIEW 정의 |
+| 백엔드 | `backend/manage.py`, `backend/config/*`, `backend/teacher_api/*`, `backend/student_api/*` | Django raw SQL 기반 교사용 및 학생용 Stub API |
 | 실행 스크립트 | `scripts/dev-safe.sh`, `scripts/dev-safe.mjs`, `scripts/build-safe.sh` | stale cache와 중복 dev 서버를 정리하고 `.next`를 비운 뒤 시작하는 안전 실행 명령 |
 | 정적 자산 | `public/aim-on-logo.png` | Aim ON 브랜드 로고 |
 | 앱 라우트 | `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/dashboard/page.tsx`, `src/app/dashboard/curriculum/page.tsx`, `src/app/dashboard/students/page.tsx`, `src/app/dashboard/students/[id]/page.tsx`, `src/app/dashboard/students/[id]/report/page.tsx`, `src/app/dashboard/today-lessons/page.tsx` | 공통 레이아웃과 화면 라우트 |
@@ -50,6 +52,33 @@ project/
     aim_on_dev_note.md
     MOCK_DATA.md
     DASHBOARD_DATA.md
+    PROJECT_CHECKLIST.md
+    deployment-plan.md
+    api-contract.yaml
+  database/
+    01_create_schema.sql
+    02_seed_reference.sql
+    03_seed_students.sql
+    04_seed_academics.sql
+    05_seed_assignments.sql
+    06_seed_issues.sql
+    07_views_and_queries.sql
+  backend/
+    manage.py
+    requirements.txt
+    config/
+      settings.py
+      urls.py
+      asgi.py
+      wsgi.py
+    teacher_api/
+      views.py
+      urls.py
+      apps.py
+    student_api/
+      views.py
+      urls.py
+      apps.py
   scripts/
     dev-safe.sh
     dev-safe.mjs
@@ -63,9 +92,19 @@ project/
       page.tsx
       dashboard/
         page.tsx
-        today-lessons/
+        assignments/
           page.tsx
+        classes/
+          page.tsx
+          [id]/
+            page.tsx
         curriculum/
+          page.tsx
+        reports/
+          page.tsx
+        settings/
+          page.tsx
+        today-lessons/
           page.tsx
         students/
           page.tsx
@@ -127,6 +166,8 @@ project/
         teacher-report-comment.tsx
         next-direction-section.tsx
     lib/
+      api/
+        teacher.ts
       curriculum-mock-data.ts
       student-detail-mock-data.ts
       mock-data/
@@ -136,6 +177,12 @@ project/
         today-lessons.ts
         students.ts
         student-report-mock-data.ts
+        report-hub-mock-data.ts
+        assignment-mock-data.ts
+        issue-mock-data.ts
+        settings-mock-data.ts
+    types/
+      teacher.ts
 ```
 
 ## 파일 역할
@@ -157,6 +204,28 @@ project/
 - `docs/aim_on_dev_note.md`: 개발 대원칙, 의사결정 기록, 작업 로그를 모아두는 메인 노트
 - `docs/MOCK_DATA.md`: mock data 전체 구조와 타입 기준을 표로 정리한 문서
 - `docs/DASHBOARD_DATA.md`: dashboard.ts 안의 항목을 전부 풀어쓴 상세 문서
+- `docs/PROJECT_CHECKLIST.md`: MVP 범위 기준 19개 섹션 체크리스트. 현재 진행 상태 추적용
+- `docs/deployment-plan.md`: Vercel + Neon 배포 8단계 체크리스트와 파일럿 운영 계획
+- `docs/api-contract.yaml`: 교사용 조회 API 5개 엔드포인트 OpenAPI 3.0 계약 문서
+
+### `database`
+
+- `01_create_schema.sql`: ENUM, 34개 테이블, 인덱스, 코멘트 정의. `class_name` GENERATED ALWAYS AS STORED 컬럼 포함
+- `02_seed_reference.sql`: 교사 3명, 학교 10개, 반 그룹 21개 기준 데이터
+- `03_seed_students.sql`: 학생 125명, 수강 등록, 프로필, 목표 데이터
+- `04_seed_academics.sql`: 시험, 취약 단원, 피드백, 성취 추이, 수업 일정, 커리큘럼 데이터
+- `05_seed_assignments.sql`: 과제 15개, 제출 현황, OMR/OCR, 오답 분석, 수업 성찰 데이터
+- `06_seed_issues.sql`: 이슈 22개, JSONB 형태의 타입별 상세 데이터
+- `07_views_and_queries.sql`: 11개 PostgreSQL VIEW 정의 (각 프론트 탭에 1:1 대응)
+
+### `backend`
+
+- `backend/manage.py`: Django 관리 진입점
+- `backend/requirements.txt`: Django, psycopg2 등 의존성 목록
+- `backend/config/settings.py`: DB 연결(Neon PostgreSQL), CORS, 앱 설정
+- `backend/config/urls.py`: teacher_api 라우트 연결
+- `backend/teacher_api/views.py`: raw SQL + VIEW 기반 교사용 조회 API 뷰 5개
+- `backend/teacher_api/urls.py`: `/api/teacher/*` 라우트 5개 정의
 
 ### `scripts`
 
@@ -174,7 +243,12 @@ project/
 - `src/app/globals.css`: 전역 스타일, 색상 토큰, 폰트 설정
 - `src/app/page.tsx`: 루트 진입점, 현재는 대시보드로 이동
 - `src/app/dashboard/page.tsx`: 교사용 대시보드 홈 화면
+- `src/app/dashboard/assignments/page.tsx`: 과제 관리 페이지
+- `src/app/dashboard/classes/page.tsx`: 반 목록 페이지
+- `src/app/dashboard/classes/[id]/page.tsx`: 반 상세 페이지
 - `src/app/dashboard/curriculum/page.tsx`: 시험일 역산 기반 계획 / 커리큘럼 화면
+- `src/app/dashboard/reports/page.tsx`: 리포트 허브 페이지
+- `src/app/dashboard/settings/page.tsx`: 설정 페이지
 - `src/app/dashboard/today-lessons/page.tsx`: 오늘 수업 운영 페이지
 - `src/app/dashboard/students/page.tsx`: 학생 관리 페이지
 - `src/app/dashboard/students/[id]/page.tsx`: 학생 상세 페이지 (현재 상태·운영 중심)
@@ -248,6 +322,14 @@ project/
 - `teacher-report-comment.tsx`: 강점 / 우려사항 / 최근 변화 / 다음 집중 방향 4블록
 - `next-direction-section.tsx`: 우선순위 배너, 보강 항목, 숙제 방향, 설명 집중 포인트
 
+### `src/lib/api`
+
+- `teacher.ts`: Django 백엔드 교사용 API 호출 함수 모음. fetch wrapper + 에러 처리
+
+### `src/types`
+
+- `teacher.ts`: API 응답 타입 정의 (StudentListItem, StudentDetailItem, ClassListItem, TodayLessonItem 등)
+
 ### `src/lib/mock-data`
 
 - `index.ts`: mock data 재수출 진입점
@@ -258,6 +340,10 @@ project/
 - `students.ts`: 학생 리스트 관련 mock data
 - `student-detail-mock-data.ts`: 학생 상세 페이지용 mock data와 생성 로직 (현재 상태·운영 중심)
 - `student-report-mock-data.ts`: 학생 리포트 페이지용 mock data (추이·분석·변화 흐름 중심)
+- `report-hub-mock-data.ts`: 리포트 허브 페이지용 mock data
+- `assignment-mock-data.ts`: 과제 관리 페이지용 mock data
+- `issue-mock-data.ts`: 이슈 관리 관련 mock data
+- `settings-mock-data.ts`: 설정 페이지용 mock data
 
 ## 작업 기록
 

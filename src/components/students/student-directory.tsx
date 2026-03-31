@@ -4,7 +4,27 @@ import { useEffect, useMemo, useState } from "react";
 import { StudentFilters } from "@/components/students/student-filters";
 import { StudentOverview, type OverviewKey } from "@/components/students/student-overview";
 import { StudentTable } from "@/components/students/student-table";
-import type { StudentRecord } from "@/lib/mock-data/index";
+
+type StudentRecord = {
+  id: string;
+  studentCode?: string | null;
+  name: string;
+  school: string;
+  className: string;
+  grade: string;
+  subject: string;
+  status: string;
+  recentProgress: string;
+  recentTag: string;
+  score: number;
+  examDays: number;
+  overdueAssignments: number;
+  assignmentDone: number;
+  assignmentTotal: number;
+  assignmentRate?: number;
+  weakTopic: string;
+  nextExamDate?: string | null;
+};
 
 type StudentDirectoryProps = {
   students: StudentRecord[];
@@ -100,6 +120,7 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
 
       const haystack = [
         student.id,
+        student.studentCode ?? "",
         student.name,
         student.school,
         student.grade,
@@ -109,6 +130,7 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
         student.recentTag,
         student.status,
         student.weakTopic,
+        student.nextExamDate ?? "",
       ]
         .join(" ")
         .toLowerCase();
@@ -142,7 +164,7 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
     [filteredStudents, overviewFilter, sortBy],
   );
 
-  const pageSize = 4;
+  const pageSize = 10;
   const totalPages = Math.max(1, Math.ceil(sortedStudents.length / pageSize));
   const currentPage = Math.min(page, totalPages);
   const pageStudents = sortedStudents.slice((currentPage - 1) * pageSize, currentPage * pageSize);

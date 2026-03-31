@@ -26,6 +26,7 @@ function clearNextBuildArtifacts() {
 
 function listenerPids(port) {
   try {
+    // lsof 명령어가 있는지 확인하고 PID 추출
     const output = execFileSync("lsof", ["-tiTCP:" + port, "-sTCP:LISTEN"], {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
@@ -38,6 +39,7 @@ function listenerPids(port) {
       .map((value) => Number(value))
       .filter((value) => Number.isFinite(value));
   } catch {
+    // lsof가 없거나 에러가 나면 빈 배열 반환
     return [];
   }
 }
@@ -46,6 +48,7 @@ async function cleanupPort(port) {
   const pids = listenerPids(port);
   if (pids.length === 0) return;
 
+  console.log(`Cleaning up existing processes on port ${port}...`);
   for (const pid of pids) {
     try {
       process.kill(pid, "SIGTERM");

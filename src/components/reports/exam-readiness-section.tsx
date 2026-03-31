@@ -1,10 +1,33 @@
 // 시험 준비도 섹션
 // D-day 카운트다운, 준비도 게이지, 체크리스트
 
-import { examReadiness } from "@/lib/mock-data/student-report-mock-data";
+type ExamReadinessData = {
+  dDay: string;
+  examDate: string;
+  readinessScore: number;
+  status: string;
+  currentEstimated: number;
+  targetScore: number;
+  canReachTarget: boolean;
+  reachableScore: number;
+  examCoverageReady: number;
+  checkItems: Array<{
+    label: string;
+    done: boolean;
+  }>;
+  remainingLessons: number;
+  remainingWeeks: number;
+};
 
-export function ExamReadinessSection() {
-  const data = examReadiness;
+export function ExamReadinessSection({ data }: { data: ExamReadinessData | null | undefined }) {
+  if (!data) {
+    return (
+      <section className="rounded-[28px] border border-border/80 bg-white px-6 py-8 shadow-soft">
+        <p className="text-sm font-semibold text-muted">시험 준비도 데이터가 없습니다.</p>
+      </section>
+    );
+  }
+
   const doneCount = data.checkItems.filter((c) => c.done).length;
   const totalCount = data.checkItems.length;
   const readinessColor =

@@ -3,7 +3,6 @@
 // 설정 > 과제 관리 설정 섹션
 
 import { useState } from "react";
-import { assignmentSettings } from "@/lib/mock-data/settings-mock-data";
 
 function Toggle({ enabled, onChange }: { enabled: boolean; onChange: () => void }) {
   return (
@@ -25,13 +24,23 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: () => void 
   );
 }
 
-export function AssignmentSettings() {
-  const [deadline, setDeadline] = useState(assignmentSettings.defaultDeadlineTime);
-  const [photo, setPhoto] = useState(assignmentSettings.allowPhotoSubmit);
-  const [omr, setOMR] = useState(assignmentSettings.allowOMRSubmit);
-  const [question, setQuestion] = useState(assignmentSettings.questionEnabled);
-  const [ocr, setOCR] = useState(assignmentSettings.ocrReviewHighlight);
-  const [mistake, setMistake] = useState(assignmentSettings.commonMistakeAlert);
+type AssignmentSettingState = {
+  defaultDeadlineTime: string;
+  allowPhotoSubmit: boolean;
+  allowOMRSubmit: boolean;
+  questionEnabled: boolean;
+  ocrReviewHighlight: boolean;
+  commonMistakeAlert: boolean;
+};
+
+export function AssignmentSettings({ initialSettings }: { initialSettings: AssignmentSettingState }) {
+  const settings = initialSettings;
+  const [deadline, setDeadline] = useState(settings.defaultDeadlineTime);
+  const [photo, setPhoto] = useState(settings.allowPhotoSubmit);
+  const [omr, setOMR] = useState(settings.allowOMRSubmit);
+  const [question, setQuestion] = useState(settings.questionEnabled);
+  const [ocr, setOCR] = useState(settings.ocrReviewHighlight);
+  const [mistake, setMistake] = useState(settings.commonMistakeAlert);
 
   return (
     <section className="rounded-[24px] border border-border/80 bg-white shadow-soft">

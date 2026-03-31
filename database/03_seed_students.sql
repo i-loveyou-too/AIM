@@ -195,7 +195,7 @@ INSERT INTO enrollments (student_id, class_group_id) VALUES
     (33, 14), -- 문준서
     (36, 14), -- 류예원
     (40, 14), -- 조서연
-    (44, 14); -- 정재호
+    (44, 14); -- 최다은
 
 -- 고3 수능 공통+미적분 A반 (class_group_id=17) — 최상위
 INSERT INTO enrollments (student_id, class_group_id) VALUES

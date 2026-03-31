@@ -1,7 +1,7 @@
 // 이슈함 — 운영 인사이트 섹션
 // 반복 미제출 / 질문 빈도 / 시험 임박 / 지연 위험 / 보강 필요 요약
 
-import { issueInsights } from "@/lib/mock-data/issue-mock-data";
+import type { IssueInsightsData } from "@/types/issues";
 
 const urgencyBadge: Record<string, string> = {
   긴급: "bg-brand text-white",
@@ -10,8 +10,16 @@ const urgencyBadge: Record<string, string> = {
   낮음: "bg-soft text-muted",
 };
 
-export function IssueInsightSection() {
-  const d = issueInsights;
+const emptyData: IssueInsightsData = {
+  repeatNonSubmit: [],
+  frequentQuestions: [],
+  examImminent: [],
+  delayRisk: [],
+  commonReinforcement: [],
+};
+
+export function IssueInsightSection({ data = emptyData }: { data?: IssueInsightsData }) {
+  const d = data;
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">

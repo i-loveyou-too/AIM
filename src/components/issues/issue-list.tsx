@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { Issue } from "@/lib/mock-data/issue-mock-data";
+import type { Issue } from "@/types/issues";
 
 // ── 스타일 맵 ────────────────────────────────────────────────
 

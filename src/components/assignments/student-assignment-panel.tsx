@@ -1,7 +1,27 @@
 // 과제 관리 — 학생별 제출 상태 패널
 // 반 카드 안에서 drill-down으로 표시
 
-import type { StudentSubmission } from "@/lib/mock-data/assignment-mock-data";
+type OmrResultItem = {
+  questionNum: number;
+  correct: boolean;
+  studentAnswer: string;
+  correctAnswer: string;
+};
+
+type StudentSubmission = {
+  id: string;
+  studentName: string;
+  status: string;
+  submissionType?: string | null;
+  submittedAt?: string | null;
+  isRepeatNonSubmit?: boolean;
+  needsReview?: boolean;
+  question?: string | null;
+  ocrSummary?: string | null;
+  omrResult?: OmrResultItem[] | null;
+  correctCount?: number;
+  totalQuestions?: number;
+};
 
 const submitStatusStyle: Record<string, { bg: string; text: string }> = {
   완료:      { bg: "bg-emerald-50",  text: "text-emerald-700" },

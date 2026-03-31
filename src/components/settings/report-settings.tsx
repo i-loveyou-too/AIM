@@ -3,7 +3,6 @@
 // 설정 > 리포트 기본 설정 섹션
 
 import { useState } from "react";
-import { reportSettings } from "@/lib/mock-data/settings-mock-data";
 
 type ReportPeriod = "1주" | "2주" | "4주";
 type ReportView = "학생별" | "반별";
@@ -43,10 +42,16 @@ function RadioGroup<T extends string>({
   );
 }
 
-export function ReportSettingsSection() {
-  const [period, setPeriod] = useState<ReportPeriod>(reportSettings.defaultPeriod);
-  const [view, setView] = useState<ReportView>(reportSettings.defaultView);
-  const [dDay, setDDay] = useState<ExamDDay>(reportSettings.examEmphasisDDay);
+type ReportSettingState = {
+  defaultPeriod: ReportPeriod;
+  defaultView: ReportView;
+  examEmphasisDDay: ExamDDay;
+};
+
+export function ReportSettingsSection({ initialSettings }: { initialSettings: ReportSettingState }) {
+  const [period, setPeriod] = useState<ReportPeriod>(initialSettings.defaultPeriod);
+  const [view, setView] = useState<ReportView>(initialSettings.defaultView);
+  const [dDay, setDDay] = useState<ExamDDay>(initialSettings.examEmphasisDDay);
 
   return (
     <section className="rounded-[24px] border border-border/80 bg-white shadow-soft">

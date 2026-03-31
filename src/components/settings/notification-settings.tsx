@@ -3,7 +3,6 @@
 // 설정 > 알림 설정 섹션
 
 import { useState } from "react";
-import { notificationSettings } from "@/lib/mock-data/settings-mock-data";
 
 function Toggle({ enabled, onChange }: { enabled: boolean; onChange: () => void }) {
   return (
@@ -25,8 +24,15 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: () => void 
   );
 }
 
-export function NotificationSettings() {
-  const [settings, setSettings] = useState(notificationSettings);
+type NotificationSetting = {
+  key: string;
+  label: string;
+  description: string;
+  enabled: boolean;
+};
+
+export function NotificationSettings({ initialSettings }: { initialSettings: NotificationSetting[] }) {
+  const [settings, setSettings] = useState<NotificationSetting[]>(initialSettings);
 
   const toggle = (key: string) => {
     setSettings((prev) =>

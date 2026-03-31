@@ -1,10 +1,34 @@
 // 진도 달성 / 계획 대비 현황 차트
 // 계획 단원 수 vs 실제 완료 단원 수 비교 + 주간 breakdown
 
-import { progressVsPlan } from "@/lib/mock-data/student-report-mock-data";
+type WeeklyProgress = {
+  week: string;
+  label: string;
+  planned: number;
+  actual: number;
+  note?: string;
+};
 
-export function ProgressVsPlanChart() {
-  const data = progressVsPlan;
+type ProgressVsPlanData = {
+  totalUnits: number;
+  plannedUnits: number;
+  plannedPercent: number;
+  actualUnits: number;
+  actualPercent: number;
+  status: string;
+  currentUnit: string;
+  delayNote?: string;
+  weeklyBreakdown: WeeklyProgress[];
+};
+
+export function ProgressVsPlanChart({ data }: { data: ProgressVsPlanData | null | undefined }) {
+  if (!data) {
+    return (
+      <section className="rounded-[28px] border border-border/80 bg-white px-6 py-8 shadow-soft">
+        <p className="text-sm font-semibold text-muted">진도 비교 데이터가 없습니다.</p>
+      </section>
+    );
+  }
 
   const plannedBar = (data.plannedUnits / data.totalUnits) * 100;
   const actualBar  = (data.actualUnits  / data.totalUnits) * 100;

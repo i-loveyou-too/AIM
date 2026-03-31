@@ -1,4 +1,4 @@
-import type { StudentDetailCard } from "@/lib/student-detail-mock-data";
+import type { StudentDetailCard } from "@/types/student-detail";
 
 const toneStyles = {
   rose: {

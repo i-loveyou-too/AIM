@@ -1,4 +1,4 @@
-import type { StudentDetailData } from "@/lib/student-detail-mock-data";
+import type { StudentDetailData } from "@/types/student-detail";
 
 // 이 섹션은 과제 현황, 관찰 노트, 바로 실행할 다음 액션을 한 번에 묶어 보여줍니다.
 export function StudentAssignmentInsightSection({ detail }: { detail: StudentDetailData }) {

@@ -1,7 +1,13 @@
 // 오늘 수업 운영 — 상단 요약 카드 5개
 // 수업 수, 집중 관리 학생, 숙제 이슈, 핵심 설명 포인트, 시험 임박 학생
 
-import { todayLessonsSummary } from "@/lib/mock-data/today-lessons";
+type TodayLessonsSummary = {
+  totalLessons: number;
+  focusStudents: number;
+  homeworkIssues: number;
+  teachingPoints: number;
+  examImminentStudents: number;
+};
 
 type SummaryItem = {
   label: string;
@@ -40,9 +46,13 @@ const toneMap: Record<SummaryItem["tone"], { icon: string; badge: string; border
   },
 };
 
-export function TodayLessonsSummaryCards() {
+type Props = {
+  summary: TodayLessonsSummary;
+};
+
+export function TodayLessonsSummaryCards({ summary }: Props) {
   const { totalLessons, focusStudents, homeworkIssues, teachingPoints, examImminentStudents } =
-    todayLessonsSummary;
+    summary;
 
   const items: SummaryItem[] = [
     {

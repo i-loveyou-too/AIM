@@ -1,9 +1,13 @@
 // 시험일 역산 캘린더 — 실제 달력 그리드 (3월·4월 2-month view)
 
-import type { CurriculumPageData } from "@/lib/curriculum-mock-data";
-
-type CalendarItem = CurriculumPageData["calendar"]["items"][number];
-type Props = { calendar: CurriculumPageData["calendar"] };
+type CalendarItem = {
+  date: string;
+  label: string;
+  title: string;
+  note: string;
+  tone: "today" | "lesson" | "boost" | "check" | "exam";
+};
+type Props = { calendar: { monthLabel: string; periodLabel: string; note: string; items: CalendarItem[] } };
 
 const WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"];
 

@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "tasks": [
+    {
+      "task_id": 1,
+      "title": "수학 확률과 통계 3단원 오답정리",
+      "subject": "수학",
+      "status": "pending",
+      "due_date": "2026-03-31",
+      "estimated_minutes": 40
+    },
+    {
+      "task_id": 2,
+      "title": "영어 단어 Ch.12 테스트 준비",
+      "subject": "영어",
+      "status": "completed",
+      "due_date": "2026-03-31",
+      "estimated_minutes": 20
+    }
+  ]
+}

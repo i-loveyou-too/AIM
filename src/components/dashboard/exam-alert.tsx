@@ -1,16 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { examSchools } from "@/lib/mock-data/index";
 
-export function ExamAlert() {
+type ExamAlertClass = {
+  name: string;
+  progress: number;
+};
+
+export type ExamAlertSchool = {
+  name: string;
+  examName: string;
+  examDate: string;
+  daysLeft: number;
+  overallProgress: number;
+  classes: ExamAlertClass[];
+};
+
+type Props = {
+  schools: ExamAlertSchool[];
+};
+
+export function ExamAlert({ schools }: Props) {
   const [selectedSchoolName, setSelectedSchoolName] = useState(
-    examSchools[0]?.name ?? "",
+    schools[0]?.name ?? "",
   );
 
   const selectedSchool =
-    examSchools.find((school) => school.name === selectedSchoolName) ??
-    examSchools[0];
+    schools.find((school) => school.name === selectedSchoolName) ??
+    schools[0];
 
   if (!selectedSchool) {
     return null;
@@ -35,7 +52,7 @@ export function ExamAlert() {
             onChange={(event) => setSelectedSchoolName(event.target.value)}
             className="bg-transparent text-sm font-semibold text-white outline-none"
           >
-            {examSchools.map((school) => (
+            {schools.map((school) => (
               <option key={school.name} value={school.name} className="text-text">
                 {school.name}
               </option>

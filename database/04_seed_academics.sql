@@ -178,6 +178,150 @@ INSERT INTO student_achievement_trends (student_id, session_num, session_date, s
 (26, 7, '2025-03-17', 92, NULL),
 (26, 8, '2025-03-24', 95, '최고점 갱신');
 
+-- 추가 학생 성취도 추이 — 리포트 허브 그래프용
+-- 학생 6 (윤도현) — rising, 고3 수능반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(6, 1, '2025-02-03', 70, '수능 공통 진입'),
+(6, 2, '2025-02-10', 72, NULL),
+(6, 3, '2025-02-17', 73, '함수 파트 완성'),
+(6, 4, '2025-02-24', 75, NULL),
+(6, 5, '2025-03-03', 77, NULL),
+(6, 6, '2025-03-10', 78, '기하 진입'),
+(6, 7, '2025-03-17', 80, NULL),
+(6, 8, '2025-03-24', 82, '꾸준한 상승');
+
+-- 학생 7 (강서연) — warning, 고3 미적분 C반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(7, 1, '2025-02-03', 55, NULL),
+(7, 2, '2025-02-10', 58, NULL),
+(7, 3, '2025-02-17', 54, '미제출로 점수 저하'),
+(7, 4, '2025-02-24', 59, NULL),
+(7, 5, '2025-03-03', 57, NULL),
+(7, 6, '2025-03-10', 61, '소폭 회복'),
+(7, 7, '2025-03-17', 58, NULL),
+(7, 8, '2025-03-24', 60, NULL);
+
+-- 학생 13 (문채원) — warning, 고3 확통 A반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(13, 1, '2025-02-03', 61, NULL),
+(13, 2, '2025-02-10', 59, '진도 지연'),
+(13, 3, '2025-02-17', 63, NULL),
+(13, 4, '2025-02-24', 60, NULL),
+(13, 5, '2025-03-03', 64, '보강 후 회복'),
+(13, 6, '2025-03-10', 62, NULL),
+(13, 7, '2025-03-17', 65, NULL),
+(13, 8, '2025-03-24', 63, NULL);
+
+-- 학생 17 (배준혁) — stable, 고3 내신 미적분 A반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(17, 1, '2025-02-03', 79, NULL),
+(17, 2, '2025-02-10', 81, NULL),
+(17, 3, '2025-02-17', 80, NULL),
+(17, 4, '2025-02-24', 82, NULL),
+(17, 5, '2025-03-03', 83, '수능 모의 병행'),
+(17, 6, '2025-03-10', 82, NULL),
+(17, 7, '2025-03-17', 84, NULL),
+(17, 8, '2025-03-24', 85, NULL);
+
+-- 학생 28 (임지안) — urgent, 고3 수능 B반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(28, 1, '2025-02-03', 52, NULL),
+(28, 2, '2025-02-10', 55, NULL),
+(28, 3, '2025-02-17', 53, '급수 단원 오답'),
+(28, 4, '2025-02-24', 57, NULL),
+(28, 5, '2025-03-03', 54, '진도 지연'),
+(28, 6, '2025-03-10', 58, NULL),
+(28, 7, '2025-03-17', 56, NULL),
+(28, 8, '2025-03-24', 60, '보강 시작');
+
+-- 학생 41 (박민혁) — rising 최상위, 고3 수능 A반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(41, 1, '2025-02-03', 84, NULL),
+(41, 2, '2025-02-10', 86, NULL),
+(41, 3, '2025-02-17', 87, NULL),
+(41, 4, '2025-02-24', 88, NULL),
+(41, 5, '2025-03-03', 89, '미분법 완성'),
+(41, 6, '2025-03-10', 91, NULL),
+(41, 7, '2025-03-17', 92, NULL),
+(41, 8, '2025-03-24', 94, '연속 최고점');
+
+-- 학생 46 (강지은) — stable, 고2 내신 미적분 A반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(46, 1, '2025-02-03', 68, NULL),
+(46, 2, '2025-02-10', 70, NULL),
+(46, 3, '2025-02-17', 69, NULL),
+(46, 4, '2025-02-24', 71, '극한 기초 완성'),
+(46, 5, '2025-03-03', 72, NULL),
+(46, 6, '2025-03-10', 73, NULL),
+(46, 7, '2025-03-17', 72, NULL),
+(46, 8, '2025-03-24', 74, NULL);
+
+-- 학생 47 (임서윤) — rising, 고2 내신 미적분 A반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(47, 1, '2025-02-03', 72, NULL),
+(47, 2, '2025-02-10', 74, NULL),
+(47, 3, '2025-02-17', 75, NULL),
+(47, 4, '2025-02-24', 77, '수열 완성'),
+(47, 5, '2025-03-03', 78, NULL),
+(47, 6, '2025-03-10', 80, NULL),
+(47, 7, '2025-03-17', 81, NULL),
+(47, 8, '2025-03-24', 83, '상승 지속');
+
+-- 학생 52 (문서준) — warning, 고2 내신 미적분 B반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(52, 1, '2025-02-03', 58, NULL),
+(52, 2, '2025-02-10', 60, NULL),
+(52, 3, '2025-02-17', 57, '극한 오답 다수'),
+(52, 4, '2025-02-24', 61, NULL),
+(52, 5, '2025-03-03', 59, NULL),
+(52, 6, '2025-03-10', 62, NULL),
+(52, 7, '2025-03-17', 60, NULL),
+(52, 8, '2025-03-24', 63, NULL);
+
+-- 학생 60 (박지훈) — focus, 고2 수능 확통 B반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(60, 1, '2025-02-03', 55, NULL),
+(60, 2, '2025-02-10', 52, '미제출'),
+(60, 3, '2025-02-17', 53, NULL),
+(60, 4, '2025-02-24', 50, '참여도 저하'),
+(60, 5, '2025-03-03', 51, '미제출'),
+(60, 6, '2025-03-10', 54, NULL),
+(60, 7, '2025-03-17', 50, '집중관리 시작'),
+(60, 8, '2025-03-24', 53, NULL);
+
+-- 학생 64 (정소연) — rising, 고2 수능 미적분 A반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(64, 1, '2025-02-03', 67, NULL),
+(64, 2, '2025-02-10', 70, NULL),
+(64, 3, '2025-02-17', 71, '수능반 전환'),
+(64, 4, '2025-02-24', 73, NULL),
+(64, 5, '2025-03-03', 75, NULL),
+(64, 6, '2025-03-10', 77, NULL),
+(64, 7, '2025-03-17', 78, NULL),
+(64, 8, '2025-03-24', 80, '적응 완료');
+
+-- 학생 94 (권아린) — rising, 고1 내신 수학1 A반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(94, 1, '2025-02-03', 63, '수학1 기초'),
+(94, 2, '2025-02-10', 66, NULL),
+(94, 3, '2025-02-17', 67, NULL),
+(94, 4, '2025-02-24', 69, '함수 완성'),
+(94, 5, '2025-03-03', 71, NULL),
+(94, 6, '2025-03-10', 73, NULL),
+(94, 7, '2025-03-17', 74, NULL),
+(94, 8, '2025-03-24', 76, '상승 지속');
+
+-- 학생 100 (박서연) — warning, 고1 내신 수학2 B반
+INSERT INTO student_achievement_trends (student_id, session_num, session_date, score, note) VALUES
+(100, 1, '2025-02-03', 56, NULL),
+(100, 2, '2025-02-10', 58, NULL),
+(100, 3, '2025-02-17', 55, '수열 오답'),
+(100, 4, '2025-02-24', 59, NULL),
+(100, 5, '2025-03-03', 57, '진도 지연'),
+(100, 6, '2025-03-10', 60, NULL),
+(100, 7, '2025-03-17', 58, NULL),
+(100, 8, '2025-03-24', 61, NULL);
+
 -- ────────────────────────────────────────────────────────────
 -- 학생 타임라인
 -- ────────────────────────────────────────────────────────────
@@ -469,14 +613,15 @@ INSERT INTO report_period_metrics (report_id, metric_name, metric_value, metric_
 -- 수업 일정 (lesson_schedules) — 이번 주 수업
 -- ────────────────────────────────────────────────────────────
 INSERT INTO lesson_schedules (class_group_id, teacher_id, scheduled_date, start_time, end_time, topic, status) VALUES
-(11, 1, '2025-03-25', '16:00', '18:00', '미분법 응용 — 극값과 최솟값', 'scheduled'),
-(12, 1, '2025-03-25', '18:30', '20:30', '수열의 극한 심화 — 급수 수렴', 'scheduled'),
-(13, 2, '2025-03-26', '16:00', '18:00', '극한과 연속 재설명', 'scheduled'),
-(6,  1, '2025-03-26', '18:30', '20:30', '함수의 극한 기초', 'scheduled'),
-(7,  2, '2025-03-27', '16:00', '18:00', '미분 기초 진입', 'scheduled'),
-(17, 1, '2025-03-27', '18:30', '20:30', '미적분 — 미분법 심화', 'scheduled'),
-(1,  3, '2025-03-28', '16:00', '18:00', '이차함수 완성 + 심화', 'scheduled'),
-(14, 3, '2025-03-28', '18:30', '20:30', '이항정리 완성', 'scheduled');
+-- CURRENT_DATE 기준으로 동적 생성 — v_today_lessons 조회 가능
+(11, 1, CURRENT_DATE,       '16:00', '18:00', '미분법 응용 — 극값과 최솟값',     'scheduled'),
+(12, 1, CURRENT_DATE,       '18:30', '20:30', '수열의 극한 심화 — 급수 수렴',    'scheduled'),
+(13, 2, CURRENT_DATE + 1,   '16:00', '18:00', '극한과 연속 재설명',              'scheduled'),
+(6,  1, CURRENT_DATE + 1,   '18:30', '20:30', '함수의 극한 기초',                'scheduled'),
+(7,  2, CURRENT_DATE + 2,   '16:00', '18:00', '미분 기초 진입',                  'scheduled'),
+(17, 1, CURRENT_DATE + 2,   '18:30', '20:30', '미적분 — 미분법 심화',            'scheduled'),
+(1,  3, CURRENT_DATE + 3,   '16:00', '18:00', '이차함수 완성 + 심화',            'scheduled'),
+(14, 3, CURRENT_DATE + 3,   '18:30', '20:30', '이항정리 완성',                   'scheduled');
 
 -- 수업 준비 카드 (lesson_preps)
 INSERT INTO lesson_preps (lesson_schedule_id, weak_topic_overview, homework_reflection, materials_needed, ai_suggestions) VALUES

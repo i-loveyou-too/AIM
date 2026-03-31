@@ -1,10 +1,18 @@
-import type { CurriculumPageData } from "@/lib/curriculum-mock-data";
-
 type CurriculumRiskSectionProps = {
-  risks: CurriculumPageData["risks"];
+  risks: {
+    highestRisk: string;
+    summary: string;
+    items: Array<{
+      title: string;
+      reason: string;
+      severity: "높음" | "중간" | "낮음";
+      target: string;
+      nextStep: string;
+    }>;
+  };
 };
 
-const severityStyles: Record<CurriculumPageData["risks"]["items"][number]["severity"], string> = {
+const severityStyles: Record<"높음" | "중간" | "낮음", string> = {
   높음: "bg-brand/10 text-brand",
   중간: "bg-warm/60 text-[#7a6200]",
   낮음: "bg-soft text-muted",

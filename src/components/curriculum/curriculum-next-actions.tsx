@@ -1,7 +1,14 @@
-import type { CurriculumPageData } from "@/lib/curriculum-mock-data";
-
 type CurriculumNextActionsProps = {
-  nextActions: CurriculumPageData["nextActions"];
+  nextActions: {
+    nextUnit: string;
+    objective: string;
+    keyConcepts: string[];
+    homeworkReflection: string[];
+    buttons: string[];
+    commonMistakes: string[];
+    reinforcementTargets: string[];
+    preClassChecks: string[];
+  };
 };
 
 const toneStyles: Record<"brand" | "warm" | "accent" | "soft", string> = {

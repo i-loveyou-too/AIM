@@ -1,9 +1,27 @@
 // 숙제 반영 개요 섹션
 // 오늘 수업 전에 반드시 확인하고 수업에 연결해야 할 숙제 결과 요약
 
-import { homeworkReflection } from "@/lib/mock-data/today-lessons";
+type HomeworkReflection = {
+  criticalItems: Array<{
+    studentName: string;
+    subject: string;
+    issue: string;
+    actionRequired: string;
+  }>;
+  incompleteHomework: Array<{
+    studentName: string;
+    subject: string;
+    completionRate: number;
+  }>;
+  commonReExplanation: string[];
+  reinforcementNeeded: string[];
+};
 
-export function HomeworkReflectionSection() {
+type Props = {
+  homeworkReflection: HomeworkReflection;
+};
+
+export function HomeworkReflectionSection({ homeworkReflection }: Props) {
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">
       {/* 섹션 헤더 */}

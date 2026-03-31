@@ -1,4 +1,4 @@
-import type { StudentDetailData } from "@/lib/student-detail-mock-data";
+import type { StudentDetailData } from "@/types/student-detail";
 
 export function StudentFeedbackSection({ detail }: { detail: StudentDetailData }) {
   return (

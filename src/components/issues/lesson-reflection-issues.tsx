@@ -1,10 +1,16 @@
 // 이슈함 — 다음 수업 반영 포인트 섹션
 // 이슈 결과를 수업 반영으로 연결하는 핵심 섹션
 
-import { lessonReflectionIssues } from "@/lib/mock-data/issue-mock-data";
+import type { LessonReflectionIssueData } from "@/types/issues";
 
-export function LessonReflectionIssues() {
-  const data = lessonReflectionIssues;
+const emptyData: LessonReflectionIssueData = {
+  reExplainNow: [],
+  questionItems: [],
+  individualNeed: [],
+  homeworkPriority: "",
+};
+
+export function LessonReflectionIssues({ data = emptyData }: { data?: LessonReflectionIssueData }) {
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">

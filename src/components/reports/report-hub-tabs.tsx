@@ -20,7 +20,17 @@ const TABS: { key: TabKey; label: string; description: string; emoji: string }[]
   { key: "period",  label: "기간별 리포트",   description: "추이 · 변화 분석",        emoji: "📈" },
 ];
 
-export function ReportHubTabs() {
+type Props = {
+  data: {
+    studentReports: any[];
+    classReports: any[];
+    examReadinessStudents: any[];
+    examReadinessClasses: any[];
+    periodReports: Record<string, any>;
+  };
+};
+
+export function ReportHubTabs({ data }: Props) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -65,10 +75,15 @@ export function ReportHubTabs() {
 
       {/* 탭 콘텐츠 */}
       <div>
-        {activeTab === "student" && <StudentReportHub />}
-        {activeTab === "class"   && <ClassReportHub />}
-        {activeTab === "exam"    && <ExamReadinessHub />}
-        {activeTab === "period"  && <PeriodReportHub />}
+        {activeTab === "student" && <StudentReportHub data={data.studentReports} />}
+        {activeTab === "class"   && <ClassReportHub data={data.classReports} />}
+        {activeTab === "exam"    && (
+          <ExamReadinessHub
+            studentData={data.examReadinessStudents}
+            classData={data.examReadinessClasses}
+          />
+        )}
+        {activeTab === "period"  && <PeriodReportHub data={data.periodReports} />}
       </div>
     </div>
   );

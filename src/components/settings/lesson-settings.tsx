@@ -3,7 +3,6 @@
 // 설정 > 수업 운영 설정 섹션
 
 import { useState } from "react";
-import { lessonSettings } from "@/lib/mock-data/settings-mock-data";
 
 type Duration = "60분" | "90분" | "120분";
 type InfoScope = "전체" | "요약만";
@@ -28,11 +27,19 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: () => void 
   );
 }
 
-export function LessonSettings() {
-  const [duration, setDuration] = useState<Duration>(lessonSettings.defaultDuration);
-  const [infoScope, setInfoScope] = useState<InfoScope>(lessonSettings.todayPageInfoScope);
-  const [showNextAction, setShowNextAction] = useState(lessonSettings.showNextAction);
-  const [showMemo, setShowMemo] = useState(lessonSettings.showLessonMemo);
+type LessonSettingState = {
+  defaultDuration: Duration;
+  todayPageInfoScope: InfoScope;
+  showNextAction: boolean;
+  showLessonMemo: boolean;
+};
+
+export function LessonSettings({ initialSettings }: { initialSettings: LessonSettingState }) {
+  const settings = initialSettings;
+  const [duration, setDuration] = useState<Duration>(settings.defaultDuration);
+  const [infoScope, setInfoScope] = useState<InfoScope>(settings.todayPageInfoScope);
+  const [showNextAction, setShowNextAction] = useState(settings.showNextAction);
+  const [showMemo, setShowMemo] = useState(settings.showLessonMemo);
 
   return (
     <section className="rounded-[24px] border border-border/80 bg-white shadow-soft">

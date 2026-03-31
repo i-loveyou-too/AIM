@@ -1,8 +1,6 @@
 // 숙제 수행률 추이 차트 — CSS 바 차트
 // 최근 4주 완료율을 시각적으로 비교
 
-import { homeworkTrend } from "@/lib/mock-data/student-report-mock-data";
-
 function barColor(rate: number): string {
   if (rate >= 85) return "bg-emerald-500";
   if (rate >= 70) return "bg-warm";
@@ -15,11 +13,26 @@ function rateTextColor(rate: number): string {
   return "text-brand";
 }
 
-export function HomeworkTrendChart() {
-  const data    = homeworkTrend;
+type HomeworkTrendPoint = {
+  week: string;
+  note?: string;
+  submitted: number;
+  total: number;
+  completionRate: number;
+};
+
+export function HomeworkTrendChart({ data }: { data: HomeworkTrendPoint[] }) {
+  if (!data || data.length === 0) {
+    return (
+      <section className="rounded-[28px] border border-border/80 bg-white px-6 py-8 shadow-soft">
+        <p className="text-sm font-semibold text-muted">숙제 수행률 데이터가 없습니다.</p>
+      </section>
+    );
+  }
+
   const latest  = data[data.length - 1];
-  const prev    = data[data.length - 2];
-  const diff    = latest.completionRate - prev.completionRate;
+  const prev    = data[data.length - 2] ?? latest;
+  const diff    = (latest?.completionRate ?? 0) - (prev?.completionRate ?? 0);
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">

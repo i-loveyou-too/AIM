@@ -1,16 +1,23 @@
 // 과제 관리 — 보조 인사이트 섹션
 // 반복 미제출 학생 / 질문 많은 학생 / 보강 우선순위 / 운영 메모
 
-import { assignmentInsights } from "@/lib/mock-data/assignment-mock-data";
-
 const urgencyBadge: Record<string, string> = {
   높음: "bg-brand/10 text-brand",
   중간: "bg-warm/50 text-[#7a6200]",
   낮음: "bg-emerald-50 text-emerald-700",
 };
 
-export function AssignmentInsightSection() {
-  const data = assignmentInsights;
+type Props = {
+  insights: {
+    repeatNonSubmitStudents: Array<{ name: string; className: string; count: number }>;
+    frequentQuestionStudents: Array<{ name: string; className: string; questionCount: number; topic: string }>;
+    reinforcementPriority: Array<{ className: string; reason: string; urgency: string }>;
+    recentOperationMemo: string;
+  };
+};
+
+export function AssignmentInsightSection({ insights }: Props) {
+  const data = insights;
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">
