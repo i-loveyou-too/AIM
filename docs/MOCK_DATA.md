@@ -60,10 +60,10 @@
 
 | 페이지 | 상태 | 현재 데이터 소스 | 메모 |
 |---|---|---|---|
-| `src/app/student/page.tsx` | API 연결 중 | `GET /api/student/today-tasks` | Stub API 호출 준비 완료 |
-| `src/app/student/tasks/page.tsx` | API 연결 중 | `GET /api/student/assignments` | Stub API 호출 준비 완료 |
-| `src/app/student/profile/page.tsx` | API 연결 중 | `PATCH /api/student/goals` | Stub API 호출 준비 완료 |
-| `src/app/student/coach/page.tsx` | API 연결 중 | `POST /api/student/coach` | Stub API 호출 준비 완료 |
+| `src/app/student/page.tsx` | API 기반 (Stub) | `GET /api/student/today-tasks` | `src/lib/api/student.ts` 호출 중 |
+| `src/app/student/tasks/page.tsx` | API 기반 (Stub) | `GET /api/student/assignments` | `src/lib/api/student.ts` 호출 중 |
+| `src/app/student/profile/page.tsx` | API 기반 (Stub) | `PATCH /api/student/goals` | `src/lib/api/student.ts` 호출 중 |
+| `src/app/student/coach/page.tsx` | API 기반 (Stub) | `POST /api/student/coach` | `src/lib/api/student.ts` 호출 중 |
 | `src/app/student/submissions/page.tsx` | 미연결(placeholder) | 없음 | 고정 UI + "데이터를 불러오는 중" 문구만 있음 |
 | `src/app/student/reports/page.tsx` | 미연결(placeholder) | 없음 | 고정 UI + "데이터를 불러오는 중" 문구만 있음 |
 

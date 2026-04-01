@@ -50,7 +50,7 @@ def _get_env_list(key: str, default=None):
     return [item for item in values if item]
 
 
-def _get_required_env(primary_key: str, legacy_key: Optional[str] = None) -> str:
+def _get_env(primary_key: str, legacy_key: Optional[str] = None, default: Optional[str] = None) -> Optional[str]:
     value = os.getenv(primary_key)
     if value:
         return value
@@ -59,6 +59,14 @@ def _get_required_env(primary_key: str, legacy_key: Optional[str] = None) -> str
         legacy = os.getenv(legacy_key)
         if legacy:
             return legacy
+
+    return default
+
+
+def _get_required_env(primary_key: str, legacy_key: Optional[str] = None) -> str:
+    value = _get_env(primary_key, legacy_key=legacy_key)
+    if value is not None:
+        return value
 
     raise ImproperlyConfigured(
         f"Required environment variable is missing: {primary_key}"
@@ -115,12 +123,36 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': _get_required_env('DJANGO_DB_NAME', legacy_key='DB_NAME'),
-        'USER': _get_required_env('DJANGO_DB_USER', legacy_key='DB_USER'),
-        'PASSWORD': _get_required_env('DJANGO_DB_PASSWORD', legacy_key='DB_PASSWORD'),
-        'HOST': _get_required_env('DJANGO_DB_HOST', legacy_key='DB_HOST'),
-        'PORT': _get_required_env('DJANGO_DB_PORT', legacy_key='DB_PORT'),
+        'NAME': _get_required_env('DB_NAME', legacy_key='DJANGO_DB_NAME'),
+        'USER': _get_required_env('DB_USER', legacy_key='DJANGO_DB_USER'),
+        'PASSWORD': _get_required_env('DB_PASSWORD', legacy_key='DJANGO_DB_PASSWORD'),
+        'HOST': _get_required_env('DB_HOST', legacy_key='DJANGO_DB_HOST'),
+        'PORT': _get_required_env('DB_PORT', legacy_key='DJANGO_DB_PORT'),
     }
+}
+
+DEFAULT_DB_NAME = DATABASES["default"]["NAME"]
+TEST_DB_NAME = _get_env(
+    "TEST_DB_NAME",
+    legacy_key="DJANGO_TEST_DB_NAME",
+    default=f"{DEFAULT_DB_NAME}_test",
+)
+
+if TEST_DB_NAME == DEFAULT_DB_NAME:
+    raise ImproperlyConfigured(
+        "TEST_DB_NAME must be different from DB_NAME to protect the main database."
+    )
+
+DATABASES["default"]["TEST"] = {
+    "NAME": TEST_DB_NAME,
+    "USER": _get_env("TEST_DB_USER", legacy_key="DJANGO_TEST_DB_USER", default=DATABASES["default"]["USER"]),
+    "PASSWORD": _get_env(
+        "TEST_DB_PASSWORD",
+        legacy_key="DJANGO_TEST_DB_PASSWORD",
+        default=DATABASES["default"]["PASSWORD"],
+    ),
+    "HOST": _get_env("TEST_DB_HOST", legacy_key="DJANGO_TEST_DB_HOST", default=DATABASES["default"]["HOST"]),
+    "PORT": _get_env("TEST_DB_PORT", legacy_key="DJANGO_TEST_DB_PORT", default=DATABASES["default"]["PORT"]),
 }
 
 AUTH_PASSWORD_VALIDATORS = [

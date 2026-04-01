@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { FeatureComingSoon } from "@/components/common/feature-coming-soon";
 import { ReportHubHeader } from "@/components/reports/report-hub-header";
 import { ReportHubSummaryCards } from "@/components/reports/report-hub-summary-cards";
 import { ReportHubTabs } from "@/components/reports/report-hub-tabs";
@@ -12,7 +13,19 @@ export const metadata: Metadata = {
 };
 
 export default async function ReportsPage() {
-  const { overview } = await loadTeacherReportsPageData();
+  const { overview, loadFailed } = await loadTeacherReportsPageData();
+
+  if (loadFailed) {
+    return (
+      <main className="space-y-6">
+        <ReportHubHeader />
+        <FeatureComingSoon
+          title="기능 준비중"
+          description="리포트 허브 데이터 연동이 아직 완료되지 않았습니다. SQL/VIEW 반영 후 활성화됩니다."
+        />
+      </main>
+    );
+  }
 
   return (
     <main className="space-y-6">

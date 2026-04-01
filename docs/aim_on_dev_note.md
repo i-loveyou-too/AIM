@@ -718,11 +718,11 @@ project/
 
 #### 2026-03-31
 
-* 작업 내용: 학생용 API Stub 구현, 인프라 안정화 및 데모 데이터 보강
-* 수정 파일: `backend/config/views.py`, `backend/config/urls.py`, `scripts/dev-safe.mjs`, `database/08_seed_demo_updates.sql`
-* 결과: 포트 3007 연결 거부 이슈 해결, 학생용 6종 API 호출 가능 상태 확보, 데모 데이터 세트 준비 완료
-* 이슈: 학생용 일부 페이지(제출/리포트)의 프론트엔드 API 연동 작업이 남음
-* 다음 할 일: 학생용 프론트엔드 나머지 페이지 실데이터 연결 및 파일 업로드(P2) 진입
+* 작업 내용: 학생용 API Stub 구현, 인프라 안정화 및 원격 서버 배포 준비
+* 수정 파일: `backend/config/views.py`, `scripts/dev-safe.mjs`, `database/08_seed_demo_updates.sql`, `docs/DAILY_LOG_2026-03-31.md`
+* 결과: 포트 3007 안정화, 학생용 API Stub(6종) 준비 완료. 원격 서버(`192.168.99.99`) 환경 세팅(SSH, Git, venv) 완료
+* 이슈: 원격 DB(`pgsql.onixds.home`)와의 비밀번호 불일치로 인한 인증 에러 발생. 이로 인해 서버상의 백엔드/프론트엔드 기동이 일시 중단됨
+* 다음 할 일: DB 실제 접속 정보 확정 및 `.env.local` 반영, 원격 서버 기동 확인
 
 #### 2026-03-31
 

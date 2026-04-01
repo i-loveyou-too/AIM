@@ -49,6 +49,21 @@
 
 ## 로컬 실행 방법
 
+### 0) 환경변수 파일 준비
+
+`.env.example`를 복사해 `.env.local`을 만듭니다.
+
+```bash
+cp .env.example .env.local
+```
+
+DB는 메인 개발 DB와 테스트 DB를 반드시 분리해서 설정합니다.
+
+- 메인 개발 DB: `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`
+- 테스트 DB: `TEST_DB_NAME`, `TEST_DB_USER`, `TEST_DB_PASSWORD`, `TEST_DB_HOST`, `TEST_DB_PORT`
+
+주의: `TEST_DB_NAME`은 `DB_NAME`과 같으면 안 됩니다.
+
 1. Node.js LTS 환경을 준비합니다.
 2. 프로젝트 루트에서 의존성을 설치합니다.
 
@@ -92,5 +107,17 @@ http://127.0.0.1:3007
 
 ## 참고
 
-- 현재는 mock data 기반 프론트엔드 MVP입니다.
+- Django 설정은 `.env.local`/`.env`를 자동 로드합니다.
+- 테스트 실행 시 Django는 `DATABASES.default.TEST` 설정(`TEST_DB_*`)을 사용합니다.
+- 기존 `DJANGO_DB_*` 키는 호환용으로만 남아 있으며, 신규 설정은 `DB_*` 사용을 권장합니다.
 - 루트 경로(`/`)는 `/dashboard`로 이동합니다.
+
+## 백엔드 명령어
+
+```bash
+# 마이그레이션 적용 (메인 DB)
+python backend/manage.py migrate
+
+# 테스트 실행 (테스트 DB)
+python backend/manage.py test
+```

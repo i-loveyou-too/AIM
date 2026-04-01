@@ -2,6 +2,7 @@
 // 교사가 오늘 수업 전·중·후 흐름을 한 화면에서 준비하고 운영하는 핵심 페이지
 
 import Link from "next/link";
+import { FeatureComingSoon } from "@/components/common/feature-coming-soon";
 import { TodayLessonsSummaryCards } from "@/components/today-lessons/today-summary-cards";
 import { TodayScheduleSection } from "@/components/today-lessons/today-schedule-section";
 import { LessonPrepCard } from "@/components/today-lessons/lesson-prep-card";
@@ -11,7 +12,7 @@ import { MaterialsPanel } from "@/components/today-lessons/materials-panel";
 import { loadTeacherTodayLessonsPageData } from "@/lib/services/teacher.service";
 
 export default async function TodayLessonsPage() {
-  const { overview } = await loadTeacherTodayLessonsPageData();
+  const { overview, loadFailed } = await loadTeacherTodayLessonsPageData();
   const {
     summary,
     schedule,
@@ -21,6 +22,25 @@ export default async function TodayLessonsPage() {
     materials,
     nextActions,
   } = overview;
+
+  if (loadFailed) {
+    return (
+      <div className="space-y-6">
+        <header className="rounded-[28px] border border-border/80 bg-white px-6 py-6 shadow-soft">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+            수업 준비 · 운영
+          </p>
+          <h1 className="mt-1.5 text-[1.5rem] font-extrabold tracking-tight text-text sm:text-[1.8rem]">
+            오늘 수업 운영
+          </h1>
+        </header>
+        <FeatureComingSoon
+          title="기능 준비중"
+          description="오늘 수업 운영 데이터 연동이 아직 완료되지 않았습니다. SQL/VIEW 반영 후 활성화됩니다."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

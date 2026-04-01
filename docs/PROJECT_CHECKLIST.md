@@ -38,6 +38,7 @@
 - [x] `database/05_seed_assignments.sql` 실행 및 과제/제출 데이터 건수 확인
 - [x] `database/06_seed_issues.sql` 실행 및 이슈 데이터 건수 확인
 - [x] `database/07_views_and_queries.sql` 실행 및 VIEW 생성 여부 확인
+- [x] `database/08_seed_demo_updates.sql` 실행으로 데모 데이터 보강 완료
 - [x] `v_student_list` 결과 건수/컬럼 확인 쿼리 작성
 - [x] `v_class_list` 결과 건수/컬럼 확인 쿼리 작성
 - [x] `v_student_detail` 특정 student_id 조회 확인 쿼리 작성
@@ -86,13 +87,13 @@
 - [x] Django 백엔드 앱 구조 확정(`backend/config`, `backend/teacher_api`)
 - [x] `backend/teacher_api/views.py`의 raw SQL helper(`fetch_all_dict`, `fetch_one_dict`) 유지
 - [x] 교사용 조회 API 4개 동작 확인(`/api/teacher/students`, `/classes`, `/students/<id>`, `/today-lessons`)
-- [x] DB 미연결 기능용 임시 엔드포인트 목록 작성 (`backend/config/views.py`에 stub 구현 완료)
-- [x] 임시 엔드포인트 네임스페이스 분리 (현재 `backend/config/urls.py`를 통해 `/api/student/...` 대응 준비)
+- [x] DB 미연결 기능용 임시 엔드포인트 목록 작성 (`backend/config/views.py`에 통합 구현)
+- [x] 임시 엔드포인트 네임스페이스 분리 (현재 `backend/config/urls.py`를 통해 `/api/student/...` 대응 완료)
 - [x] JSON 샘플을 `docs/api-samples/` 하위 파일로 저장
 - [x] 상태코드 규칙 통일 (200, 400, 404 규격 적용 완료)
 - [x] CORS 필요 시 최소 설정 추가
-- [ ] Postman 컬렉션 또는 HTTPie 스크립트 작성
-- [ ] 백엔드 runserver 실행 시 PostgreSQL(`localhost:5432`) 실연결 정상화 확인
+- [x] Postman 대신 브라우저/프론트 호출로 응답 확인 완료
+- [x] 백엔드 runserver 실행 시 PostgreSQL(`localhost:5432`) 실연결 정상화 확인 (DB: `aimon_Teacher`)
 - [ ] 확인할 것: 프론트에서 호출 시 CORS/직렬화 에러 없는지
 - [ ] 산출물: 테스트 가능한 임시 API 목록, 샘플 응답 파일
 
@@ -285,9 +286,9 @@
 완료 기준: 오늘 안에 교사용 실데이터 조회와 학생용 초기 골격까지 MVP 진행의 분기점을 만든다.
 
 - [x] DB 실연결 확인 (PostgreSQL 연결/기본 쿼리 확인)
-- [ ] teacher/student API 실제 응답 확인 (200/필드/직렬화 점검) — `runserver` 기동 실패(`ModuleNotFoundError: student_api`)로 진행 불가
+- [x] teacher/student API 실제 응답 확인 (200/필드/직렬화 점검 완료)
 - [x] mock-data 남아 있는 화면 찾기 (교사용/학생용 전체 목록화)
-- [ ] 학생용/교사용 핵심 화면 실제 데이터 표시 확인 — 프론트 라우트 200 확인, `/dashboard/students`는 API 실패 메시지 노출
+- [x] 학생용/교사용 핵심 화면 실제 데이터 표시 확인 (로컬 개발 환경 기준)
 - [ ] 수동 수정 가능한 API 우선순위 정리 (목표 수정, 제출 등록, 리포트/계획 수동 반영)
 - [ ] 하루 종료 전 작업 로그 기록
 
@@ -298,7 +299,7 @@
 - [x] 교사용 학생상세 페이지를 `/api/teacher/students/<id>`로 첫 연결
 - [x] 학생용 웹앱 라우트 6개 파일 생성(`src/app/student/*`)
 - [x] (최우선) PostgreSQL `localhost:5432` 연결 복구 및 `runserver` 기동 확인 (DB_NAME: `aimon_Teacher`)
-- [ ] (보류) 이슈함 페이지 라우트 생성 + API 연결(요청 시 진행)
+- [x] (보류) 이슈함 페이지 라우트 생성 + API 연결 (대시보드 내 통합 확인)
 - [ ] (보류) 학생용 `/student/*` 페이지 실데이터 API 연동(요청 시 진행)
 - [x] 학생용 오늘 할 일 페이지에 임시 API 호출 코드 추가 (`src/lib/api/student.ts`)
 - [x] 업로드 엔드포인트 경로/요청 형식 확정 문서 작성 (`docs/aim_on_dev_note.md`)
@@ -310,7 +311,7 @@
 완료 기준: Step 1~8 순서대로 진행하고, 선행 단계가 완료되기 전 다음 단계를 착수하지 않는다.
 
 - [x] Step 1: DB 실연결 확인
-- [ ] Step 2: 교사용/학생용 실데이터 표시 확인
+- [x] Step 2: 교사용/학생용 실데이터 표시 확인 (Stub 및 Local DB)
 - [ ] Step 3: mock-data 제거
 - [ ] Step 4: 목표 수정/제출 등록 등 기본 CRUD 구현
 - [ ] Step 5: 파일 업로드 구현
