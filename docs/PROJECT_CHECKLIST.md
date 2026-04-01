@@ -146,6 +146,17 @@
 - [ ] 확인할 것: 학생 계정 기준 데이터만 노출되는지
 - [ ] 산출물: 학생용 API 연동 체크 캡처, 오류 케이스 기록
 
+## [P1] 8-1. 남은 mock/미연결 화면 정리 (현재 코드 기준)
+완료 기준: "mock 파일은 제거되었지만 실제로는 미연결/고정 fallback으로 보이는 화면"을 정리하고, DB/API 기준으로 치환할 남은 범위를 확정한다.
+
+- [ ] 학생 제출 페이지 API 연결: `src/app/student/submissions/page.tsx` (`GET /api/student/submissions` + 업로드 후 이력 갱신)
+- [ ] 학생 리포트 페이지 API 연결: `src/app/student/reports/page.tsx` (`GET /api/student/reports/latest` 기반 섹션 렌더)
+- [ ] 교사 설정 페이지 fallback 축소: `src/app/dashboard/settings/page.tsx`의 `safeData` 하드코딩을 API 응답 우선 렌더로 정리
+- [ ] 교사 커리큘럼 페이지 빈 배열 fallback 검증: `src/app/dashboard/curriculum/page.tsx` (`overview?.classes ?? []` 구간 에러/빈상태 구분)
+- [ ] 미사용 mock 파일 정리 여부 결정: `src/lib/curriculum-mock-data.ts` (삭제 또는 docs 참고용 이동)
+- [ ] 확인할 것: "API 실패 fallback"과 "실제 mock 데이터"를 문서에서 구분 표기
+- [ ] 산출물: 남은 전환 항목 체크 캡처 + 완료 후 `docs/MOCK_DATA.md` 동기화
+
 ## [P2] 9. 파일 업로드 구현
 완료 기준: 학생이 이미지 파일을 업로드하면 서버 저장소에 파일이 저장되고, submission 레코드와 연결된다.
 

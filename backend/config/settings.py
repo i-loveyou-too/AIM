@@ -6,6 +6,35 @@ from django.core.exceptions import ImproperlyConfigured
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def _load_env_file(file_path: Path) -> None:
+    if not file_path.exists():
+        return
+
+    for raw_line in file_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+
+        if (
+            len(value) >= 2
+            and value[0] == value[-1]
+            and value[0] in {"'", '"'}
+        ):
+            value = value[1:-1]
+
+        os.environ.setdefault(key, value)
+
+
+# Local development convenience: automatically read .env.local/.env when present.
+PROJECT_ROOT = BASE_DIR.parent
+_load_env_file(PROJECT_ROOT / ".env.local")
+_load_env_file(PROJECT_ROOT / ".env")
+
+
 def _get_env_bool(key: str, default: bool = False) -> bool:
     raw = os.getenv(key)
     if raw is None:
