@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { FeatureComingSoon } from "@/components/common/feature-coming-soon";
 import { ReportHubHeader } from "@/components/reports/report-hub-header";
 import { ReportHubSummaryCards } from "@/components/reports/report-hub-summary-cards";
 import { ReportHubTabs } from "@/components/reports/report-hub-tabs";
@@ -19,10 +18,12 @@ export default async function ReportsPage() {
     return (
       <main className="space-y-6">
         <ReportHubHeader />
-        <FeatureComingSoon
-          title="기능 준비중"
-          description="리포트 허브 데이터 연동이 아직 완료되지 않았습니다. SQL/VIEW 반영 후 활성화됩니다."
-        />
+        <section className="rounded-[24px] border border-[#f6cfcf] bg-[#fff7f7] px-6 py-5">
+          <p className="text-sm font-bold text-[#9f3d3d]">리포트 데이터를 불러오지 못했습니다.</p>
+          <p className="mt-1 text-sm text-[#9f3d3d]">
+            `/api/teacher/reports/overview` 응답 상태를 확인한 뒤 다시 새로고침해 주세요.
+          </p>
+        </section>
       </main>
     );
   }

@@ -12,49 +12,108 @@ export const metadata: Metadata = {
   description: "교사용 대시보드의 기본 운영 환경과 알림, 리포트, 수업, 과제 관련 설정을 관리합니다.",
 };
 
+type TeacherSettingsOverview = {
+  profile: {
+    name: string;
+    affiliation: string;
+    role: string;
+    email: string;
+    phone: string;
+    joined: string;
+  };
+  notificationSettings: Array<{
+    key: string;
+    label: string;
+    description: string;
+    enabled: boolean;
+  }>;
+  reportSettings: {
+    defaultPeriod: "1주" | "2주" | "4주";
+    defaultView: "학생별" | "반별";
+    examEmphasisDDay: "D-7" | "D-14" | "D-21";
+  };
+  lessonSettings: {
+    defaultDuration: "60분" | "90분" | "120분";
+    todayPageInfoScope: "전체" | "요약만";
+    showNextAction: boolean;
+    showLessonMemo: boolean;
+  };
+  assignmentSettings: {
+    defaultDeadlineTime: string;
+    allowPhotoSubmit: boolean;
+    allowOMRSubmit: boolean;
+    questionEnabled: boolean;
+    ocrReviewHighlight: boolean;
+    commonMistakeAlert: boolean;
+  };
+  basicInfoSettings: {
+    classes: Array<{
+      name: string;
+      subject: string;
+      studentCount: number;
+      examDate: string;
+    }>;
+    subjects: string[];
+    examScheduleLinked: boolean;
+    curriculumTemplateLinked: boolean;
+  };
+};
+
+const EMPTY_SETTINGS: TeacherSettingsOverview = {
+  profile: {
+    name: "-",
+    affiliation: "-",
+    role: "-",
+    email: "-",
+    phone: "-",
+    joined: "-",
+  },
+  notificationSettings: [],
+  reportSettings: {
+    defaultPeriod: "4주",
+    defaultView: "학생별",
+    examEmphasisDDay: "D-14",
+  },
+  lessonSettings: {
+    defaultDuration: "90분",
+    showNextAction: false,
+    showLessonMemo: false,
+    todayPageInfoScope: "요약만",
+  },
+  assignmentSettings: {
+    defaultDeadlineTime: "23:59",
+    allowPhotoSubmit: false,
+    allowOMRSubmit: false,
+    questionEnabled: false,
+    ocrReviewHighlight: false,
+    commonMistakeAlert: false,
+  },
+  basicInfoSettings: {
+    classes: [],
+    subjects: [],
+    examScheduleLinked: false,
+    curriculumTemplateLinked: false,
+  },
+};
+
 export default async function SettingsPage() {
-  let data: any = null;
+  let data: Partial<TeacherSettingsOverview> | null = null;
   try {
-    data = await getTeacherSettingsOverview();
+    data = (await getTeacherSettingsOverview()) as Partial<TeacherSettingsOverview>;
   } catch {
     data = null;
   }
 
-  const safeData = data ?? {
-    profile: {
-      name: "김민정",
-      affiliation: "-",
-      role: "-",
-      email: "-",
-      phone: "-",
-      joined: "-",
-    },
-    notificationSettings: [],
-    reportSettings: {
-      defaultPeriod: "4주",
-      defaultView: "학생별",
-      examEmphasisDDay: "D-14",
-    },
-    lessonSettings: {
-      defaultDuration: "90분",
-      showNextAction: true,
-      showLessonMemo: true,
-      todayPageInfoScope: "전체",
-    },
-    assignmentSettings: {
-      defaultDeadlineTime: "23:59",
-      allowPhotoSubmit: true,
-      allowOMRSubmit: true,
-      questionEnabled: true,
-      ocrReviewHighlight: true,
-      commonMistakeAlert: true,
-    },
-    basicInfoSettings: {
-      classes: [],
-      subjects: [],
-      examScheduleLinked: false,
-      curriculumTemplateLinked: false,
-    },
+  const loadFailed = data === null;
+  const safeData: TeacherSettingsOverview = {
+    profile: { ...EMPTY_SETTINGS.profile, ...(data?.profile ?? {}) },
+    notificationSettings: Array.isArray(data?.notificationSettings)
+      ? data.notificationSettings
+      : EMPTY_SETTINGS.notificationSettings,
+    reportSettings: { ...EMPTY_SETTINGS.reportSettings, ...(data?.reportSettings ?? {}) },
+    lessonSettings: { ...EMPTY_SETTINGS.lessonSettings, ...(data?.lessonSettings ?? {}) },
+    assignmentSettings: { ...EMPTY_SETTINGS.assignmentSettings, ...(data?.assignmentSettings ?? {}) },
+    basicInfoSettings: { ...EMPTY_SETTINGS.basicInfoSettings, ...(data?.basicInfoSettings ?? {}) },
   };
 
   return (
@@ -69,6 +128,12 @@ export default async function SettingsPage() {
           교사용 대시보드의 기본 운영 환경과 알림, 리포트, 수업, 과제 관련 설정을 관리하는 화면입니다.
         </p>
       </header>
+
+      {loadFailed ? (
+        <section className="rounded-[22px] border border-[#f6cfcf] bg-[#fff7f7] px-5 py-4 text-sm text-[#9f3d3d]">
+          설정 데이터를 불러오지 못해 기본값으로 표시 중입니다. 백엔드(`/api/teacher/settings/overview`) 연결을 확인해 주세요.
+        </section>
+      ) : null}
 
       {/* 2열 레이아웃: 프로필 + 알림 */}
       <div className="grid gap-6 xl:grid-cols-2">

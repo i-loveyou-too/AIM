@@ -2,6 +2,12 @@
 
 최종 업데이트: 2026-03-31
 
+## 문서 경계
+- 이 문서: 배포 대상/인프라 선택/운영 체크
+- [PROJECT_CHECKLIST.md](./PROJECT_CHECKLIST.md): 기능 구현 체크리스트
+- [implementation-plan.md](./implementation-plan.md): 인증/라우팅 구현 순서
+- [db-reset.md](./db-reset.md): 개발 DB 재생성 절차
+
 ## 현재 상황 요약
 - 현재 상태는 **교사용 웹 목업 + DB 설계 완료** 단계다.
 - 학생 몇 명 대상의 **소규모 테스트 배포**가 목표다.

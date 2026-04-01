@@ -2,10 +2,10 @@ import datetime
 import json
 import os
 from collections import defaultdict
+from functools import wraps
 
 from django.db import connection
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 
@@ -50,6 +50,35 @@ URGENCY_LABELS = {
     "medium": "중간",
     "low": "낮음",
 }
+
+
+def _is_teacher_or_admin(user) -> bool:
+    if user.is_superuser or user.is_staff:
+        return True
+    return user.groups.filter(name__iexact="teacher").exists()
+
+
+def _auth_error(detail: str, status: int, authenticated: bool) -> JsonResponse:
+    return JsonResponse(
+        {
+            "authenticated": authenticated,
+            "detail": detail,
+            "message": detail,
+        },
+        status=status,
+    )
+
+
+def teacher_api_required(view_func):
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return _auth_error("인증이 필요합니다.", status=401, authenticated=False)
+        if not _is_teacher_or_admin(request.user):
+            return _auth_error("교사/관리자 권한이 필요합니다.", status=403, authenticated=True)
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped
 
 
 def fetch_all_dict(query, params=None):
@@ -1969,6 +1998,7 @@ def build_settings_overview():
     }
 
 
+@teacher_api_required
 @require_GET
 def teacher_students(request):
     query = """
@@ -1981,6 +2011,7 @@ def teacher_students(request):
     return JsonResponse(data, safe=False)
 
 
+@teacher_api_required
 @require_GET
 def teacher_classes(request):
     query = """
@@ -1993,6 +2024,7 @@ def teacher_classes(request):
     return JsonResponse(data, safe=False)
 
 
+@teacher_api_required
 @require_GET
 def teacher_class_detail(request, class_group_id):
     query = """
@@ -2006,6 +2038,7 @@ def teacher_class_detail(request, class_group_id):
     return JsonResponse(data)
 
 
+@teacher_api_required
 @require_GET
 def teacher_student_detail(request, student_id):
     query = """
@@ -2026,6 +2059,7 @@ def teacher_student_detail(request, student_id):
     return JsonResponse(data)
 
 
+@teacher_api_required
 @require_GET
 def teacher_today_lessons(request):
     query = """
@@ -2038,36 +2072,42 @@ def teacher_today_lessons(request):
     return JsonResponse(data, safe=False)
 
 
+@teacher_api_required
 @require_GET
 def teacher_profile(request):
     data = get_teacher_profile()
     return JsonResponse(data)
 
 
+@teacher_api_required
 @require_GET
 def teacher_today_lessons_overview(request):
     data = build_today_lessons_overview()
     return JsonResponse(data)
 
 
+@teacher_api_required
 @require_GET
 def teacher_assignments_overview(request):
     data = build_assignments_overview()
     return JsonResponse(data)
 
 
+@teacher_api_required
 @require_GET
 def teacher_curriculum_overview(request):
     data = build_curriculum_overview()
     return JsonResponse(data)
 
 
+@teacher_api_required
 @require_GET
 def teacher_reports_overview(request):
     data = build_reports_overview()
     return JsonResponse(data)
 
 
+@teacher_api_required
 @require_GET
 def teacher_report_student_detail(request, student_id):
     data = build_report_student_detail(student_id)
@@ -2076,6 +2116,7 @@ def teacher_report_student_detail(request, student_id):
     return JsonResponse(data)
 
 
+@teacher_api_required
 @require_GET
 def teacher_settings_overview(request):
     data = build_settings_overview()
@@ -2108,19 +2149,26 @@ def ocr_request_handler(submission_id: int, file_url: str) -> dict:
     return _call_real_ocr(submission_id, file_url)
 
 
-@csrf_exempt
+@teacher_api_required
 @require_POST
 def ocr_request(request):
-    import json as _json
     try:
-        body = _json.loads(request.body)
-    except Exception:
+        body = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
         return JsonResponse({"detail": "invalid JSON"}, status=400)
 
     submission_id = body.get("submission_id")
     file_url = body.get("file_url", "")
-    if not submission_id:
+    if submission_id in (None, ""):
         return JsonResponse({"detail": "submission_id required"}, status=400)
 
-    result = ocr_request_handler(int(submission_id), file_url)
+    try:
+        submission_id_int = int(submission_id)
+    except (TypeError, ValueError):
+        return JsonResponse({"detail": "submission_id must be integer"}, status=400)
+
+    if submission_id_int <= 0:
+        return JsonResponse({"detail": "submission_id must be positive"}, status=400)
+
+    result = ocr_request_handler(submission_id_int, file_url)
     return JsonResponse(result)

@@ -19,6 +19,7 @@ async function requestStudentApi<T>(path: string, options: RequestInit = {}): Pr
     path,
     init: {
       ...options,
+      credentials: "include",
       headers: {
         ...(hasFormDataBody ? {} : { "Content-Type": "application/json" }),
         ...options.headers,

@@ -4,6 +4,11 @@
 - 사용자 role(`teacher` / `student`) 기반 라우팅 구조를 표준화한다.
 - 현재 공통 대시보드 구조를 유지하면서도, 이후 분리 구조로 쉽게 확장한다.
 
+## 문서 경계
+- 이 문서: role 모델, URL 설계, 권한별 라우팅 정책
+- [auth-flow.md](./auth-flow.md): 로그인/세션 상태 흐름
+- [implementation-plan.md](./implementation-plan.md): 단계별 적용 계획
+
 ## 권장 role 모델
 - `teacher`: 교사용 운영 화면 접근 권한
 - `student`: 학생용 학습 화면 접근 권한

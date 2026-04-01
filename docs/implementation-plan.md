@@ -4,6 +4,12 @@
 - 현재 프로젝트에 맞는 인증/라우팅 작업 우선순위를 명확히 한다.
 - "지금 해야 할 것"과 "확장 단계"를 분리해 리스크를 줄인다.
 
+## 문서 경계
+- 이 문서: 인증/라우팅 구현 단계와 우선순위
+- [auth-flow.md](./auth-flow.md): 동작 기준(로그인/세션 상태)
+- [role-routing.md](./role-routing.md): 목표 URL 구조와 role 분기 기준
+- [PROJECT_CHECKLIST.md](./PROJECT_CHECKLIST.md): 전체 제품 개발 체크리스트
+
 ## 단계별 계획
 
 ## 1단계: 로그인 페이지 → 공통 대시보드 (현재 우선)
@@ -11,10 +17,10 @@
   - `/login` 진입
   - 로그인 성공 시 `/dashboard` 이동
 - 작업:
-  - [ ] 로그인 폼 상태관리(username/password/loading/error)
-  - [ ] `POST /api/auth/login` 연동
-  - [ ] 성공 시 `/dashboard` 리다이렉트
-  - [ ] 실패 시 에러 메시지 출력
+  - [x] 로그인 폼 상태관리(username/password/loading/error)
+  - [x] `POST /api/auth/login` 연동
+  - [x] 성공 시 `/dashboard` 리다이렉트
+  - [x] 실패 시 에러 메시지 출력
 - 이유:
   - 가장 짧은 경로로 서비스 진입 흐름을 안정화
 
@@ -23,11 +29,11 @@
   - 비로그인 사용자가 보호 페이지 접근 못 하도록 통제
   - 로그인 상태 유지와 만료 처리 일관화
 - 작업:
-  - [ ] 앱 시작 시 `/api/auth/me` 호출
-  - [ ] 보호 라우트 접근 시 인증 검사
-  - [ ] `401` 발생 시 `/login`으로 복귀
-  - [ ] 로그아웃(`POST /api/auth/logout`) 처리
-  - [ ] CSRF + credentials 설정 점검
+  - [x] 앱 시작 시 `/api/auth/me` 호출
+  - [x] 보호 라우트 접근 시 인증 검사
+  - [x] `401` 발생 시 `/login`으로 복귀
+  - [x] 로그아웃(`POST /api/auth/logout`) 처리
+  - [x] CSRF + credentials 설정 점검
 - 이유:
   - 기능 확장 전에 인증 안정성 먼저 확보
 
@@ -54,8 +60,8 @@
 - CSRF: `GET /api/auth/csrf`
 
 ## 완료 기준(Definition of Done)
-- [ ] 비로그인 상태에서 보호 페이지 접근 시 `/login` 이동
-- [ ] 로그인 성공 후 대시보드 접근 가능
-- [ ] 로그인 실패 메시지 정상 노출
-- [ ] 세션 만료 시 재로그인 유도
+- [x] 비로그인 상태에서 보호 페이지 접근 시 `/login` 이동
+- [x] 로그인 성공 후 대시보드 접근 가능
+- [x] 로그인 실패 메시지 정상 노출
+- [x] 세션 만료 시 재로그인 유도
 - [ ] role 분기 적용 시 교사/학생 경로 충돌 없음

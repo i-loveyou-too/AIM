@@ -1,18 +1,24 @@
 import {
   fetchAssignments,
   fetchLatestReport,
+  fetchSubmissions,
   fetchTodayTasks,
 } from "@/lib/api/student";
 import {
   STUDENT_HOME_ERROR_MESSAGES,
+  STUDENT_REPORT_ERROR_MESSAGE,
+  STUDENT_SUBMISSIONS_ERROR_MESSAGE,
   STUDENT_TASKS_ERROR_MESSAGE,
 } from "@/lib/fallbacks/student";
 import type {
   StudentAssignment,
   StudentLatestReport,
+  StudentSubmission,
 } from "@/types/student";
 import type {
   StudentHomeLoadResult,
+  StudentReportLoadResult,
+  StudentSubmissionsLoadResult,
   StudentTaskPartition,
   StudentTasksLoadResult,
 } from "@/types/view/student";
@@ -158,6 +164,79 @@ export async function loadStudentTasksData(): Promise<StudentTasksLoadResult> {
     return {
       assignments: [],
       error: error instanceof Error ? error.message : STUDENT_TASKS_ERROR_MESSAGE,
+    };
+  }
+}
+
+function compareSubmissionByDateDesc(a?: string | null, b?: string | null) {
+  if (!a && !b) return 0;
+  if (!a) return 1;
+  if (!b) return -1;
+  return new Date(b).getTime() - new Date(a).getTime();
+}
+
+export function sortStudentSubmissions(submissions: StudentSubmission[]) {
+  return [...submissions].sort((a, b) =>
+    compareSubmissionByDateDesc(a.submitted_at, b.submitted_at),
+  );
+}
+
+export function formatStudentSubmissionDateTime(dateText?: string | null) {
+  if (!dateText) {
+    return "제출 시각 없음";
+  }
+
+  const date = new Date(dateText);
+  if (Number.isNaN(date.getTime())) {
+    return dateText;
+  }
+
+  return date.toLocaleString("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+export function toStudentSubmissionStatusLabel(status?: string | null) {
+  if (!status) return "상태 확인";
+  if (status === "reviewed") return "검토 완료";
+  if (status === "pending") return "검토 대기";
+  if (status === "completed") return "완료";
+  if (status === "not_submitted") return "미제출";
+  return status;
+}
+
+export async function loadStudentSubmissionsData(): Promise<StudentSubmissionsLoadResult> {
+  try {
+    const submissions = await fetchSubmissions();
+    return {
+      submissions: sortStudentSubmissions(submissions),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      submissions: [],
+      error:
+        error instanceof Error
+          ? error.message
+          : STUDENT_SUBMISSIONS_ERROR_MESSAGE,
+    };
+  }
+}
+
+export async function loadStudentReportData(): Promise<StudentReportLoadResult> {
+  try {
+    const report = await fetchLatestReport();
+    return {
+      report,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      report: null,
+      error: error instanceof Error ? error.message : STUDENT_REPORT_ERROR_MESSAGE,
     };
   }
 }

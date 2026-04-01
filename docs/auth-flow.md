@@ -4,6 +4,11 @@
 - 현재 프로젝트의 로그인/인증 흐름을 일관된 기준으로 정리한다.
 - 1차 버전(공통 대시보드 진입)과 확장 버전(role 분기)을 분리해 관리한다.
 
+## 문서 경계
+- 이 문서: 인증 상태 전이/로그인 플로우 기준
+- [role-routing.md](./role-routing.md): role별 URL 구조와 접근 정책
+- [implementation-plan.md](./implementation-plan.md): 실제 구현 순서/우선순위
+
 ## 현재 기준 흐름 (V1)
 1. 사용자가 사이트 접속
 2. 비로그인 상태면 로그인 페이지로 이동 (`/login`)
@@ -24,6 +29,7 @@
 - 로그아웃 API: `POST /api/auth/logout`
 - 사용자 확인 API: `GET /api/auth/me`
 - CSRF 사전 획득: `GET /api/auth/csrf` (unsafe method 호출 전)
+- 현재 로그인 허용 대상: `teacher` 그룹 또는 `is_staff`/`is_superuser`
 
 ## 현재 버전 vs 확장 버전
 

@@ -4,6 +4,12 @@
 
 한 줄 목표: "교사 화면 → 학생 오늘 할 일 → 학생 과제/제출 → 교사 확인 → 수동 리포트/계획 반영" 한 줄 플로우 완성
 
+## 문서 경계
+- 이 문서: 기능 단위 실행 체크리스트(작업 항목 관리)
+- [implementation-plan.md](./implementation-plan.md): 인증/라우팅 상세 구현 순서
+- [deployment-plan.md](./deployment-plan.md): 배포 계획/인프라 의사결정
+- [mvp-scope.md](./mvp-scope.md): 포함/제외 범위 기준
+
 ## 현재 우선순위 요약
 - P0: DB/API/화면이 실제 데이터로 안정적으로 도는지 확인
 - P1: 학생용/교사용 핵심 화면에서 mock 제거 및 CRUD 흐름 완성
@@ -138,8 +144,8 @@
 - [x] `src/lib/api/student.ts` 생성(학생 API 클라이언트)
 - [x] 오늘 할 일 화면을 `GET /api/student/today-tasks`에 연결
 - [x] 내 과제 목록 화면을 `GET /api/student/assignments`에 연결
-- [/] 제출 이력 화면 API 준비 완료 (UI 연결 진행 중)
-- [/] 리포트 화면 API 준비 완료 (UI 연결 진행 중)
+- [x] 제출 이력 화면을 `GET /api/student/submissions`에 연결
+- [x] 리포트 화면을 `GET /api/student/reports/latest`에 연결
 - [x] 프로필 화면을 `PATCH /api/student/goals`에 연결(시험일/목표)
 - [x] AI 코치 화면을 `POST /api/student/coach`에 연결
 - [ ] 로딩 중 중복 요청 방지 처리
@@ -150,9 +156,11 @@
 ## [P1] 8-1. 남은 mock/미연결 화면 정리 (현재 코드 기준)
 완료 기준: "mock 파일은 제거되었지만 실제로는 미연결/고정 fallback으로 보이는 화면"을 정리하고, DB/API 기준으로 치환할 남은 범위를 확정한다.
 
-- [ ] 학생 제출 페이지 API 연결: `src/app/student/submissions/page.tsx` (`GET /api/student/submissions` + 업로드 후 이력 갱신)
-- [ ] 학생 리포트 페이지 API 연결: `src/app/student/reports/page.tsx` (`GET /api/student/reports/latest` 기반 섹션 렌더)
-- [ ] 교사 설정 페이지 fallback 축소: `src/app/dashboard/settings/page.tsx`의 `safeData` 하드코딩을 API 응답 우선 렌더로 정리
+- [x] 학생 제출 페이지 API 연결: `src/app/student/submissions/page.tsx` (`GET /api/student/submissions` + 업로드 후 이력 갱신 구조 반영)
+- [x] 학생 리포트 페이지 API 연결: `src/app/student/reports/page.tsx` (`GET /api/student/reports/latest` 기반 섹션 렌더)
+- [x] 교사 설정 페이지 fallback 축소: `src/app/dashboard/settings/page.tsx`의 `safeData` 하드코딩을 API 응답 우선 렌더로 정리
+- [x] 교사 과제 페이지 실패 표시 정리: `src/app/dashboard/assignments/page.tsx`의 "기능 준비중" 대체
+- [x] 교사 리포트 페이지 실패 표시 정리: `src/app/dashboard/reports/page.tsx`의 "기능 준비중" 대체
 - [ ] 교사 커리큘럼 페이지 빈 배열 fallback 검증: `src/app/dashboard/curriculum/page.tsx` (`overview?.classes ?? []` 구간 에러/빈상태 구분)
 - [ ] 미사용 mock 파일 정리 여부 결정: `src/lib/curriculum-mock-data.ts` (삭제 또는 docs 참고용 이동)
 - [ ] 확인할 것: "API 실패 fallback"과 "실제 mock 데이터"를 문서에서 구분 표기
@@ -252,7 +260,7 @@
 ## [P3] 15. 수동 테스트 체크리스트
 완료 기준: 교사/학생 핵심 시나리오를 수동으로 통과하고, 재현 가능한 버그 목록과 수정 상태가 정리된다.
 
-- [ ] `docs/manual-test-checklist.md` 생성
+- [x] `docs/manual-test-checklist.md` 생성
 - [ ] 시나리오 1: 학생 로그인 → 오늘 할 일 조회
 - [ ] 시나리오 2: 학생 과제 이미지 업로드 → 제출 완료 확인
 - [ ] 시나리오 3: OCR stub 결과 표시 확인

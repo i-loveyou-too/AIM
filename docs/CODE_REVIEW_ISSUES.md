@@ -1,7 +1,8 @@
 # 코드 리뷰 - 발견된 문제 및 해결 체크리스트
 
 > 작성일: 2026-04-01  
-> 리뷰 범위: 프론트엔드 (Next.js 14) + 백엔드 (Django) 전체
+> 리뷰 범위: 프론트엔드 (Next.js 14) + 백엔드 (Django) 전체  
+> 업데이트: 2026-04-01 (프론트엔드 심층 리뷰 추가)
 
 ---
 
@@ -29,6 +30,13 @@
 - [ ] 한글 문자열 상수 파일 분리
 - [ ] API 문서화 (Swagger/OpenAPI)
 - [ ] 테스트 코드 작성
+
+### 프론트엔드 추가 발견
+- [ ] `any` 타입 제거 (5개 파일)
+- [ ] 동적 라우트 ID 빈 문자열 반환 수정
+- [ ] `<a>` 태그 → `<Link>` 컴포넌트 변경
+- [ ] `error.tsx` console.error 프로덕션 노출 제거
+- [ ] 고정 배열 `useMemo` 제거 → 상수로 분리
 
 ---
 
@@ -452,6 +460,132 @@ LOGGING = {
 
 ---
 
+---
+
+## 10. 프론트엔드 추가 발견 문제
+
+### 10-1. `any` 타입 남용 `[중간]`
+
+**파일**:
+- `src/components/reports/report-hub-tabs.tsx`
+- `src/components/curriculum/curriculum-content.tsx`
+- `src/app/dashboard/assignments/page.tsx`
+- `src/app/dashboard/settings/page.tsx`
+- `src/app/dashboard/curriculum/page.tsx`
+
+**문제**:
+```typescript
+// report-hub-tabs.tsx
+type Props = {
+  data: {
+    studentReports: any[];      // any
+    classReports: any[];        // any
+    periodReports: Record<string, any>;  // any
+  };
+};
+```
+
+`strict: true` 설정이 되어 있음에도 any가 곳곳에 남아 있음. 타입 에러가 런타임에서야 발견됨.
+
+**해결 방법**: 각 데이터 구조에 맞는 인터페이스 정의 (`StudentReport`, `ClassReport` 등)
+
+- [ ] **해결**: 5개 파일의 `any` 타입 구체적 인터페이스로 대체
+
+---
+
+### 10-2. 동적 라우트 ID 빈 문자열 반환 `[중간]`
+
+**파일**: `src/lib/services/teacher.service.ts`
+
+**문제**:
+```typescript
+function resolveStudentRouteId(row: TeacherStudentListItem): string {
+  const directId = toRouteStudentId(row.student_id);
+  if (directId) return directId;
+  // ...
+  return "";  // 빈 문자열 반환 → /dashboard/students/ 같은 깨진 URL 생성
+}
+```
+
+student_id를 찾지 못하면 빈 문자열을 반환해 잘못된 라우트로 이동함.
+
+**해결 방법**:
+```typescript
+function resolveStudentRouteId(row: TeacherStudentListItem): string | null {
+  // ...
+  return null;  // 호출 측에서 null 체크 후 링크 비활성화
+}
+```
+
+- [ ] **해결**: `null` 반환으로 변경 후 호출 측에서 링크 조건부 렌더링
+
+---
+
+### 10-3. `<a>` 태그 직접 사용 `[낮음]`
+
+**파일**: `src/components/dashboard/today-schedule.tsx`
+
+**문제**:
+```typescript
+<a href="/dashboard/today-lessons">  // Next.js Link 미사용
+```
+
+Next.js에서 `<a>` 태그 직접 사용 시 클라이언트 사이드 네비게이션 없이 풀 페이지 리로드 발생.
+
+**해결 방법**:
+```typescript
+import Link from "next/link";
+<Link href="/dashboard/today-lessons">
+```
+
+- [ ] **해결**: `<a>` → `<Link>` 변경
+
+---
+
+### 10-4. `error.tsx` console.error 프로덕션 노출 `[낮음]`
+
+**파일**: `src/app/error.tsx`
+
+**문제**:
+```typescript
+useEffect(() => {
+  console.error(error);  // 프로덕션에서도 콘솔에 출력됨
+}, [error]);
+```
+
+**해결 방법**:
+```typescript
+useEffect(() => {
+  if (process.env.NODE_ENV === "development") {
+    console.error(error);
+  }
+}, [error]);
+```
+
+- [ ] **해결**: `NODE_ENV` 체크 추가
+
+---
+
+### 10-5. 고정 배열에 불필요한 `useMemo` `[낮음]`
+
+**파일**: `src/components/students/student-directory.tsx`
+
+**문제**:
+```typescript
+// 변하지 않는 고정 배열인데 useMemo로 감싸고 있음 — 매 렌더마다 비교 비용만 발생
+const gradeOptions = useMemo(() => ["고1", "고2", "고3"], []);
+```
+
+**해결 방법**:
+```typescript
+// 컴포넌트 외부 상수로 분리
+const GRADE_OPTIONS = ["고1", "고2", "고3"] as const;
+```
+
+- [ ] **해결**: 고정 옵션 배열 컴포넌트 외부 상수로 이동
+
+---
+
 ## 긍정적인 부분 (유지할 것)
 
 - 프론트엔드 TypeScript 타입 안전성 잘 구현됨
@@ -479,3 +613,8 @@ LOGGING = {
 | 11 | 로깅 설정 | 중간 | 낮음 | 2순위 |
 | 12 | Open Redirect | 낮음 | 낮음 | 3순위 |
 | 13 | 유틸 함수 분리 | 낮음 | 낮음 | 4순위 |
+| 14 | any 타입 남용 (FE 5개 파일) | 중간 | 중간 | 2순위 |
+| 15 | 동적 라우트 ID 빈 문자열 | 중간 | 낮음 | 2순위 |
+| 16 | `<a>` → `<Link>` 변경 | 낮음 | 낮음 | 4순위 |
+| 17 | error.tsx console.error 노출 | 낮음 | 낮음 | 3순위 |
+| 18 | 불필요한 useMemo | 낮음 | 낮음 | 4순위 |

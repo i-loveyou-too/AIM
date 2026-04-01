@@ -1,11 +1,15 @@
 # Aim ON Mock/Data 전환 현황 (운영형 MVP 기준)
 
-기준일: 2026-03-31
+기준일: 2026-04-01
+
+## 문서 경계
+- 이 문서: mock 제거 진행도/남은 전환 작업
+- [DASHBOARD_DATA.md](./DASHBOARD_DATA.md): 대시보드 데이터 스펙 문서
 
 ## 한 줄 요약
 - `src/lib/mock-data/*` 기반 구조는 제거됨
-- 남은 이슈는 `페이지 내부 fallback 하드코딩` + `학생용 2개 페이지 placeholder`
-- 지금은 mock 제거보다 `DB 데이터 밀도 보강 + 미연결 페이지 API 연결`이 우선
+- 학생용 `제출`/`리포트` 페이지는 API 실연결 완료
+- 남은 이슈는 `페이지 내부 fallback 하드코딩` + `일부 도메인 데이터 밀도`
 
 ---
 
@@ -64,8 +68,8 @@
 | `src/app/student/tasks/page.tsx` | API 기반 (Stub) | `GET /api/student/assignments` | `src/lib/api/student.ts` 호출 중 |
 | `src/app/student/profile/page.tsx` | API 기반 (Stub) | `PATCH /api/student/goals` | `src/lib/api/student.ts` 호출 중 |
 | `src/app/student/coach/page.tsx` | API 기반 (Stub) | `POST /api/student/coach` | `src/lib/api/student.ts` 호출 중 |
-| `src/app/student/submissions/page.tsx` | 미연결(placeholder) | 없음 | 고정 UI + "데이터를 불러오는 중" 문구만 있음 |
-| `src/app/student/reports/page.tsx` | 미연결(placeholder) | 없음 | 고정 UI + "데이터를 불러오는 중" 문구만 있음 |
+| `src/app/student/submissions/page.tsx` | API 기반 (Stub) | `GET /api/student/submissions` | 제출 이력/상태/파일/점수 렌더링, 새로고침 재조회 가능 |
+| `src/app/student/reports/page.tsx` | API 기반 (Stub) | `GET /api/student/reports/latest` | 최신 리포트(기간/성취도/제출률/취약단원/AI요약) 렌더링 |
 
 ---
 
@@ -88,15 +92,7 @@
 - 원인: `/api/teacher/today-lessons` 결과가 빈 배열
 - 코드 위치: `src/app/dashboard/page.tsx`
 
-2. 학생용 `숙제 제출` 페이지
-- 원인: API 호출 미구현(placeholder)
-- 코드 위치: `src/app/student/submissions/page.tsx`
-
-3. 학생용 `내 리포트` 페이지
-- 원인: API 호출 미구현(placeholder)
-- 코드 위치: `src/app/student/reports/page.tsx`
-
-4. 교사용 리포트/설정/과제 일부 카드
+2. 교사용 리포트/설정/과제 일부 카드
 - 원인: API 실패/부분 누락 시 fallback 객체로 내려감
 - 코드 위치:
   - `src/app/dashboard/reports/page.tsx`
@@ -116,11 +112,9 @@
 
 ## 5) mock 대체 우선 작업 (실행 순서)
 
-1. `src/app/student/submissions/page.tsx`를 `GET /api/student/submissions` 연결
-2. `src/app/student/reports/page.tsx`를 `GET /api/student/reports/latest` 연결
-3. `src/app/dashboard/page.tsx`의 today-lessons 빈 데이터 원인 점검
-4. fallback 비중 큰 화면(`reports/settings/assignments`)을 API 응답 우선 렌더로 정리
-5. `src/lib/curriculum-mock-data.ts` 정리 여부 결정(삭제 또는 참고용 이동)
+1. `src/app/dashboard/page.tsx`의 today-lessons 빈 데이터 원인 점검
+2. fallback 비중 큰 화면(`reports/settings/assignments`)을 API 응답 우선 렌더로 정리
+3. `src/lib/curriculum-mock-data.ts` 정리 여부 결정(삭제 또는 참고용 이동)
 
 ---
 
@@ -143,5 +137,6 @@
 ## 7) 결론
 
 - "mock 파일" 자체는 대부분 정리됨
-- 현재 핵심 문제는 `미연결 페이지 2개(학생 제출/리포트)` + `fallback 하드코딩` + `일부 도메인 데이터 밀도`
-- 운영형 MVP 기준 다음 액션은 기능 추가보다 `실데이터 연결 완결`이 맞음
+- 학생용 미연결 페이지(제출/리포트)는 실연결 완료됨
+- 현재 핵심 문제는 `fallback 하드코딩` + `일부 도메인 데이터 밀도`
+- 운영형 MVP 기준 다음 액션은 기능 추가보다 `실데이터 밀도 보강 + fallback 축소`가 맞음

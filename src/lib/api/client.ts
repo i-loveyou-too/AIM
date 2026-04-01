@@ -33,15 +33,39 @@ function buildUrl(baseUrl: string, path: string) {
   return `${normalizeBaseUrl(baseUrl)}${normalizedPath}`;
 }
 
+async function resolveServerCookieHeader(): Promise<string | null> {
+  if (typeof window !== "undefined") return null;
+
+  try {
+    const { cookies } = await import("next/headers");
+    const store = cookies();
+    const cookieHeader = store
+      .getAll()
+      .map(({ name, value }) => `${name}=${value}`)
+      .join("; ");
+    return cookieHeader || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function requestApiResponse({
   baseUrl,
   path,
   init,
   cache,
 }: ApiRequestOptions): Promise<Response> {
+  const headers = new Headers(init?.headers ?? {});
+  const serverCookieHeader = await resolveServerCookieHeader();
+  if (serverCookieHeader && !headers.has("cookie")) {
+    headers.set("cookie", serverCookieHeader);
+  }
+
   return fetch(buildUrl(baseUrl, path), {
     ...(cache ? { cache } : {}),
     ...init,
+    credentials: init?.credentials ?? "include",
+    headers,
   });
 }
 

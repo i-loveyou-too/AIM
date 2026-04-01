@@ -1,6 +1,7 @@
 import type {
   StudentAssignment,
   StudentLatestReport,
+  StudentSubmission,
   StudentTodayTask,
 } from "@/types/student";
 
@@ -18,4 +19,14 @@ export type StudentTasksLoadResult = {
 export type StudentTaskPartition = {
   pendingAssignments: StudentAssignment[];
   completedAssignments: StudentAssignment[];
+};
+
+export type StudentSubmissionsLoadResult = {
+  submissions: StudentSubmission[];
+  error: string | null;
+};
+
+export type StudentReportLoadResult = {
+  report: StudentLatestReport | null;
+  error: string | null;
 };

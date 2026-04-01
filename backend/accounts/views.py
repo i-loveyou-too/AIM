@@ -1,9 +1,10 @@
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
@@ -15,14 +16,14 @@ def _json(payload: Dict[str, Any], status: int = 200) -> JsonResponse:
     return JsonResponse(payload, status=status)
 
 
-def _parse_request_json(request) -> Dict[str, Any]:
+def _parse_request_json(request) -> Tuple[Dict[str, Any], Optional[str]]:
     if not request.body:
-        return {}
+        return {}, None
 
     try:
-        return json.loads(request.body.decode("utf-8"))
+        return json.loads(request.body.decode("utf-8")), None
     except (json.JSONDecodeError, UnicodeDecodeError):
-        return {}
+        return {}, "올바른 JSON 형식이 아닙니다."
 
 
 def _serialize_user(user) -> Dict[str, Any]:
@@ -40,8 +41,17 @@ def _is_teacher_or_admin(user) -> bool:
     return user.groups.filter(name__iexact="teacher").exists()
 
 
-def _resolve_next_path(raw_next: Optional[str]) -> str:
-    if isinstance(raw_next, str) and raw_next.startswith("/"):
+def _resolve_next_path(raw_next: Optional[str], request) -> str:
+    if (
+        isinstance(raw_next, str)
+        and raw_next.startswith("/")
+        and not raw_next.startswith("//")
+        and url_has_allowed_host_and_scheme(
+            url=raw_next,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        )
+    ):
         return raw_next
     return "/dashboard"
 
@@ -61,10 +71,20 @@ def auth_csrf(request):
 
 @require_http_methods(["POST"])
 def auth_login(request):
-    payload = _parse_request_json(request)
+    payload, parse_error = _parse_request_json(request)
+    if parse_error:
+        return _json(
+            {
+                "authenticated": False,
+                "message": parse_error,
+                "detail": parse_error,
+            },
+            status=400,
+        )
+
     username = str(payload.get("username", "")).strip()
     password = str(payload.get("password", ""))
-    next_path = _resolve_next_path(payload.get("next"))
+    next_path = _resolve_next_path(payload.get("next"), request)
 
     if not username or not password:
         return _json(
