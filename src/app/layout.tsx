@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { AuthProvider } from "@/components/auth/auth-provider";
 import { RootShell } from "@/components/layout/root-shell";
 import { getTeacherProfile } from "@/lib/api/teacher";
 import "./globals.css";
@@ -34,13 +35,15 @@ export default async function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <RootShell
-          title="오늘도 학생들의 흐름을 안정적으로 정리해볼까요?"
-          greeting="김민정 선생님, 안녕하세요! 👋"
-          profile={profile}
-        >
-          {children}
-        </RootShell>
+        <AuthProvider>
+          <RootShell
+            title="오늘도 학생들의 흐름을 안정적으로 정리해볼까요?"
+            greeting="김민정 선생님, 안녕하세요! 👋"
+            profile={profile}
+          >
+            {children}
+          </RootShell>
+        </AuthProvider>
       </body>
     </html>
   );

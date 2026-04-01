@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth/auth-provider";
 import { sidebarMenu, sidebarNotice, type SidebarMenuItem } from "@/lib/layout-config";
 
 function isChildHrefActive(
@@ -112,11 +113,22 @@ function AccordionItem({
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // 현재 경로에 해당하는 메뉴를 초기 열림 상태로
   const initialOpen =
     sidebarMenu.find((item) => item.children?.length && isMenuActive(item, pathname))?.label ?? null;
   const [openKey, setOpenKey] = useState<string | null>(initialOpen);
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    await logout();
+    router.replace("/login");
+    setIsLoggingOut(false);
+  }
 
   function handleToggle(label: string) {
     setOpenKey((prev) => (prev === label ? null : label));
@@ -193,6 +205,14 @@ export function Sidebar() {
             <div key={item.label}>{mobileItem}</div>
           );
         })}
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="whitespace-nowrap rounded-full border border-border bg-white/70 px-3.5 py-1.5 text-xs font-medium text-muted transition hover:border-brand/30 hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+        </button>
       </div>
 
       {/* 데스크탑: 아코디언 사이드바 */}
@@ -217,6 +237,15 @@ export function Sidebar() {
           </p>
           <p className="mt-2.5 text-xs leading-5 text-text">{sidebarNotice}</p>
         </div>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl border border-border bg-white text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+        </button>
       </aside>
     </div>
   );

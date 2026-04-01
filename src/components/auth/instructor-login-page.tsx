@@ -3,30 +3,12 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
-import { loginInstructor } from "@/lib/services/auth.service";
-
-type LoginSubmitInput = {
-  username: string;
-  password: string;
-  next: string | null;
-};
-
-async function submitInstructorLogin({ username, password, next }: LoginSubmitInput) {
-  const result = await loginInstructor(username, password);
-  if (!result.ok) {
-    return result;
-  }
-
-  const nextPath = next && next.startsWith("/") ? next : result.nextPath;
-  return {
-    ok: true as const,
-    nextPath,
-  };
-}
+import { useAuth } from "@/components/auth/auth-provider";
 
 export function InstructorLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
   const nextPathParam = searchParams.get("next");
 
   const [username, setUsername] = useState("");
@@ -45,11 +27,7 @@ export function InstructorLoginPage() {
     setErrorMessage(null);
     setIsSubmitting(true);
 
-    const result = await submitInstructorLogin({
-      username,
-      password,
-      next: nextPathParam,
-    });
+    const result = await login(username, password, nextPathParam);
 
     if (!result.ok) {
       setErrorMessage(result.error);
