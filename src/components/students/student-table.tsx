@@ -94,7 +94,7 @@ export function StudentTable({
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-muted">학생 리스트</p>
-          <h3 className="mt-1 text-[1.2rem] font-extrabold tracking-tight text-text sm:text-[1.45rem]">
+          <h3 className="mt-1 text-[1.1rem] font-extrabold tracking-tight text-text sm:text-[1.3rem]">
             학교별로 묶지 않고, 선택 필터로 바로 확인합니다
           </h3>
         </div>

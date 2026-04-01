@@ -62,7 +62,7 @@ export default async function SettingsPage() {
       {/* 페이지 헤더 */}
       <header className="rounded-[28px] border border-border/80 bg-white px-6 py-6 shadow-soft">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">설정</p>
-        <h1 className="mt-1.5 text-[1.5rem] font-extrabold tracking-tight text-text sm:text-[1.8rem]">
+        <h1 className="mt-1.5 text-[1.35rem] font-extrabold tracking-tight text-text sm:text-[1.6rem]">
           설정
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">

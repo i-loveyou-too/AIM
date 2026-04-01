@@ -720,9 +720,9 @@ project/
 
 * 작업 내용: 학생용 API Stub 구현, 인프라 안정화 및 원격 서버 배포 준비
 * 수정 파일: `backend/config/views.py`, `scripts/dev-safe.mjs`, `database/08_seed_demo_updates.sql`, `docs/DAILY_LOG_2026-03-31.md`
-* 결과: 포트 3007 안정화, 학생용 API Stub(6종) 준비 완료. 원격 서버(`192.168.99.99`) 환경 세팅(SSH, Git, venv) 완료
-* 이슈: 원격 DB(`pgsql.onixds.home`)와의 비밀번호 불일치로 인한 인증 에러 발생. 이로 인해 서버상의 백엔드/프론트엔드 기동이 일시 중단됨
-* 다음 할 일: DB 실제 접속 정보 확정 및 `.env.local` 반영, 원격 서버 기동 확인
+* 결과: 포트 3007 안정화, 학생용 API Stub(6종) 준비 완료. `src/lib/mock-data/*` 의존성 제거 성공. 원격 서버 환경 세팅 완료.
+* 이슈: 원격 DB 인증 에러(비밀번호 불일치)로 인한 배포 일시 중단.
+* 다음 할 일: 학생용 제출/리포트 페이지 UI-API 실연결, 목표 수정 CRUD 기능 구현.
 
 #### 2026-03-31
 

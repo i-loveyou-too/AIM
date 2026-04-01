@@ -110,7 +110,7 @@ export function TodayLessonsSummaryCards({ summary }: Props) {
               </span>
             </div>
             <p className="mt-4 text-xs font-medium text-muted">{item.label}</p>
-            <p className="mt-1.5 text-[1.6rem] font-extrabold tracking-tight text-text">
+            <p className="mt-1.5 text-[1.45rem] font-extrabold tracking-tight text-text">
               {item.value}
             </p>
             <p className="mt-2 text-[11px] leading-5 text-muted">{item.note}</p>

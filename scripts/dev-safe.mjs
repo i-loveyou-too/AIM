@@ -77,7 +77,7 @@ async function startDev(port) {
 
   const child = spawn(
     npmPath,
-    ["run", "dev:raw", "--", "--hostname", host, "--port", String(port)],
+    ["run", "dev", "--", "--hostname", host, "--port", String(port)],
     {
       cwd: root,
       env: {
@@ -90,8 +90,9 @@ async function startDev(port) {
 
   let listening = false;
 
-  for (let attempt = 0; attempt < 12; attempt += 1) {
-    await delay(250);
+  // 대기 시간을 10초로 연장 (250ms * 40회)
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    await delay(250); 
     if (listenerPids(port).length > 0) {
       listening = true;
       break;
@@ -112,7 +113,11 @@ async function startDev(port) {
     return false;
   }
 
-  console.log(`Dev server is listening on ${host}:${port}.`);
+  console.log("\n" + "=".repeat(50));
+  console.log(`🚀 Aim ON Frontend started!`);
+  console.log(`🔗 URL: http://${host}:${port}`);
+  console.log(`📡 API Base: http://127.0.0.1:8000`);
+  console.log("=".repeat(50) + "\n");
 
   await new Promise((resolve) => {
     child.on("exit", () => resolve(null));

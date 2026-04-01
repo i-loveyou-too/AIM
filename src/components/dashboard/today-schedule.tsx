@@ -25,7 +25,7 @@ export function TodaySchedule({ items }: TodayScheduleProps) {
         <div>
           <a
             href="/dashboard/today-lessons"
-            className="text-[1.45rem] font-extrabold tracking-tight text-text hover:text-brand transition sm:text-[1.75rem]"
+            className="text-[1.3rem] font-extrabold tracking-tight text-text hover:text-brand transition sm:text-[1.55rem]"
           >
             오늘의 수업 일정
           </a>
@@ -57,7 +57,7 @@ export function TodaySchedule({ items }: TodayScheduleProps) {
 
             <div className="flex items-center gap-3.5 pl-3.5 sm:pl-5">
               <div className="flex w-[78px] shrink-0 flex-col items-center justify-center text-center">
-                <span className="text-[1.35rem] font-extrabold leading-none tracking-tight text-text sm:text-[1.5rem]">
+                <span className="text-[1.2rem] font-extrabold leading-none tracking-tight text-text sm:text-[1.35rem]">
                   {item.time}
                 </span>
                 <span className="mt-1.5 text-[0.7rem] font-semibold text-[#a1adc4] sm:text-xs">

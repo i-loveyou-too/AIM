@@ -12,7 +12,7 @@ export function StudentNextActions({ detail }: { detail: StudentDetailData }) {
     <section className="grid gap-4 xl:grid-cols-[minmax(0,1.02fr)_minmax(320px,0.98fr)]">
       <article className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
         <p className="text-sm font-medium text-muted">다음 액션 / 추천 관리</p>
-        <h2 className="mt-2 text-[1.2rem] font-extrabold tracking-tight text-text sm:text-[1.45rem]">
+        <h2 className="mt-2 text-[1.1rem] font-extrabold tracking-tight text-text sm:text-[1.3rem]">
           선생님이 바로 결정할 수 있도록 정리합니다
         </h2>
 
@@ -59,7 +59,7 @@ export function StudentNextActions({ detail }: { detail: StudentDetailData }) {
 
       <article className="rounded-[32px] border border-border/80 bg-soft p-5 shadow-none">
         <p className="text-sm font-semibold tracking-[0.16em] text-brand">활동 흐름</p>
-        <h3 className="mt-2 text-[1.05rem] font-extrabold tracking-tight text-text sm:text-[1.2rem]">
+        <h3 className="mt-2 text-[1.05rem] font-extrabold tracking-tight text-text sm:text-[1.1rem]">
           최근 관리 기록
         </h3>
 

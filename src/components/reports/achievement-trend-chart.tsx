@@ -72,7 +72,7 @@ export function AchievementTrendChart({ data }: { data: AchievementPoint[] }) {
         {/* 최신값 요약 */}
         <div className="mb-5 flex flex-wrap items-center gap-4">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-[1.8rem] font-extrabold tracking-tight text-brand">
+            <span className="text-[1.6rem] font-extrabold tracking-tight text-brand">
               {data[data.length - 1].score}점
             </span>
             <span className="text-sm font-semibold text-muted">최신 성취도</span>

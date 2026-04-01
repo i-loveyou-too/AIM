@@ -9,7 +9,7 @@ export function ReportHubHeader() {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
             리포트 허브
           </p>
-          <h1 className="mt-1.5 text-[1.5rem] font-extrabold tracking-tight text-text sm:text-[1.8rem]">
+          <h1 className="mt-1.5 text-[1.35rem] font-extrabold tracking-tight text-text sm:text-[1.6rem]">
             리포트
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">

@@ -107,7 +107,7 @@ function TrendCard({
           {isFlat ? "변화 없음" : `${isUp ? "+" : ""}${diff}${unit}`}
         </span>
       </div>
-      <p className="mb-3 text-[1.4rem] font-extrabold tracking-tight text-text">
+      <p className="mb-3 text-[1.25rem] font-extrabold tracking-tight text-text">
         {last}{unit}
       </p>
       <BarChart data={data} color={color} unit={unit} />

@@ -1,62 +1,50 @@
 import type { StudentDetailData } from "@/types/student-detail";
 
 export function StudentAssignmentSection({ detail }: { detail: StudentDetailData }) {
+  const actions = [
+    { label: "피드백 추가", note: "오늘 수업 평가 기록", icon: "✚" },
+    { label: "학습 플랜 조정", note: "로드맵 및 진도 변경", icon: "🗓" },
+    { label: "상세 성적표 조회", note: "월간 리포트 및 데이터 분석", icon: "📊" },
+    { label: "학부모 메시지 전송", note: "최근 학습 상태 공유", icon: "✉" },
+  ];
+
   return (
-    <section className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-      <article className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-muted">과제 관리 상태</p>
-            <h2 className="mt-2 text-[1.2rem] font-extrabold tracking-tight text-text sm:text-[1.45rem]">
-              최근 과제 흐름과 누적 수행률
-            </h2>
-          </div>
-          <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand">
-            {detail.assignments.completionRate}%
-          </span>
+    <section className="rounded-[28px] border border-border/80 bg-white p-5 shadow-soft">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-bold tracking-[0.12em] text-muted">학생 관리 액션</p>
+          <h3 className="mt-1.5 text-[1.25rem] font-extrabold tracking-tight text-text">빠른 실행</h3>
+          <p className="mt-1 text-xs text-muted">다음 수업 반영에 필요한 작업을 바로 실행합니다.</p>
         </div>
+        <span className="rounded-full bg-soft px-2.5 py-1 text-xs font-semibold text-brand">
+          {detail.assignments.completionRate}%
+        </span>
+      </div>
 
-        <div className="mt-6 rounded-[28px] bg-soft p-4">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-sm font-semibold text-text">누적 과제 수행률</p>
-            <p className="text-sm font-semibold text-brand">{detail.assignments.completionText}</p>
-          </div>
-          <div className="mt-3 h-3 rounded-full bg-white">
-            <div
-              className="h-3 rounded-full bg-brand transition-[width] duration-300"
-              style={{ width: `${detail.assignments.completionRate}%` }}
-            />
-          </div>
-          <p className="mt-3 text-sm leading-6 text-muted">{detail.assignments.riskText}</p>
-        </div>
-      </article>
-
-      <article className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
-        <p className="text-sm font-medium text-muted">최근 과제 목록</p>
-        <div className="mt-5 space-y-3">
-          {detail.assignments.items.map((item) => (
-            <div key={`${item.title}-${item.due}`} className="rounded-[24px] border border-border bg-background/70 p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[1.02rem] font-extrabold tracking-tight text-text">{item.title}</p>
-                  <p className="mt-1 text-sm text-muted">{item.note}</p>
-                </div>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    item.status === "완료" ? "bg-emerald-100 text-emerald-700" : "bg-brand/10 text-brand"
-                  }`}
-                >
-                  {item.status}
-                </span>
-              </div>
-              <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-                <span className="text-muted">기한</span>
-                <span className="font-semibold text-text">{item.due}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </article>
+      <div className="mt-4 space-y-3">
+        {actions.map((action, index) => (
+          <button
+            key={action.label}
+            type="button"
+            className={`group flex w-full items-center justify-between rounded-[16px] border px-4 py-3 text-left shadow-sm transition ${
+              index === 3
+                ? "border-warm/70 bg-warm/30 hover:border-[#d2b200]"
+                : "border-border bg-soft/40 hover:border-brand/30 hover:bg-white"
+            }`}
+          >
+            <span className="flex min-w-0 items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold text-brand">
+                {action.icon}
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-semibold text-text">{action.label}</span>
+                <span className="mt-0.5 block truncate text-xs text-muted">{action.note}</span>
+              </span>
+            </span>
+            <span className="text-muted transition group-hover:text-brand">›</span>
+          </button>
+        ))}
+      </div>
     </section>
   );
 }

@@ -152,7 +152,7 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
               </Link>
               <div>
                 <p className="text-xs font-semibold tracking-[0.18em] text-brand">학생 리포트</p>
-                <h1 className="mt-2 text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.7rem]">
+                <h1 className="mt-2 text-[1.3rem] font-extrabold tracking-tight text-text sm:text-[1.5rem]">
                   4주간 성취 추이와 분석 리포트
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-muted">
@@ -245,7 +245,7 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
               </Link>
               <div>
                 <p className="text-xs font-semibold tracking-[0.18em] text-brand">학생 상세</p>
-                <h1 className="mt-2 text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.7rem]">
+                <h1 className="mt-2 text-[1.3rem] font-extrabold tracking-tight text-text sm:text-[1.5rem]">
                   개별 학생의 흐름을 집중해서 확인합니다
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-muted">

@@ -73,7 +73,7 @@ export function CurriculumRoadmapBoard({ roadmap }: CurriculumRoadmapBoardProps)
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
                     {item.period}
                   </p>
-                  <h3 className="mt-1 text-[1.2rem] font-extrabold tracking-tight text-text">
+                  <h3 className="mt-1 text-[1.1rem] font-extrabold tracking-tight text-text">
                     {item.title}
                   </h3>
                 </div>

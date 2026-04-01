@@ -138,10 +138,10 @@
 - [x] `src/lib/api/student.ts` 생성(학생 API 클라이언트)
 - [x] 오늘 할 일 화면을 `GET /api/student/today-tasks`에 연결
 - [x] 내 과제 목록 화면을 `GET /api/student/assignments`에 연결
-- [x] 제출 이력 화면 API 준비 완료 (프론트 연결 대기)
-- [x] 리포트 화면 API 준비 완료 (프론트 연결 대기)
+- [/] 제출 이력 화면 API 준비 완료 (UI 연결 진행 중)
+- [/] 리포트 화면 API 준비 완료 (UI 연결 진행 중)
 - [x] 프로필 화면을 `PATCH /api/student/goals`에 연결(시험일/목표)
-- [ ] API 실패 시 폴백 메시지 및 재시도 처리
+- [x] AI 코치 화면을 `POST /api/student/coach`에 연결
 - [ ] 로딩 중 중복 요청 방지 처리
 - [ ] 날짜 선택값과 서버 포맷 변환 로직 추가
 - [ ] 확인할 것: 학생 계정 기준 데이터만 노출되는지
@@ -289,7 +289,7 @@
 - [x] teacher/student API 실제 응답 확인 (200/필드/직렬화 점검 완료)
 - [x] mock-data 남아 있는 화면 찾기 (교사용/학생용 전체 목록화)
 - [x] 학생용/교사용 핵심 화면 실제 데이터 표시 확인 (로컬 개발 환경 기준)
-- [ ] 수동 수정 가능한 API 우선순위 정리 (목표 수정, 제출 등록, 리포트/계획 수동 반영)
+- [x] 수동 수정 가능한 API 우선순위 정리 (목표 수정, 제출 등록 등)
 - [ ] 하루 종료 전 작업 로그 기록
 
 기존 진행 항목(체크 상태 유지):
@@ -298,11 +298,12 @@
 - [x] 교사용 학생목록 페이지를 `/api/teacher/students`로 첫 연결
 - [x] 교사용 학생상세 페이지를 `/api/teacher/students/<id>`로 첫 연결
 - [x] 학생용 웹앱 라우트 6개 파일 생성(`src/app/student/*`)
-- [x] (최우선) PostgreSQL `localhost:5432` 연결 복구 및 `runserver` 기동 확인 (DB_NAME: `aimon_Teacher`)
+- [x] (최우선) PostgreSQL `localhost:5432` 연결 및 `runserver` 기동 확인 (DB: `aimon_Teacher`)
 - [x] (보류) 이슈함 페이지 라우트 생성 + API 연결 (대시보드 내 통합 확인)
 - [ ] (보류) 학생용 `/student/*` 페이지 실데이터 API 연동(요청 시 진행)
 - [x] 학생용 오늘 할 일 페이지에 임시 API 호출 코드 추가 (`src/lib/api/student.ts`)
 - [x] 업로드 엔드포인트 경로/요청 형식 확정 문서 작성 (`docs/aim_on_dev_note.md`)
+- [x] 프론트엔드 기동 안정성 확보 (`dev-safe.mjs` 타임아웃 10초 연장)
 - [x] 하루 종료 전 진행 상태 업데이트 완료
 - [ ] 확인할 것: 내일 바로 이어서 개발할 수 있게 막힌 이슈 3개 이내로 정리
 - [ ] 산출물: 오늘 작업 로그 1페이지, 내일 우선순위 3개
@@ -312,7 +313,7 @@
 
 - [x] Step 1: DB 실연결 확인
 - [x] Step 2: 교사용/학생용 실데이터 표시 확인 (Stub 및 Local DB)
-- [ ] Step 3: mock-data 제거
+- [x] Step 3: mock-data 제거 (`src/lib/mock-data/*` 폴더 정리 완료)
 - [ ] Step 4: 목표 수정/제출 등록 등 기본 CRUD 구현
 - [ ] Step 5: 파일 업로드 구현
 - [ ] Step 6: 수동 리포트/수동 계획 갱신

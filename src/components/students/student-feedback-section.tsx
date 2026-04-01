@@ -6,7 +6,7 @@ export function StudentFeedbackSection({ detail }: { detail: StudentDetailData }
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-muted">선생님 피드백 노트</p>
-          <h2 className="mt-2 text-[1.2rem] font-extrabold tracking-tight text-text sm:text-[1.45rem]">
+          <h2 className="mt-2 text-[1.1rem] font-extrabold tracking-tight text-text sm:text-[1.3rem]">
             최근 피드백과 다음 체크 사항을 정리합니다
           </h2>
         </div>

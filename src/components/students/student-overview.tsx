@@ -62,7 +62,7 @@ export function StudentOverview({ cards, activeKey, onSelect }: StudentOverviewP
           </div>
 
           <p className="mt-5 text-sm font-medium text-muted">{card.label}</p>
-          <p className="mt-2 text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.75rem]">
+          <p className="mt-2 text-[1.3rem] font-extrabold tracking-tight text-text sm:text-[1.55rem]">
             {card.value}
           </p>
           <p className="mt-3 text-sm leading-6 text-muted">{card.note}</p>

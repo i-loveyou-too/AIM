@@ -40,21 +40,21 @@ export function CurriculumPlanVsActualSection({ comparison }: CurriculumPlanVsAc
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-[22px] bg-soft px-4 py-3">
             <p className="text-[11px] font-semibold text-muted">전체 단원</p>
-            <p className="mt-1 text-[1.25rem] font-extrabold text-text">{comparison.totalUnits}개</p>
+            <p className="mt-1 text-[1.15rem] font-extrabold text-text">{comparison.totalUnits}개</p>
           </div>
           <div className="rounded-[22px] bg-soft px-4 py-3">
             <p className="text-[11px] font-semibold text-muted">계획상 완료</p>
-            <p className="mt-1 text-[1.25rem] font-extrabold text-text">{comparison.plannedUnits}개</p>
+            <p className="mt-1 text-[1.15rem] font-extrabold text-text">{comparison.plannedUnits}개</p>
             <p className="text-[10px] text-muted">{comparison.plannedPercent}%</p>
           </div>
           <div className="rounded-[22px] bg-soft px-4 py-3">
             <p className="text-[11px] font-semibold text-muted">실제 완료</p>
-            <p className="mt-1 text-[1.25rem] font-extrabold text-brand">{comparison.actualUnits}개</p>
+            <p className="mt-1 text-[1.15rem] font-extrabold text-brand">{comparison.actualUnits}개</p>
             <p className="text-[10px] text-brand">{comparison.actualPercent}%</p>
           </div>
           <div className="rounded-[22px] bg-warm/40 px-4 py-3">
             <p className="text-[11px] font-semibold text-[#7a6200]">차이</p>
-            <p className="mt-1 text-[1.25rem] font-extrabold text-[#7a6200]">{comparison.gapSummary}</p>
+            <p className="mt-1 text-[1.15rem] font-extrabold text-[#7a6200]">{comparison.gapSummary}</p>
             <p className="text-[10px] font-semibold text-[#7a6200]">{comparison.canFinishBeforeExam}</p>
           </div>
         </div>

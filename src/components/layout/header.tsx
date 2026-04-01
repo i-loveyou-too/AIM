@@ -13,7 +13,7 @@ export function Header({ title, greeting, profile }: HeaderProps) {
     <header className="px-0.5 py-0.5 sm:px-1.5">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="space-y-1.5">
-          <p className="text-[1.75rem] font-extrabold leading-[1.08] tracking-tight text-text sm:text-[2rem]">
+          <p className="text-[1.55rem] font-extrabold leading-[1.08] tracking-tight text-text sm:text-[1.75rem]">
             {greeting}
           </p>
           <h1 className="text-sm font-medium text-muted sm:text-base">{title}</h1>

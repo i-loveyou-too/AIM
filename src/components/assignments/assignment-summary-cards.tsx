@@ -107,7 +107,7 @@ export function AssignmentSummaryCards({ summary, activeCardId, onCardClick }: P
               )}
             </div>
             <p className="mt-4 text-xs font-semibold text-muted">{card.label}</p>
-            <p className={`mt-1 text-[1.55rem] font-extrabold tracking-tight ${t.value}`}>
+            <p className={`mt-1 text-[1.4rem] font-extrabold tracking-tight ${t.value}`}>
               {card.value}
             </p>
             <p className="mt-2 text-[11px] leading-5 text-muted">{card.note}</p>

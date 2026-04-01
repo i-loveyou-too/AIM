@@ -43,7 +43,7 @@ export function SummaryCard({ label, value, note, tone, emoji, badge, href }: Su
       </div>
 
       <p className="mt-4 text-sm font-medium text-muted">{label}</p>
-      <p className="mt-2 text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.75rem]">
+      <p className="mt-2 text-[1.3rem] font-extrabold tracking-tight text-text sm:text-[1.55rem]">
         {value}
       </p>
       <p className="mt-2.5 text-sm leading-5 text-muted">{note}</p>

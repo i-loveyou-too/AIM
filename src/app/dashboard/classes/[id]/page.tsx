@@ -87,7 +87,7 @@ export default async function ClassDetailPage({ params }: PageProps) {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">반 상세</p>
-              <h1 className="mt-1 text-[2rem] font-extrabold tracking-tight text-text sm:text-[2.3rem]">
+              <h1 className="mt-1 text-[1.75rem] font-extrabold tracking-tight text-text sm:text-[2rem]">
                 {displayValue(data.class_name)}
               </h1>
               <p className="mt-1 text-sm text-muted">반 ID {data.class_group_id}</p>

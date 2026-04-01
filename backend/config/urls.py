@@ -2,6 +2,7 @@ from django.urls import include, path
 from . import views
 
 urlpatterns = [
+    path("api/auth/", include("accounts.urls")),
     path("api/teacher/", include("teacher_api.urls")),
     path("api/student/today-tasks", views.student_today_tasks, name="student_today_tasks"),
     path("api/student/assignments", views.student_assignments, name="student_assignments"),

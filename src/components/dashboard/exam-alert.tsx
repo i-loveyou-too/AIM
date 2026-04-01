@@ -72,7 +72,7 @@ export function ExamAlert({ schools }: Props) {
             </span>
           </div>
 
-          <h3 className="mt-4 text-[2.55rem] font-extrabold leading-none tracking-tight text-warm">
+          <h3 className="mt-4 text-[2.2rem] font-extrabold leading-none tracking-tight text-warm">
             D-{selectedSchool.daysLeft}
           </h3>
           <p className="mt-3 text-[1.15rem] font-extrabold tracking-tight">
@@ -84,7 +84,7 @@ export function ExamAlert({ schools }: Props) {
 
           <div className="mt-6">
             <div className="flex items-end justify-between gap-3">
-              <p className="text-[2.1rem] font-extrabold tracking-tight text-warm">
+              <p className="text-[1.85rem] font-extrabold tracking-tight text-warm">
                 {selectedSchool.overallProgress}%
               </p>
               <p className="text-sm text-white/55">

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { AppHeader } from "@/components/layout/app-header";
-import { Sidebar } from "@/components/layout/sidebar";
+import { RootShell } from "@/components/layout/root-shell";
 import { getTeacherProfile } from "@/lib/api/teacher";
 import "./globals.css";
 
@@ -35,19 +34,13 @@ export default async function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <div className="min-h-screen bg-clean-dots">
-          <div className="mx-auto flex min-h-screen max-w-[1400px] gap-4 px-4 py-3 sm:px-6 lg:px-8">
-            <Sidebar />
-            <div className="flex min-w-0 flex-1 flex-col gap-5">
-              <AppHeader
-                title="오늘도 학생들의 흐름을 안정적으로 정리해볼까요?"
-                greeting="김민정 선생님, 안녕하세요! 👋"
-                profile={profile}
-              />
-              <main className="min-w-0 flex-1 pb-6">{children}</main>
-            </div>
-          </div>
-        </div>
+        <RootShell
+          title="오늘도 학생들의 흐름을 안정적으로 정리해볼까요?"
+          greeting="김민정 선생님, 안녕하세요! 👋"
+          profile={profile}
+        >
+          {children}
+        </RootShell>
       </body>
     </html>
   );

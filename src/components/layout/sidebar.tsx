@@ -137,7 +137,7 @@ export function Sidebar() {
           />
         </div>
         <div>
-          <p className="text-[1.75rem] font-black leading-none tracking-[-0.02em]">
+          <p className="text-[1.55rem] font-black leading-none tracking-[-0.02em]">
             <span className="text-[#f07a86]">Aim</span>{" "}
             <span className="text-[#eb5f74]">ON</span>
           </p>

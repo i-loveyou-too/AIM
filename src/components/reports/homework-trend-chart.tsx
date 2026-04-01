@@ -50,7 +50,7 @@ export function HomeworkTrendChart({ data }: { data: HomeworkTrendPoint[] }) {
         {/* 최신값 요약 */}
         <div className="mb-6 flex flex-wrap items-center gap-4">
           <div className="flex items-baseline gap-1.5">
-            <span className={`text-[1.8rem] font-extrabold tracking-tight ${rateTextColor(latest.completionRate)}`}>
+            <span className={`text-[1.6rem] font-extrabold tracking-tight ${rateTextColor(latest.completionRate)}`}>
               {latest.completionRate}%
             </span>
             <span className="text-sm font-semibold text-muted">지난 주 수행률</span>

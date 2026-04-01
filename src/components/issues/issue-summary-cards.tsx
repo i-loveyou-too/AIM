@@ -41,7 +41,7 @@ export function IssueSummaryCards({ summary = defaultSummary }: { summary?: Issu
               {c.icon}
             </div>
             <p className="mt-4 text-xs font-semibold text-muted">{c.label}</p>
-            <p className={`mt-1 text-[1.55rem] font-extrabold tracking-tight ${t.value}`}>
+            <p className={`mt-1 text-[1.4rem] font-extrabold tracking-tight ${t.value}`}>
               {c.value}건
             </p>
             <p className="mt-2 text-[11px] leading-5 text-muted">{c.note}</p>

@@ -114,7 +114,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
         <div className="mt-4 flex items-end gap-3.5">
           <div>
             <p className="text-sm font-medium text-muted">{selectedInsight.metricLabel}</p>
-            <p className="mt-1 text-[2.2rem] font-extrabold tracking-tight text-text sm:text-[2.55rem]">
+            <p className="mt-1 text-[1.9rem] font-extrabold tracking-tight text-text sm:text-[2.2rem]">
               {selectedInsight.metricValue}
             </p>
           </div>
@@ -123,7 +123,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
           </span>
         </div>
 
-        <h3 className="mt-4 max-w-2xl text-[1.1rem] font-extrabold leading-tight tracking-tight text-text sm:text-[1.35rem]">
+        <h3 className="mt-4 max-w-2xl text-[1.1rem] font-extrabold leading-tight tracking-tight text-text sm:text-[1.2rem]">
           {selectedInsight.note}
         </h3>
 
@@ -166,7 +166,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
           <span className="inline-flex rounded-full bg-soft px-3 py-1 text-xs font-semibold tracking-[0.16em] text-brand">
             {studentInsight.label}
           </span>
-          <h3 className="text-[1.2rem] font-extrabold tracking-tight text-text sm:text-[1.45rem]">
+          <h3 className="text-[1.1rem] font-extrabold tracking-tight text-text sm:text-[1.3rem]">
             {studentInsight.title}
           </h3>
           <p className="text-sm leading-6 text-muted">{studentInsight.subtitle}</p>
@@ -178,7 +178,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
               key={student.id}
               href={`/dashboard/students/${student.id}/report`}
               aria-label={`${student.name} 학생 리포트 보기`}
-              className="rounded-[20px] border border-border bg-background/70 p-3.5 transition duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:bg-white hover:shadow-glow"
+              className="block w-full rounded-[20px] border border-border bg-background/70 p-3.5 transition duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:bg-white hover:shadow-glow"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>

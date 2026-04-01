@@ -225,7 +225,7 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
               학생 관리
             </span>
             <div>
-              <h2 className="text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.7rem]">
+              <h2 className="text-[1.3rem] font-extrabold tracking-tight text-text sm:text-[1.5rem]">
                 김민정 선생님! 학생들을 한눈에 확인하세요
               </h2>
               <p className="mt-2 text-sm leading-6 text-muted">
