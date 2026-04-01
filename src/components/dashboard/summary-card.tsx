@@ -32,9 +32,9 @@ const toneStyles = {
 export function SummaryCard({ label, value, note, tone, emoji, badge, href }: SummaryCardProps) {
   const styles = toneStyles[tone];
   const Card = (
-    <section className="group rounded-[28px] border border-border/80 bg-white/80 p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-glow">
-      <div className="flex items-start justify-between gap-4">
-        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl ${styles.icon}`}>
+    <section className="group rounded-[24px] border border-border/80 bg-white/80 p-4 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-glow">
+      <div className="flex items-start justify-between gap-3">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg ${styles.icon}`}>
           <span aria-hidden="true">{emoji}</span>
         </div>
         <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${styles.badge}`}>
@@ -42,11 +42,11 @@ export function SummaryCard({ label, value, note, tone, emoji, badge, href }: Su
         </span>
       </div>
 
-      <p className="mt-5 text-sm font-medium text-muted">{label}</p>
+      <p className="mt-4 text-sm font-medium text-muted">{label}</p>
       <p className="mt-2 text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.75rem]">
         {value}
       </p>
-      <p className="mt-3 text-sm leading-6 text-muted">{note}</p>
+      <p className="mt-2.5 text-sm leading-5 text-muted">{note}</p>
     </section>
   );
 

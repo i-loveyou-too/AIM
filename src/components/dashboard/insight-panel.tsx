@@ -64,15 +64,15 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
   }
 
   return (
-    <section className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(300px,0.75fr)]">
-      <article className="flex h-full flex-col rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <section className="grid items-stretch gap-3.5 xl:grid-cols-[minmax(0,1.25fr)_minmax(300px,0.75fr)]">
+      <article className="flex h-full flex-col rounded-[28px] border border-border/80 bg-white p-4 shadow-soft">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-3">
             <span className="inline-flex rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-brand">
               {selectedInsight.label}
             </span>
-            <div className="flex flex-wrap gap-3">
-              <label className="flex items-center gap-2 rounded-full border border-border bg-soft px-3 py-2 text-sm text-muted">
+            <div className="flex flex-wrap gap-2.5">
+              <label className="flex items-center gap-2 rounded-full border border-border bg-soft px-3 py-1.5 text-sm text-muted">
                 <span className="text-xs font-semibold text-muted">학교</span>
                 <select
                   value={selectedSchool}
@@ -87,7 +87,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
                 </select>
               </label>
 
-              <label className="flex items-center gap-2 rounded-full border border-border bg-soft px-3 py-2 text-sm text-muted">
+              <label className="flex items-center gap-2 rounded-full border border-border bg-soft px-3 py-1.5 text-sm text-muted">
                 <span className="text-xs font-semibold text-muted">반</span>
                 <select
                   value={selectedClassName}
@@ -106,19 +106,19 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
               {selectedInsight.school} · {selectedInsight.className}
             </p>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-2xl">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-xl">
             📈
           </div>
         </div>
 
-        <div className="mt-5 flex items-end gap-4">
+        <div className="mt-4 flex items-end gap-3.5">
           <div>
             <p className="text-sm font-medium text-muted">{selectedInsight.metricLabel}</p>
             <p className="mt-1 text-[2.2rem] font-extrabold tracking-tight text-text sm:text-[2.55rem]">
               {selectedInsight.metricValue}
             </p>
           </div>
-          <span className="mb-2 rounded-full bg-brand/10 px-3 py-1 text-sm font-semibold text-brand">
+          <span className="mb-1.5 rounded-full bg-brand/10 px-2.5 py-1 text-xs font-semibold text-brand">
             {selectedInsight.delta}
           </span>
         </div>
@@ -127,11 +127,11 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
           {selectedInsight.note}
         </h3>
 
-        <div className="mt-6 flex items-end gap-2">
+        <div className="mt-5 flex items-end gap-1.5">
           {selectedInsight.chartBars.map((height, index) => (
             <div
               key={`${height}-${index}`}
-              className={`w-10 rounded-t-2xl ${
+              className={`w-9 rounded-t-xl ${
                 index === selectedInsight.chartBars.length - 1
                   ? "bg-brand"
                   : index === selectedInsight.chartBars.length - 2
@@ -143,7 +143,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
           ))}
         </div>
 
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-5 flex items-center gap-2.5">
           <div className="h-2 w-44 rounded-full bg-soft">
             <div className="h-2 w-[88%] rounded-full bg-brand" />
           </div>
@@ -151,17 +151,17 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
           <p className="text-sm font-semibold text-brand">{selectedInsight.focusValue}</p>
         </div>
 
-        <div className="mt-auto pt-6">
+        <div className="mt-auto pt-5">
           <button
             type="button"
-            className="rounded-full bg-text px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
+            className="rounded-full bg-text px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
           >
             반 리포트 보기 →
           </button>
         </div>
       </article>
 
-      <article className="flex h-full flex-col rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
+      <article className="flex h-full flex-col rounded-[28px] border border-border/80 bg-white p-4 shadow-soft">
         <div className="space-y-2">
           <span className="inline-flex rounded-full bg-soft px-3 py-1 text-xs font-semibold tracking-[0.16em] text-brand">
             {studentInsight.label}
@@ -172,13 +172,13 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
           <p className="text-sm leading-6 text-muted">{studentInsight.subtitle}</p>
         </div>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-4 space-y-2.5">
           {studentInsight.students.map((student) => (
             <Link
               key={student.id}
               href={`/dashboard/students/${student.id}/report`}
               aria-label={`${student.name} 학생 리포트 보기`}
-              className="rounded-[24px] border border-border bg-background/70 p-4 transition duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:bg-white hover:shadow-glow"
+              className="rounded-[20px] border border-border bg-background/70 p-3.5 transition duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:bg-white hover:shadow-glow"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -195,7 +195,7 @@ export function InsightPanel({ classInsights, studentInsight }: InsightPanelProp
                   {student.badge}
                 </span>
               </div>
-              <p className="mt-3 text-sm leading-6 text-muted">{student.note}</p>
+              <p className="mt-2.5 text-sm leading-5 text-muted">{student.note}</p>
             </Link>
           ))}
         </div>

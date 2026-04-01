@@ -16,9 +16,9 @@ function StateCard({ title, message, tone = "soft" }: { title: string; message: 
   };
 
   return (
-    <section className={`rounded-[28px] border px-6 py-6 shadow-soft ${styles[tone]}`}>
+    <section className={`rounded-[24px] border px-5 py-5 shadow-soft ${styles[tone]}`}>
       <p className="text-base font-extrabold tracking-tight">{title}</p>
-      <p className="mt-2 text-sm text-muted">{message}</p>
+      <p className="mt-1.5 text-sm text-muted">{message}</p>
     </section>
   );
 }
@@ -35,24 +35,24 @@ function OperationsStatusCard({ status }: { status: TeacherDashboardOperationsSt
   }
 
   return (
-    <section className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
+    <section className="rounded-[28px] border border-border/80 bg-white p-4 shadow-soft">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-muted">운영 상태</p>
-          <h2 className="mt-2 text-xl font-semibold text-text">오늘 확인할 핵심 수치</h2>
+          <h2 className="mt-1.5 text-xl font-semibold text-text">오늘 확인할 핵심 수치</h2>
         </div>
         <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand">실데이터</span>
       </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-soft/40 px-4 py-3">
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
+        <div className="rounded-xl border border-border bg-soft/40 px-3.5 py-2.5">
           <p className="text-xs text-muted">시험 임박 반</p>
           <p className="mt-1 text-lg font-extrabold text-text">{status.imminent}개</p>
         </div>
-        <div className="rounded-2xl border border-border bg-soft/40 px-4 py-3">
+        <div className="rounded-xl border border-border bg-soft/40 px-3.5 py-2.5">
           <p className="text-xs text-muted">열린 이슈</p>
           <p className="mt-1 text-lg font-extrabold text-text">{status.openIssues}건</p>
         </div>
-        <div className="rounded-2xl border border-border bg-soft/40 px-4 py-3">
+        <div className="rounded-xl border border-border bg-soft/40 px-3.5 py-2.5">
           <p className="text-xs text-muted">제출 검토 필요</p>
           <p className="mt-1 text-lg font-extrabold text-text">{status.reviewCount}건</p>
         </div>
@@ -65,7 +65,7 @@ export default async function DashboardPage() {
   const data = await loadTeacherDashboardPageData();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {data.cardsError ? (
           <div className="sm:col-span-2 xl:col-span-4">
@@ -91,8 +91,8 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.85fr)]">
-        <div className="space-y-6">
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.85fr)]">
+        <div className="space-y-5">
           {data.insightError ? (
             <StateCard
               title="현재 데이터를 불러올 수 없습니다"
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           <OperationsStatusCard status={data.operationsStatus} />
           <ExamAlert schools={data.examSchools} />
 

@@ -20,8 +20,8 @@ const toneStyles = {
 
 export function TodaySchedule({ items }: TodayScheduleProps) {
   return (
-    <section className="rounded-[40px] bg-soft px-5 py-6 shadow-none sm:px-8 sm:py-8">
-      <div className="mb-6 flex items-start justify-between gap-4">
+    <section className="rounded-[32px] bg-soft px-4 py-5 shadow-none sm:px-6 sm:py-6">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <a
             href="/dashboard/today-lessons"
@@ -35,7 +35,7 @@ export function TodaySchedule({ items }: TodayScheduleProps) {
         </a>
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-4">
         {items.map((item) => (
           <a
             key={`${item.time}-${item.title}`}
@@ -43,7 +43,7 @@ export function TodaySchedule({ items }: TodayScheduleProps) {
             className="block"
           >
           <article
-            className="relative overflow-hidden rounded-[999px] border border-transparent bg-white p-4 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-glow sm:px-5 sm:py-5"
+            className="relative overflow-hidden rounded-[999px] border border-transparent bg-white p-3.5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-glow sm:px-4 sm:py-4"
           >
             <div
               className={`absolute left-0 top-0 h-full w-2 ${
@@ -55,12 +55,12 @@ export function TodaySchedule({ items }: TodayScheduleProps) {
               }`}
             />
 
-            <div className="flex items-center gap-4 pl-4 sm:pl-6">
-              <div className="flex w-[84px] shrink-0 flex-col items-center justify-center text-center">
+            <div className="flex items-center gap-3.5 pl-3.5 sm:pl-5">
+              <div className="flex w-[78px] shrink-0 flex-col items-center justify-center text-center">
                 <span className="text-[1.35rem] font-extrabold leading-none tracking-tight text-text sm:text-[1.5rem]">
                   {item.time}
                 </span>
-                <span className="mt-2 text-[0.72rem] font-semibold text-[#a1adc4] sm:text-xs">
+                <span className="mt-1.5 text-[0.7rem] font-semibold text-[#a1adc4] sm:text-xs">
                   {item.duration}
                 </span>
               </div>
@@ -76,7 +76,7 @@ export function TodaySchedule({ items }: TodayScheduleProps) {
                     </p>
                   </div>
                   <span
-                    className={`rounded-full px-4 py-2 text-sm font-extrabold text-white shadow-sm sm:px-5 sm:py-3 sm:text-base ${
+                    className={`rounded-full px-3.5 py-1.5 text-sm font-extrabold text-white shadow-sm sm:px-4 sm:py-2.5 sm:text-sm ${
                       item.tone === "rose"
                         ? "bg-brand"
                         : item.tone === "gold"
@@ -87,7 +87,7 @@ export function TodaySchedule({ items }: TodayScheduleProps) {
                     {item.status}
                   </span>
                 </div>
-                <p className="mt-2 text-[0.88rem] leading-6 text-muted sm:text-[0.95rem]">
+                <p className="mt-1.5 text-[0.88rem] leading-5 text-muted sm:text-[0.92rem]">
                   {item.memo}
                 </p>
               </div>

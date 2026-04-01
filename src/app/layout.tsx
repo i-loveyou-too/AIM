@@ -36,7 +36,7 @@ export default async function RootLayout({
     <html lang="ko">
       <body>
         <div className="min-h-screen bg-clean-dots">
-          <div className="mx-auto flex min-h-screen max-w-[1480px] gap-5 px-3 py-3 sm:px-5 lg:px-6">
+          <div className="mx-auto flex min-h-screen max-w-[1400px] gap-4 px-4 py-3 sm:px-6 lg:px-8">
             <Sidebar />
             <div className="flex min-w-0 flex-1 flex-col gap-5">
               <AppHeader
