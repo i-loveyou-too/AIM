@@ -25,9 +25,9 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
 
   if (isCurriculumPage) {
     return (
-      <header className="px-1 py-1 sm:px-2">
-        <div className="rounded-[28px] border border-border/80 bg-white/85 px-4 py-4 shadow-soft backdrop-blur">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+      <header className="px-0.5 py-0.5 sm:px-1.5">
+        <div className="rounded-[26px] border border-border/80 bg-white/85 px-3.5 py-3.5 shadow-soft backdrop-blur">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="space-y-1">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
                 계획 · 커리큘럼
@@ -40,13 +40,13 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
             <div className="flex items-center gap-2 self-end xl:self-auto">
               <button
                 type="button"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
                 aria-label="알림"
               >
                 🔔
               </button>
-              <div className="ml-1 flex items-center gap-3 rounded-full border border-border bg-white px-3 py-2 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white shadow-soft">
+              <div className="ml-1 flex items-center gap-2.5 rounded-full border border-border bg-white px-2.5 py-1.5 shadow-sm">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white shadow-soft">
                   {profile.initials}
                 </div>
                 <div className="pr-1">
@@ -63,9 +63,9 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
 
   if (isAssignmentsPage) {
     return (
-      <header className="px-1 py-1 sm:px-2">
-        <div className="rounded-[28px] border border-border/80 bg-white/85 px-4 py-4 shadow-soft backdrop-blur">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+      <header className="px-0.5 py-0.5 sm:px-1.5">
+        <div className="rounded-[26px] border border-border/80 bg-white/85 px-3.5 py-3.5 shadow-soft backdrop-blur">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="space-y-1">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
                 과제 운영 · 분석 · 반영
@@ -77,13 +77,13 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
             <div className="flex items-center gap-2 self-end xl:self-auto">
               <button
                 type="button"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
                 aria-label="알림"
               >
                 🔔
               </button>
-              <div className="ml-1 flex items-center gap-3 rounded-full border border-border bg-white px-3 py-2 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white shadow-soft">
+              <div className="ml-1 flex items-center gap-2.5 rounded-full border border-border bg-white px-2.5 py-1.5 shadow-sm">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white shadow-soft">
                   {profile.initials}
                 </div>
                 <div className="pr-1">
@@ -102,9 +102,9 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
   // 오늘 수업 운영 페이지 — 상단 헤더
   if (isTodayLessonsPage) {
     return (
-      <header className="px-1 py-1 sm:px-2">
-        <div className="rounded-[28px] border border-border/80 bg-white/85 px-4 py-4 shadow-soft backdrop-blur">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+      <header className="px-0.5 py-0.5 sm:px-1.5">
+        <div className="rounded-[26px] border border-border/80 bg-white/85 px-3.5 py-3.5 shadow-soft backdrop-blur">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="space-y-1">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
                 수업 준비 · 운영
@@ -117,13 +117,13 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
             <div className="flex items-center gap-2 self-end xl:self-auto">
               <button
                 type="button"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
                 aria-label="알림"
               >
                 🔔
               </button>
-              <div className="ml-1 flex items-center gap-3 rounded-full border border-border bg-white px-3 py-2 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white shadow-soft">
+              <div className="ml-1 flex items-center gap-2.5 rounded-full border border-border bg-white px-2.5 py-1.5 shadow-sm">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white shadow-soft">
                   {profile.initials}
                 </div>
                 <div className="pr-1">
@@ -140,22 +140,22 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
 
   if (isStudentReportPage) {
     return (
-      <header className="px-1 py-1 sm:px-2">
-        <div className="rounded-[28px] border border-border/80 bg-white/85 px-4 py-4 shadow-soft backdrop-blur">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+      <header className="px-0.5 py-0.5 sm:px-1.5">
+        <div className="rounded-[26px] border border-border/80 bg-white/85 px-3.5 py-3.5 shadow-soft backdrop-blur">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="space-y-3">
               <Link
                 href="/dashboard/students"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-soft px-4 py-2 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-soft px-3.5 py-1.5 text-xs font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
               >
                 ← 학생 목록
               </Link>
               <div>
                 <p className="text-xs font-semibold tracking-[0.18em] text-brand">학생 리포트</p>
-                <h1 className="mt-2 text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.7rem]">
+                <h1 className="mt-1.5 text-[1.3rem] font-extrabold tracking-tight text-text sm:text-[1.5rem]">
                   4주간 성취 추이와 분석 리포트
                 </h1>
-                <p className="mt-2 text-sm leading-6 text-muted">
+                <p className="mt-1.5 text-xs leading-5 text-muted">
                   성취도 변화, 숙제 수행률, 취약 단원, 시험 준비도를 한눈에 파악합니다.
                 </p>
               </div>
@@ -164,13 +164,13 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
             <div className="flex items-center gap-2 self-end xl:self-auto">
               <button
                 type="button"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
                 aria-label="알림"
               >
                 🔔
               </button>
-              <div className="ml-1 flex items-center gap-3 rounded-full border border-border bg-white px-3 py-2 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white shadow-soft">
+              <div className="ml-1 flex items-center gap-2.5 rounded-full border border-border bg-white px-2.5 py-1.5 shadow-sm">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white shadow-soft">
                   {profile.initials}
                 </div>
                 <div className="pr-1">
@@ -187,10 +187,10 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
 
   if (isStudentListPage) {
     return (
-      <header className="px-1 py-1 sm:px-2">
-        <div className="rounded-[28px] border border-border/80 bg-white/85 px-4 py-4 shadow-soft backdrop-blur">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <label className="flex items-center gap-3 rounded-full border border-border bg-soft px-4 py-3 shadow-sm xl:min-w-[420px] xl:max-w-[560px]">
+      <header className="px-0.5 py-0.5 sm:px-1.5">
+        <div className="rounded-[26px] border border-border/80 bg-white/85 px-3.5 py-3.5 shadow-soft backdrop-blur">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <label className="flex items-center gap-2.5 rounded-full border border-border bg-soft px-3.5 py-2.5 shadow-sm xl:min-w-[380px] xl:max-w-[520px]">
               <span className="text-lg text-muted">🔎</span>
               <input
                 type="search"
@@ -202,21 +202,21 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
             <div className="flex items-center gap-2 self-end xl:self-auto">
               <button
                 type="button"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
                 aria-label="알림"
               >
                 🔔
               </button>
               <button
                 type="button"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
                 aria-label="도움말"
               >
                 ?
               </button>
 
-              <div className="ml-1 flex items-center gap-3 rounded-full border border-border bg-white px-3 py-2 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white shadow-soft">
+              <div className="ml-1 flex items-center gap-2.5 rounded-full border border-border bg-white px-2.5 py-1.5 shadow-sm">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white shadow-soft">
                   {profile.initials}
                 </div>
                 <div className="pr-1">
@@ -233,22 +233,22 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
 
   if (isStudentDetailPage) {
     return (
-      <header className="px-1 py-1 sm:px-2">
-        <div className="rounded-[28px] border border-border/80 bg-white/85 px-4 py-4 shadow-soft backdrop-blur">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+      <header className="px-0.5 py-0.5 sm:px-1.5">
+        <div className="rounded-[26px] border border-border/80 bg-white/85 px-3.5 py-3.5 shadow-soft backdrop-blur">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="space-y-3">
               <Link
                 href="/dashboard/students"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-soft px-4 py-2 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-soft px-3.5 py-1.5 text-xs font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
               >
                 ← 학생 목록
               </Link>
               <div>
                 <p className="text-xs font-semibold tracking-[0.18em] text-brand">학생 상세</p>
-                <h1 className="mt-2 text-[1.45rem] font-extrabold tracking-tight text-text sm:text-[1.7rem]">
+                <h1 className="mt-1.5 text-[1.3rem] font-extrabold tracking-tight text-text sm:text-[1.5rem]">
                   개별 학생의 흐름을 집중해서 확인합니다
                 </h1>
-                <p className="mt-2 text-sm leading-6 text-muted">
+                <p className="mt-1.5 text-xs leading-5 text-muted">
                   시험일, 과제, 취약 단원, 계획 조정 여부를 한 화면에서 빠르게 봅니다.
                 </p>
               </div>
@@ -257,21 +257,21 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
             <div className="flex items-center gap-2 self-end xl:self-auto">
               <button
                 type="button"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
                 aria-label="알림"
               >
                 🔔
               </button>
               <button
                 type="button"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
                 aria-label="도움말"
               >
                 ?
               </button>
 
-              <div className="ml-1 flex items-center gap-3 rounded-full border border-border bg-white px-3 py-2 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white shadow-soft">
+              <div className="ml-1 flex items-center gap-2.5 rounded-full border border-border bg-white px-2.5 py-1.5 shadow-sm">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white shadow-soft">
                   {profile.initials}
                 </div>
                 <div className="pr-1">

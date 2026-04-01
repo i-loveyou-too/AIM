@@ -36,15 +36,15 @@ export default async function RootLayout({
     <html lang="ko">
       <body>
         <div className="min-h-screen bg-clean-dots">
-          <div className="mx-auto flex min-h-screen max-w-[1600px] gap-6 px-4 py-4 sm:px-6 lg:px-8">
+          <div className="mx-auto flex min-h-screen max-w-[1480px] gap-5 px-3 py-3 sm:px-5 lg:px-6">
             <Sidebar />
-            <div className="flex min-w-0 flex-1 flex-col gap-6">
+            <div className="flex min-w-0 flex-1 flex-col gap-5">
               <AppHeader
                 title="오늘도 학생들의 흐름을 안정적으로 정리해볼까요?"
                 greeting="김민정 선생님, 안녕하세요! 👋"
                 profile={profile}
               />
-              <main className="min-w-0 flex-1 pb-8">{children}</main>
+              <main className="min-w-0 flex-1 pb-6">{children}</main>
             </div>
           </div>
         </div>
