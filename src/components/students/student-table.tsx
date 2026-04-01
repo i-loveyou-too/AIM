@@ -114,6 +114,9 @@ export function StudentTable({
 
         <div className="divide-y divide-border">
           {students.map((student) => {
+            const hasValidRouteId = /^\d+$/.test(student.id);
+            const detailHref = hasValidRouteId ? `/dashboard/students/${student.id}` : "/dashboard/students";
+            const reportHref = hasValidRouteId ? `/dashboard/students/${student.id}/report` : "/dashboard/students";
             const managementLevel = getManagementLevel(student);
             const assignmentRate =
               student.assignmentTotal > 0
@@ -127,7 +130,7 @@ export function StudentTable({
                 className="grid gap-4 px-4 py-4 transition duration-200 hover:bg-background/60 md:grid-cols-[1.25fr_0.9fr_1.2fr_0.7fr_1fr_0.8fr_1.1fr] md:items-center"
               >
                 <Link
-                  href={`/dashboard/students/${student.id}`}
+                  href={detailHref}
                   className="group flex items-center gap-3 rounded-2xl transition hover:bg-background/60"
                   aria-label={`${student.name} 학생 상세 보기`}
                 >
@@ -206,7 +209,7 @@ export function StudentTable({
                 {/* 상세 보기: 현재 운영 상태 관리 / 리포트 보기: 추이·분석 화면 */}
                 <div className="flex flex-col gap-1.5">
                   <Link
-                    href={`/dashboard/students/${student.id}`}
+                    href={detailHref}
                     className="flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-bold text-brand shadow-sm transition hover:bg-brand/20"
                     aria-label={`${student.name} 상세 보기`}
                   >
@@ -214,7 +217,7 @@ export function StudentTable({
                     <span>상세 보기</span>
                   </Link>
                   <Link
-                    href={`/dashboard/students/${student.id}/report`}
+                    href={reportHref}
                     className="flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/10 px-3 py-1.5 text-xs font-bold text-accent shadow-sm transition hover:bg-accent/20"
                     aria-label={`${student.name} 리포트 보기`}
                   >

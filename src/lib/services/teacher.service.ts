@@ -107,13 +107,41 @@ function calcExamDays(examDaysLeft: number | null, nextExamDate: string | null) 
   return UNKNOWN_EXAM_DAYS;
 }
 
+function toRouteStudentId(value: unknown): string | null {
+  if (typeof value === "number" && Number.isInteger(value) && value > 0) {
+    return String(value);
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    const trimmed = value.trim();
+    if (/^\d+$/.test(trimmed)) return trimmed;
+    const matched = trimmed.match(/\d+/g);
+    if (matched && matched.length > 0) {
+      return matched[matched.length - 1];
+    }
+  }
+  return null;
+}
+
+function resolveStudentRouteId(row: TeacherStudentListItem): string {
+  const directId = toRouteStudentId(row.student_id);
+  if (directId) return directId;
+
+  const fallbackId = toRouteStudentId((row as unknown as { id?: unknown }).id);
+  if (fallbackId) return fallbackId;
+
+  const codeId = toRouteStudentId(row.student_code);
+  if (codeId) return codeId;
+
+  return "";
+}
+
 function mapStudent(row: TeacherStudentListItem): TeacherStudentsPageStudentRecord {
   const assignmentDone = toNumberWithFallback(row.assignment_done, 0);
   const assignmentTotal = toNumberWithFallback(row.assignment_total, 0);
   const assignmentRate = toNumberWithFallback(row.assignment_rate, 0);
 
   return {
-    id: String(row.student_id),
+    id: resolveStudentRouteId(row),
     studentCode: row.student_code ?? "-",
     name: row.name ?? "-",
     school: row.school_name ?? "-",
