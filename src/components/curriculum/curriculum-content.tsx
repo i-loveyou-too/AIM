@@ -17,7 +17,19 @@ type CurriculumClassItem = {
   label: string;
   grade: string;
   subject: string;
-  data: any;
+  data: unknown;
+};
+
+type CurriculumContentData = {
+  overview: React.ComponentProps<typeof CurriculumPageHeader>["overview"];
+  summaryCards: React.ComponentProps<typeof CurriculumSummaryCards>["cards"];
+  reversePlan: React.ComponentProps<typeof CurriculumReversePlanSection>["reversePlan"];
+  calendar: React.ComponentProps<typeof CurriculumExamCalendar>["calendar"];
+  comparison: React.ComponentProps<typeof CurriculumPlanVsActualSection>["comparison"];
+  roadmap: React.ComponentProps<typeof CurriculumRoadmapBoard>["roadmap"];
+  nextActions: React.ComponentProps<typeof CurriculumNextActions>["nextActions"];
+  risks: React.ComponentProps<typeof CurriculumRiskSection>["risks"];
+  notes: React.ComponentProps<typeof CurriculumPlanningNotesSection>["notes"];
 };
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -83,20 +95,48 @@ function Dropdown({
   );
 }
 
-export function CurriculumContent({ classes }: { classes: CurriculumClassItem[] }) {
-  const safeClasses = classes.length > 0 ? classes : [{ id: "empty", label: "데이터 없음", grade: "-", subject: "-", data: null }];
-  const grades = [...new Set(safeClasses.map((c) => c.grade))];
+export function CurriculumContent({
+  classes,
+  hasLoadError = false,
+}: {
+  classes: CurriculumClassItem[];
+  hasLoadError?: boolean;
+}) {
+  const hasClasses = classes.length > 0;
+  const grades = [...new Set(classes.map((c) => c.grade))];
 
-  const [selectedId, setSelectedId] = useState(safeClasses[0].id);
+  const [selectedId, setSelectedId] = useState(classes[0]?.id ?? "");
   const [gradeOpen, setGradeOpen] = useState(false);
   const [classOpen, setClassOpen] = useState(false);
 
-  const selected = safeClasses.find((c) => c.id === selectedId) ?? safeClasses[0];
-  const classesForGrade = safeClasses.filter((c) => c.grade === selected.grade);
-  const data = selected.data;
+  useEffect(() => {
+    if (!hasClasses) return;
+    if (!classes.some((classItem) => classItem.id === selectedId)) {
+      setSelectedId(classes[0].id);
+    }
+  }, [classes, hasClasses, selectedId]);
+
+  if (!hasClasses) {
+    return (
+      <div className="space-y-6">
+        <section className="rounded-[28px] border border-border/80 bg-white px-6 py-10 shadow-soft">
+          <p className="text-base font-extrabold tracking-tight text-text">
+            {hasLoadError ? "커리큘럼 데이터를 불러오지 못했습니다." : "등록된 커리큘럼 반 데이터가 없습니다."}
+          </p>
+          <p className="mt-2 text-sm text-muted">
+            {hasLoadError ? "잠시 후 다시 시도하거나 API 상태를 확인해 주세요." : "반/커리큘럼 데이터가 준비되면 이 영역에 표시됩니다."}
+          </p>
+        </section>
+      </div>
+    );
+  }
+
+  const selected = classes.find((c) => c.id === selectedId) ?? classes[0];
+  const classesForGrade = classes.filter((c) => c.grade === selected.grade);
+  const data = (selected?.data ?? null) as CurriculumContentData | null;
 
   function selectGrade(grade: string) {
-    const first = safeClasses.find((c) => c.grade === grade) ?? safeClasses[0];
+    const first = classes.find((c) => c.grade === grade) ?? classes[0];
     setSelectedId(first.id);
     setGradeOpen(false);
   }

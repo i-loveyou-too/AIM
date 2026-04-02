@@ -15,12 +15,12 @@
 
 | 기능 | 경로 | 상태 |
 |------|------|------|
-| 로그인 | `/login` | 미구현 |
-| 오늘 할 일 | `/student` | 골격 완료 |
-| 숙제 제출 | `/student/submissions` | 골격 완료 |
-| 시험일/목표 입력 | `/student/profile` | 골격 완료 |
-| 리포트 보기 | `/student/reports` | 골격 완료 |
-| AI 코치 기본형 | `/student/coach` | 골격 완료 |
+| 로그인 | `/login` | 완료 (session 기반) |
+| 오늘 할 일 | `/student` | 완료 (API 연결) |
+| 숙제 제출 | `/student/submissions` | 완료 (API 연결, 업로드는 후속) |
+| 시험일/목표 입력 | `/student/profile` | 완료 (PATCH 연결) |
+| 리포트 보기 | `/student/reports` | 완료 (API 연결) |
+| AI 코치 기본형 | `/student/coach` | 완료 (기본형 API 연결) |
 
 ## MVP 제외 (later)
 

@@ -1,6 +1,6 @@
 # Aim ON Mock/Data 전환 현황 (운영형 MVP 기준)
 
-기준일: 2026-04-01
+기준일: 2026-04-02
 
 ## 문서 경계
 - 이 문서: mock 제거 진행도/남은 전환 작업
@@ -33,7 +33,7 @@
 
 | 구분 | 파일 | 상태 | 설명 |
 |---|---|---|---|
-| 미사용 mock 파일 | `src/lib/curriculum-mock-data.ts` | 잔존(미사용) | import 없음. 과거 커리큘럼 목업 데이터 |
+| 참고/타입용 파일 | `src/lib/curriculum-mock-data.ts` | 보존 | 운영 데이터 source로는 미사용, 커리큘럼 타입/샘플 참고용 |
 | 정적 UI 설정 | `src/lib/layout-config.ts` | 사용 중 | 사이드바 메뉴/공지 설정. 운영 데이터 mock은 아님 |
 | fallback 하드코딩 | `src/app/layout.tsx` | 사용 중 | 프로필 API 실패 시 기본 프로필 유지 |
 | fallback 하드코딩 | `src/app/dashboard/today-lessons/page.tsx` | 사용 중 | overview null일 때 summary/schedule/preps 기본값 사용 |
@@ -57,7 +57,7 @@
 | `src/app/dashboard/today-lessons/page.tsx` | API+fallback | `GET /api/teacher/today-lessons/overview` | API 실패/누락시 fallback 노출 |
 | `src/app/dashboard/assignments/page.tsx` | API+fallback | `GET /api/teacher/assignments/overview` | 일부 섹션 fallback 기본값 사용 |
 | `src/app/dashboard/reports/page.tsx` | API+fallback | `GET /api/teacher/reports/overview` | `safeData` fallback 존재 |
-| `src/app/dashboard/curriculum/page.tsx` | API 기반 | `GET /api/teacher/curriculum/overview` | classes 없으면 빈 화면 |
+| `src/app/dashboard/curriculum/page.tsx` | API 기반 | `GET /api/teacher/curriculum/overview` | API 실패 vs 데이터 없음 상태를 분리 표시 |
 | `src/app/dashboard/settings/page.tsx` | API+fallback | `GET /api/teacher/settings/overview` | fallback 하드코딩 큼 |
 
 ### 3-2. 학생용
@@ -114,7 +114,7 @@
 
 1. `src/app/dashboard/page.tsx`의 today-lessons 빈 데이터 원인 점검
 2. fallback 비중 큰 화면(`reports/settings/assignments`)을 API 응답 우선 렌더로 정리
-3. `src/lib/curriculum-mock-data.ts` 정리 여부 결정(삭제 또는 참고용 이동)
+3. `src/lib/curriculum-mock-data.ts`는 현재 참고/타입용으로 유지(운영 데이터 source로 사용 금지)
 
 ---
 

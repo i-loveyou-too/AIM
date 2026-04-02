@@ -118,6 +118,7 @@
 - [x] 빈 데이터 상태 메시지 추가
 - [x] 필터/정렬 동작이 API 데이터 기준으로 유지되는지 확인
 - [ ] 백엔드/DB 연결 복구 후 `/dashboard` 런타임 API 응답(200) 재검증
+  - 메모(2026-04-02): 사용자 로컬에서는 로그인/CSRF 정상, 에이전트 실행 환경에서는 `192.168.99.138:5432` 타임아웃이 간헐 발생해 재검증 커맨드만 정리하고 사용자 터미널 기준 최종 확인 필요.
 - [x] 확인할 것: 기존 mock 타입과 API 응답 타입 불일치 해결
 - [ ] 산출물: mock import 제거 PR, 실데이터 화면 캡처
 
@@ -161,9 +162,9 @@
 - [x] 교사 설정 페이지 fallback 축소: `src/app/dashboard/settings/page.tsx`의 `safeData` 하드코딩을 API 응답 우선 렌더로 정리
 - [x] 교사 과제 페이지 실패 표시 정리: `src/app/dashboard/assignments/page.tsx`의 "기능 준비중" 대체
 - [x] 교사 리포트 페이지 실패 표시 정리: `src/app/dashboard/reports/page.tsx`의 "기능 준비중" 대체
-- [ ] 교사 커리큘럼 페이지 빈 배열 fallback 검증: `src/app/dashboard/curriculum/page.tsx` (`overview?.classes ?? []` 구간 에러/빈상태 구분)
-- [ ] 미사용 mock 파일 정리 여부 결정: `src/lib/curriculum-mock-data.ts` (삭제 또는 docs 참고용 이동)
-- [ ] 확인할 것: "API 실패 fallback"과 "실제 mock 데이터"를 문서에서 구분 표기
+- [x] 교사 커리큘럼 페이지 빈 배열 fallback 검증: `src/app/dashboard/curriculum/page.tsx` (`overview?.classes ?? []` 구간 에러/빈상태 구분)
+- [x] 미사용 mock 파일 정리 여부 결정: `src/lib/curriculum-mock-data.ts` (현재 타입/참고용으로 보존, 운영 데이터 source로는 사용하지 않음)
+- [x] 확인할 것: "API 실패 fallback"과 "실제 mock 데이터"를 문서에서 구분 표기
 - [ ] 산출물: 남은 전환 항목 체크 캡처 + 완료 후 `docs/MOCK_DATA.md` 동기화
 
 ## [P2] 9. 파일 업로드 구현
@@ -244,15 +245,15 @@
 ## [P2] 14. 인증/권한 최소 버전
 완료 기준: 교사/학생 로그인 후 본인 역할 페이지만 접근 가능하고, 기본 세션 검증이 동작한다.
 
-- [ ] 로그인 API(`POST /api/auth/login`) 구현
-- [ ] 현재 사용자 API(`GET /api/auth/me`) 구현
-- [ ] 로그아웃 API(`POST /api/auth/logout`) 구현
-- [ ] 최소 사용자 테이블/인증 연동 정책 확정(Django auth 또는 별도)
-- [ ] 교사/학생 역할 필드 기반 접근 미들웨어 구현
-- [ ] 교사용 경로 접근 제한 적용
+- [x] 로그인 API(`POST /api/auth/login`) 구현
+- [x] 현재 사용자 API(`GET /api/auth/me`) 구현
+- [x] 로그아웃 API(`POST /api/auth/logout`) 구현
+- [x] 최소 사용자 테이블/인증 연동 정책 확정(Django auth 또는 별도)
+- [x] 교사/학생 역할 필드 기반 접근 미들웨어 구현
+- [x] 교사용 경로 접근 제한 적용
 - [ ] 학생용 경로 접근 제한 적용
-- [ ] 프론트 로그인 폼 생성(교사용/학생용)
-- [ ] 인증 실패 메시지 표준화
+- [x] 프론트 로그인 폼 생성(교사용 공통 로그인 1차 버전)
+- [x] 인증 실패 메시지 표준화
 - [ ] 토큰 또는 세션 만료 처리 UI 추가
 - [ ] 확인할 것: 학생 계정으로 교사용 API 접근 차단되는지
 - [ ] 산출물: 역할별 접근 테스트 로그
