@@ -2,7 +2,7 @@
 
 > 작성일: 2026-04-01  
 > 리뷰 범위: 프론트엔드 (Next.js 14) + 백엔드 (Django) 전체  
-> 업데이트: 2026-04-01 (프론트엔드 심층 리뷰 추가)
+> 업데이트: 2026-04-01 (프론트엔드 심층 리뷰 + gitignore/middleware 추가)
 
 ---
 
@@ -30,6 +30,10 @@
 - [ ] 한글 문자열 상수 파일 분리
 - [ ] API 문서화 (Swagger/OpenAPI)
 - [ ] 테스트 코드 작성
+
+### 긴급 추가 발견
+- [x] `.env.local.save` `.gitignore`에 추가 (현재 누락)
+- [x] Next.js 라우트 보호 미들웨어 없음 (`src/middleware.ts` 부재)
 
 ### 프론트엔드 추가 발견
 - [ ] `any` 타입 제거 (5개 파일)
@@ -583,6 +587,103 @@ const GRADE_OPTIONS = ["고1", "고2", "고3"] as const;
 ```
 
 - [ ] **해결**: 고정 옵션 배열 컴포넌트 외부 상수로 이동
+
+---
+
+---
+
+## 11. 추가 발견 문제
+
+### 11-1. `.env.local.save`가 `.gitignore`에서 누락 `[긴급]`
+
+**파일**: `.gitignore`
+
+**문제**:
+`.gitignore`에 `.env.local`은 있지만 `.env.local.save`는 없음. 그래서 현재 git이 이 파일을 추적 중이고 (`git status`에서 `M .env.local.save` 확인), DB 비밀번호·호스트·사용자명이 그대로 노출된 상태.
+
+```
+# 현재 .gitignore
+.env.local      ← 있음
+# .env.local.save ← 없음!
+```
+
+**해결 방법**:
+```bash
+# .gitignore에 추가
+echo ".env*.save" >> .gitignore
+
+# git 추적에서 제거
+git rm --cached .env.local.save
+git commit -m "chore: remove sensitive env backup from tracking"
+```
+
+- [x] **해결**: `.gitignore`에 `.env*.save` 패턴 추가 후 캐시 제거
+
+---
+
+### 11-2. Next.js 라우트 보호 미들웨어 없음 `[긴급]`
+
+**파일**: `src/middleware.ts` (존재하지 않음)
+
+**문제**:
+`src/middleware.ts`가 없어서 `/dashboard/**`, `/student/**` 등 보호되어야 할 라우트가 Next.js 레벨에서 전혀 차단되지 않음. 현재는 각 페이지 컴포넌트에서 개별적으로 처리하거나 API 응답에만 의존하는 구조.
+
+브라우저에서 `/dashboard`로 직접 접근 시 렌더링이 시작된 후에야 리다이렉트가 발생 — UX 깜빡임 + 서버 리소스 낭비.
+
+**해결 방법**:
+```typescript
+// src/middleware.ts
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+const PUBLIC_PATHS = ["/login", "/api/auth"];
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  const sessionCookie = request.cookies.get("sessionid");
+
+  if (!isPublic && !sessionCookie) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};
+```
+
+- [x] **해결**: `src/middleware.ts` 생성하여 미인증 접근 차단
+
+---
+
+### 11-3. 개발용 계정 기본값이 `teacher/teacher` `[낮음]`
+
+**파일**: `backend/accounts/management/commands/ensure_dev_teacher.py`
+
+**문제**:
+```python
+parser.add_argument("--password", default="teacher", ...)
+```
+
+CLI 인자 없이 실행하면 username=`teacher`, password=`teacher`로 계정 생성됨. 실수로 프로덕션 DB에 실행될 경우 즉시 로그인 가능한 계정이 생성됨.
+
+또한 이 파일 자체가 git에 untracked 상태 — 팀원이 해당 커맨드를 모를 수 있음.
+
+**해결 방법**:
+- `default` 제거 후 필수 인자로 변경 (`required=True`)
+- 또는 `DEBUG=True` 환경에서만 동작하도록 가드 추가:
+```python
+from django.conf import settings
+if not settings.DEBUG:
+    self.stderr.write("This command is only available in DEBUG mode.")
+    return
+```
+- git에 추가해서 팀 전체가 공유
+
+- [x] **해결**: DEBUG 환경 가드 추가
+- [ ] **해결**: `backend/accounts/management/` git에 추가
 
 ---
 

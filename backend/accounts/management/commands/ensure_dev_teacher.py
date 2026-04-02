@@ -1,6 +1,7 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
@@ -16,6 +17,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if not settings.DEBUG:
+            raise CommandError(
+                "This command is only available in DEBUG mode. "
+                "Do not run it in production."
+            )
+
         username = options["username"].strip()
         password = options["password"]
         group_name = options["group"].strip()
