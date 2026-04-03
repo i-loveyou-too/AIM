@@ -31,13 +31,21 @@ type NotificationSetting = {
   enabled: boolean;
 };
 
-export function NotificationSettings({ initialSettings }: { initialSettings: NotificationSetting[] }) {
+export function NotificationSettings({
+  initialSettings,
+  onStateChange,
+}: {
+  initialSettings: NotificationSetting[];
+  onStateChange?: (state: NotificationSetting[]) => void;
+}) {
   const [settings, setSettings] = useState<NotificationSetting[]>(initialSettings);
 
   const toggle = (key: string) => {
-    setSettings((prev) =>
-      prev.map((s) => (s.key === key ? { ...s, enabled: !s.enabled } : s)),
-    );
+    setSettings((prev) => {
+      const next = prev.map((s) => (s.key === key ? { ...s, enabled: !s.enabled } : s));
+      onStateChange?.(next);
+      return next;
+    });
   };
 
   const enabledCount = settings.filter((s) => s.enabled).length;

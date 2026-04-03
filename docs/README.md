@@ -47,6 +47,7 @@
 ## 2026-04-03 기준 핵심 변경점
 - 로그인 인증은 `auth_user` 기준으로 유지
 - 로그인 후 프로필 표시는 `users -> academy_members -> teacher_profiles` 연결 기준으로 정리
+- 로그인 라우트는 포털 선택(`/`) + 경로 분리(`/login/teacher`, `/login/student`) 구조를 함께 사용
 - `lim` 계정을 새 구조에 연결
   - `users.name = test`
   - `teacher_profiles.display_name = test`

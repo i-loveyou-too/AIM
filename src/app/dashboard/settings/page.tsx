@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
-import { AssignmentSettings } from "@/components/settings/assignment-settings";
-import { BasicInfoSettings } from "@/components/settings/basic-info-settings";
-import { LessonSettings } from "@/components/settings/lesson-settings";
-import { NotificationSettings } from "@/components/settings/notification-settings";
-import { ProfileSettings } from "@/components/settings/profile-settings";
-import { ReportSettingsSection } from "@/components/settings/report-settings";
+import { SettingsFormClient } from "@/components/settings/settings-form-client";
 import { getTeacherSettingsOverview } from "@/lib/api/teacher";
 
 export const metadata: Metadata = {
@@ -168,42 +163,7 @@ export default async function SettingsPage() {
         </section>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <ProfileSettings profile={safeData.profile} />
-        <NotificationSettings initialSettings={safeData.notificationSettings} />
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-2">
-        <ReportSettingsSection initialSettings={safeData.reportSettings} />
-        <LessonSettings initialSettings={safeData.lessonSettings} />
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-2">
-        <AssignmentSettings initialSettings={safeData.assignmentSettings} />
-        <BasicInfoSettings data={safeData.basicInfoSettings} />
-      </div>
-
-      <div className="rounded-[24px] border border-border/80 bg-white px-6 py-5 shadow-soft">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="text-sm text-muted">
-            알림 / 리포트 / 수업 / 과제 설정은 이후 실제 저장 구조와 연결될 수 있도록 유지하고 있습니다.
-          </p>
-          <div className="flex gap-3">
-            <button
-              type="button"
-              className="rounded-full border border-border bg-soft px-5 py-2.5 text-sm font-semibold text-muted transition hover:border-brand/30 hover:text-brand"
-            >
-              초기화
-            </button>
-            <button
-              type="button"
-              className="rounded-full border border-brand bg-brand px-6 py-2.5 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow"
-            >
-              저장
-            </button>
-          </div>
-        </div>
-      </div>
+      <SettingsFormClient initialData={safeData} />
     </main>
   );
 }

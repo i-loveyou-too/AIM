@@ -48,10 +48,20 @@ type ReportSettingState = {
   examEmphasisDDay: ExamDDay;
 };
 
-export function ReportSettingsSection({ initialSettings }: { initialSettings: ReportSettingState }) {
+export function ReportSettingsSection({
+  initialSettings,
+  onStateChange,
+}: {
+  initialSettings: ReportSettingState;
+  onStateChange?: (state: ReportSettingState) => void;
+}) {
   const [period, setPeriod] = useState<ReportPeriod>(initialSettings.defaultPeriod);
   const [view, setView] = useState<ReportView>(initialSettings.defaultView);
   const [dDay, setDDay] = useState<ExamDDay>(initialSettings.examEmphasisDDay);
+
+  const notify = (next: Partial<ReportSettingState>) => {
+    onStateChange?.({ defaultPeriod: period, defaultView: view, examEmphasisDDay: dDay, ...next });
+  };
 
   return (
     <section className="rounded-[24px] border border-border/80 bg-white shadow-soft">
@@ -65,19 +75,19 @@ export function ReportSettingsSection({ initialSettings }: { initialSettings: Re
           label="기본 리포트 기간"
           options={["1주", "2주", "4주"]}
           value={period}
-          onChange={setPeriod}
+          onChange={(v) => { setPeriod(v); notify({ defaultPeriod: v }); }}
         />
         <RadioGroup<ReportView>
           label="기본 보기 방식"
           options={["학생별", "반별"]}
           value={view}
-          onChange={setView}
+          onChange={(v) => { setView(v); notify({ defaultView: v }); }}
         />
         <RadioGroup<ExamDDay>
           label="시험 대비 강조 기준"
           options={["D-7", "D-14", "D-21"]}
           value={dDay}
-          onChange={setDDay}
+          onChange={(v) => { setDDay(v); notify({ examEmphasisDDay: v }); }}
         />
       </div>
     </section>

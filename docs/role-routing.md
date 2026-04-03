@@ -21,7 +21,9 @@
 ## 권장 URL 구조
 
 ### 현재 (V1)
-- `/login`
+- `/` (포털 선택)
+- `/login` 또는 `/login/teacher` (교사용 로그인)
+- `/login/student` (학생 로그인)
 - `/dashboard` (공통 메인)
 
 ### 확장 (V2)
@@ -46,6 +48,11 @@
 - 권한 불일치 시:
   - 기본: 본인 role 대시보드로 리다이렉트
   - 보조: 403 페이지 제공 가능
+
+## 현재 코드 기준 참고 (2026-04-03)
+- middleware 보호 prefix: `/dashboard`, `/student`
+- middleware 공개 prefix: `/login`, `/api/auth`, `/_next`, `/favicon.ico`
+- 따라서 학생 로그인은 현재 기준으로 `/login/student`를 사용한다.
 
 ## 페이지 구조 예시
 

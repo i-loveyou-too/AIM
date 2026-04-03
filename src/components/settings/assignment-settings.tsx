@@ -33,7 +33,13 @@ type AssignmentSettingState = {
   commonMistakeAlert: boolean;
 };
 
-export function AssignmentSettings({ initialSettings }: { initialSettings: AssignmentSettingState }) {
+export function AssignmentSettings({
+  initialSettings,
+  onStateChange,
+}: {
+  initialSettings: AssignmentSettingState;
+  onStateChange?: (state: AssignmentSettingState) => void;
+}) {
   const settings = initialSettings;
   const [deadline, setDeadline] = useState(settings.defaultDeadlineTime);
   const [photo, setPhoto] = useState(settings.allowPhotoSubmit);
@@ -41,6 +47,14 @@ export function AssignmentSettings({ initialSettings }: { initialSettings: Assig
   const [question, setQuestion] = useState(settings.questionEnabled);
   const [ocr, setOCR] = useState(settings.ocrReviewHighlight);
   const [mistake, setMistake] = useState(settings.commonMistakeAlert);
+
+  const notify = (next: Partial<AssignmentSettingState>) => {
+    onStateChange?.({
+      defaultDeadlineTime: deadline, allowPhotoSubmit: photo, allowOMRSubmit: omr,
+      questionEnabled: question, ocrReviewHighlight: ocr, commonMistakeAlert: mistake,
+      ...next,
+    });
+  };
 
   return (
     <section className="rounded-[24px] border border-border/80 bg-white shadow-soft">
@@ -59,7 +73,7 @@ export function AssignmentSettings({ initialSettings }: { initialSettings: Assig
             id="deadline"
             type="time"
             value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
+            onChange={(e) => { setDeadline(e.target.value); notify({ defaultDeadlineTime: e.target.value }); }}
             className="h-9 rounded-full border border-border bg-soft px-4 text-sm text-text focus:outline-none focus:ring-1 focus:ring-brand/30"
           />
         </div>
@@ -70,7 +84,7 @@ export function AssignmentSettings({ initialSettings }: { initialSettings: Assig
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => setPhoto((v) => !v)}
+              onClick={() => { setPhoto((v) => { notify({ allowPhotoSubmit: !v }); return !v; }); }}
               className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
                 photo
                   ? "border-brand bg-brand text-white"
@@ -81,7 +95,7 @@ export function AssignmentSettings({ initialSettings }: { initialSettings: Assig
             </button>
             <button
               type="button"
-              onClick={() => setOMR((v) => !v)}
+              onClick={() => { setOMR((v) => { notify({ allowOMRSubmit: !v }); return !v; }); }}
               className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
                 omr
                   ? "border-brand bg-brand text-white"
@@ -100,21 +114,21 @@ export function AssignmentSettings({ initialSettings }: { initialSettings: Assig
               <p className="text-sm font-bold text-text">질문란 기본 활성화</p>
               <p className="mt-0.5 text-xs text-muted">과제 제출 시 학생 질문란을 기본으로 표시합니다.</p>
             </div>
-            <Toggle enabled={question} onChange={() => setQuestion((v) => !v)} />
+            <Toggle enabled={question} onChange={() => { setQuestion((v) => { notify({ questionEnabled: !v }); return !v; }); }} />
           </div>
           <div className="flex items-center justify-between py-3.5">
             <div>
               <p className="text-sm font-bold text-text">OCR 검토 강조 표시</p>
               <p className="mt-0.5 text-xs text-muted">OCR 검토가 필요한 항목을 목록에서 강조 표시합니다.</p>
             </div>
-            <Toggle enabled={ocr} onChange={() => setOCR((v) => !v)} />
+            <Toggle enabled={ocr} onChange={() => { setOCR((v) => { notify({ ocrReviewHighlight: !v }); return !v; }); }} />
           </div>
           <div className="flex items-center justify-between py-3.5">
             <div>
               <p className="text-sm font-bold text-text">공통 오답 반영 알림</p>
               <p className="mt-0.5 text-xs text-muted">공통 오답 패턴이 감지될 때 과제 관리 페이지에서 알림을 표시합니다.</p>
             </div>
-            <Toggle enabled={mistake} onChange={() => setMistake((v) => !v)} />
+            <Toggle enabled={mistake} onChange={() => { setMistake((v) => { notify({ commonMistakeAlert: !v }); return !v; }); }} />
           </div>
         </div>
       </div>

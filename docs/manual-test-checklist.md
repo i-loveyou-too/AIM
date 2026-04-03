@@ -14,6 +14,8 @@
 - [x] `lim` 계정이 `users`, `academy_members`, `teacher_profiles`에 연결됨
 
 ## A. 인증/세션
+- [ ] `/` 접속 시 포털 선택 화면이 보이는지 확인
+- [ ] 포털 선택에서 `/login/teacher`, `/login/student` 이동 확인
 - [ ] 비로그인 상태에서 `/dashboard` 접근 시 `/login?next=...`로 이동
 - [x] 로그인 성공 시 `/dashboard` 이동
 - [ ] 로그인 실패 시 에러 문구 표시

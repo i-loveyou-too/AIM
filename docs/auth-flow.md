@@ -11,7 +11,7 @@
 
 ## 현재 기준 흐름 (V1)
 1. 사용자가 사이트 접속
-2. 비로그인 상태면 로그인 페이지로 이동 (`/login`)
+2. 비로그인 상태면 로그인 경로로 이동 (`/login` 또는 `/login/teacher`)
 3. 로그인 성공 시 공통 대시보드로 이동 (`/dashboard`)
 4. 로그인 세션 유지 상태에서는 보호 페이지 접근 허용
 
@@ -19,7 +19,7 @@
 - 비로그인 사용자:
   - 보호 라우트 접근 시 `/login`으로 리다이렉트
 - 로그인 사용자:
-  - `/login` 접근 시 `/dashboard`로 리다이렉트(중복 로그인 방지)
+  - `/login` 계열 접근 시 `/dashboard`로 리다이렉트(중복 로그인 방지)
 - 세션 만료 사용자:
   - API `401` 응답 시 세션 무효화 처리 후 `/login` 이동
 
@@ -61,14 +61,18 @@
 - 프론트 라우팅은 role 판별 결과만 사용하고 role 판별 로직을 중복하지 않는다.
 
 ## 현재 구현 상태 (2026-04-01)
-- 로그인 페이지: `/login`
-- 기본 진입: `/` → `/login`
+- 기본 진입 페이지: `/` (포털 선택)
+  - 교사용 로그인: `/login`, `/login/teacher`
+  - 학생용 로그인: `/login/student`
 - 로그인 성공 후 이동: `/dashboard`
 - 인증 상태 관리:
   - 앱 시작 시 `/api/auth/me` 호출
   - 클라이언트 `AuthProvider`에서 세션 상태 관리
 - 보호 라우트:
-  - `/dashboard` 하위 경로 비로그인 접근 시 `/login?next=...` 리다이렉트
+  - Next middleware 기준 보호 prefix: `/dashboard`, `/student`
+  - 비로그인 접근 시 `/login?next=...` 리다이렉트
+- 공개 라우트:
+  - `/login*`, `/api/auth*`, `/_next*`, `/favicon.ico`
 - 로그아웃:
   - 사이드바 로그아웃 버튼에서 `POST /api/auth/logout` 호출 후 `/login` 이동
 - 참고:

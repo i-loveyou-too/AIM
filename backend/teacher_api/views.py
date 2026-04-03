@@ -2540,30 +2540,32 @@ def _sync_teacher_profile_tables(user, payload):
 
 
 def _build_teacher_class_rows(user=None):
-    profile_context = get_user_profile_context(user)
-    teacher_user_id = (profile_context or {}).get("user_id")
-    if not teacher_user_id:
-        return []
-
     return fetch_all_dict_safe(
         """
         SELECT
-            cg.id AS class_group_id,
-            cg.name AS class_name,
-            cg.subject,
-            COUNT(en.student_id) FILTER (WHERE en.status = 'active') AS student_count
-        FROM public.class_groups cg
-        LEFT JOIN public.enrollments en
-          ON en.class_group_id = cg.id
-        WHERE cg.teacher_user_id = %s
-          AND cg.status IN ('active', 'inactive', 'archived')
-        GROUP BY cg.id, cg.name, cg.subject
-        ORDER BY
-            CASE cg.status WHEN 'active' THEN 0 WHEN 'inactive' THEN 1 ELSE 2 END,
-            cg.id
-        LIMIT 200
-        """,
-        [teacher_user_id],
+            cg.id                       AS class_group_id,
+            cg.class_name,
+            CASE cg.track
+                WHEN 'naesin'  THEN COALESCE(cg.naesin_subject::TEXT,  '')
+                WHEN 'suneung' THEN COALESCE(cg.suneung_subject::TEXT, '')
+                ELSE ''
+            END                         AS subject,
+            COUNT(en.student_id) FILTER (WHERE en.is_active = TRUE) AS student_count,
+            (
+                SELECT e.exam_date
+                FROM exams e
+                WHERE e.class_group_id = cg.id
+                  AND e.exam_date >= CURRENT_DATE
+                ORDER BY e.exam_date
+                LIMIT 1
+            )                           AS next_exam_date
+        FROM class_groups cg
+        LEFT JOIN enrollments en ON en.class_group_id = cg.id
+        WHERE cg.is_active = TRUE
+        GROUP BY cg.id
+        ORDER BY cg.id
+        LIMIT 50
+        """
     )
 
 
@@ -2751,79 +2753,96 @@ def _to_optional_int(value):
     return None
 
 
+DEFAULT_NOTIFICATION_SETTINGS = [
+    {"key": "assignment_due",       "label": "과제 마감 알림",    "description": "과제 마감 1일 전 알림을 발송합니다.",             "enabled": False},
+    {"key": "submission_received",  "label": "제출 완료 알림",    "description": "학생이 과제를 제출하면 알림을 받습니다.",           "enabled": True},
+    {"key": "exam_approaching",     "label": "시험 임박 알림",    "description": "시험 D-7 기준으로 알림을 발송합니다.",             "enabled": False},
+    {"key": "report_ready",         "label": "리포트 생성 알림",  "description": "새 리포트가 생성되면 알림을 받습니다.",             "enabled": False},
+]
+
+DEFAULT_REPORT_SETTINGS = {"defaultPeriod": "4주", "defaultView": "학생별", "examEmphasisDDay": "D-14"}
+DEFAULT_LESSON_SETTINGS = {"defaultDuration": "90분", "showNextAction": False, "showLessonMemo": False, "todayPageInfoScope": "요약만"}
+DEFAULT_ASSIGNMENT_SETTINGS = {"defaultDeadlineTime": "23:59", "allowPhotoSubmit": False, "allowOMRSubmit": False, "questionEnabled": False, "ocrReviewHighlight": False, "commonMistakeAlert": False}
+
+
+def _get_teacher_id_for_settings():
+    """teacher_settings 저장/조회 시 사용할 teacher_id. MVP에서는 첫 번째 teacher를 사용."""
+    row = fetch_one_dict_safe("SELECT id FROM teachers ORDER BY id LIMIT 1")
+    return row.get("id") if row else 1
+
+
+def _load_teacher_settings(teacher_id):
+    """teacher_settings 테이블에서 모든 설정 키를 dict로 반환."""
+    rows = fetch_all_dict_safe(
+        "SELECT setting_key, setting_value FROM teacher_settings WHERE teacher_id = %s",
+        [teacher_id],
+    )
+    return {row["setting_key"]: row["setting_value"] for row in rows}
+
+
+def _save_teacher_settings(teacher_id, key, value):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO teacher_settings (teacher_id, setting_key, setting_value, updated_at)
+            VALUES (%s, %s, %s::jsonb, NOW())
+            ON CONFLICT (teacher_id, setting_key) DO UPDATE
+                SET setting_value = EXCLUDED.setting_value,
+                    updated_at    = NOW()
+            """,
+            [teacher_id, key, json.dumps(value, ensure_ascii=False)],
+        )
+
+
 def build_settings_overview(user=None):
     profile = get_teacher_profile(user)
     profile_context = get_user_profile_context(user)
     db_required_sections = []
 
-    notification_settings = [
-        {
-            "key": "db-required-notification",
-            "label": DB_REQUIRED_TEXT,
-            "description": "teacher_settings.notification_settings 연결 필요",
-            "enabled": False,
-        }
-    ]
-    db_required_sections.append("알림 설정")
+    teacher_id = _get_teacher_id_for_settings()
+    saved = _load_teacher_settings(teacher_id)
 
-    report_settings = {
-        "defaultPeriod": "4주",
-        "defaultView": "학생별",
-        "examEmphasisDDay": "D-14",
-    }
-    db_required_sections.append("리포트 설정")
+    # 알림 설정 — DB 값 우선, 없으면 기본값
+    raw_notifications = saved.get("notifications")
+    if isinstance(raw_notifications, list) and raw_notifications:
+        notification_settings = raw_notifications
+    else:
+        notification_settings = DEFAULT_NOTIFICATION_SETTINGS
 
-    lesson_settings = {
-        "defaultDuration": "90분",
-        "showNextAction": False,
-        "showLessonMemo": False,
-        "todayPageInfoScope": "요약만",
-    }
-    db_required_sections.append("수업 설정")
+    # 리포트 설정
+    raw_report = saved.get("report")
+    report_settings = {**DEFAULT_REPORT_SETTINGS, **(raw_report if isinstance(raw_report, dict) else {})}
 
-    assignment_settings = {
-        "defaultDeadlineTime": "23:59",
-        "allowPhotoSubmit": False,
-        "allowOMRSubmit": False,
-        "questionEnabled": False,
-        "ocrReviewHighlight": False,
-        "commonMistakeAlert": False,
-    }
-    db_required_sections.append("과제 설정")
+    # 수업 설정
+    raw_lesson = saved.get("lesson")
+    lesson_settings = {**DEFAULT_LESSON_SETTINGS, **(raw_lesson if isinstance(raw_lesson, dict) else {})}
 
+    # 과제 설정
+    raw_assignment = saved.get("assignment")
+    assignment_settings = {**DEFAULT_ASSIGNMENT_SETTINGS, **(raw_assignment if isinstance(raw_assignment, dict) else {})}
+
+    # 반/과목 정보
     class_rows = _build_teacher_class_rows(user)
     if class_rows:
+        exam_dates = {row.get("class_group_id"): row.get("next_exam_date") for row in class_rows}
         basic_info_settings = {
             "classes": [
                 {
                     "name": _db_required_text(row.get("class_name")),
                     "subject": _db_required_text(row.get("subject")),
                     "studentCount": to_int(row.get("student_count"), 0),
-                    "examDate": DB_REQUIRED_TEXT,
+                    "examDate": _db_required_date(exam_dates.get(row.get("class_group_id"))),
                 }
                 for row in class_rows
             ],
-            "subjects": sorted(
-                {
-                    _db_required_text(row.get("subject"))
-                    for row in class_rows
-                }
-            ),
-            "examScheduleLinked": False,
+            "subjects": sorted({row.get("subject") or "" for row in class_rows if row.get("subject")}),
+            "examScheduleLinked": any(row.get("next_exam_date") for row in class_rows),
             "curriculumTemplateLinked": False,
         }
-        db_required_sections.append("시험 일정/커리큘럼 설정")
     else:
         basic_info_settings = {
-            "classes": [
-                {
-                    "name": DB_REQUIRED_TEXT,
-                    "subject": DB_REQUIRED_TEXT,
-                    "studentCount": 0,
-                    "examDate": DB_REQUIRED_TEXT,
-                }
-            ],
-            "subjects": [DB_REQUIRED_TEXT],
+            "classes": [{"name": DB_REQUIRED_TEXT, "subject": DB_REQUIRED_TEXT, "studentCount": 0, "examDate": DB_REQUIRED_TEXT}],
+            "subjects": [],
             "examScheduleLinked": False,
             "curriculumTemplateLinked": False,
         }
@@ -2832,10 +2851,12 @@ def build_settings_overview(user=None):
     return {
         "profile": {
             "name": _db_required_text(profile.get("name")),
+            "displayName": profile.get("displayName") or "",
             "affiliation": _db_required_text(profile.get("affiliation")),
             "role": _db_required_text(profile.get("role")),
             "email": _db_required_text(profile.get("email")),
             "phone": _db_required_text(profile.get("phone")),
+            "intro": profile.get("intro") or "",
             "joined": _db_required_date((profile_context or {}).get("created_at")),
         },
         "notificationSettings": notification_settings,
@@ -3263,8 +3284,25 @@ def teacher_report_student_detail(request, student_id):
 
 
 @teacher_api_required
-@require_GET
+@require_http_methods(["GET", "PATCH"])
 def teacher_settings_overview(request):
+    if request.method == "PATCH":
+        payload, parse_error = _parse_json_request_body(request)
+        if parse_error:
+            return JsonResponse({"detail": parse_error}, status=400)
+
+        teacher_id = _get_teacher_id_for_settings()
+        allowed_keys = {"notifications", "report", "lesson", "assignment"}
+        saved_keys = []
+
+        with transaction.atomic():
+            for key in allowed_keys:
+                if key in payload:
+                    _save_teacher_settings(teacher_id, key, payload[key])
+                    saved_keys.append(key)
+
+        return JsonResponse({"ok": True, "saved": saved_keys})
+
     data = build_settings_overview(request.user)
     return JsonResponse(data)
 

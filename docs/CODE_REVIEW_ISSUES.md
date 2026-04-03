@@ -2,14 +2,14 @@
 
 > 작성일: 2026-04-01  
 > 리뷰 범위: 프론트엔드 (Next.js 14) + 백엔드 (Django) 전체  
-> 업데이트: 2026-04-01 (프론트엔드 심층 리뷰 + gitignore/middleware 추가)
+> 업데이트: 2026-04-03 (student API 실DB 연결 완료 + 미구현 컬럼 기록)
 
 ---
 
 ## 체크리스트 요약
 
 ### 긴급 (즉시 조치)
-- [ ] API 엔드포인트 인증 검사 추가
+- [x] API 엔드포인트 인증 검사 추가 (`@teacher_api_required` 이미 전체 적용 확인)
 - [ ] `@csrf_exempt` 제거
 - [ ] `.env.local.save` git history에서 제거 + DB 비밀번호 변경
 - [ ] 학생 API `request.user` 기반 인증 로직 완성
@@ -30,6 +30,7 @@
 - [ ] 한글 문자열 상수 파일 분리
 - [ ] API 문서화 (Swagger/OpenAPI)
 - [ ] 테스트 코드 작성
+- [ ] `student_goal_profiles`에 `daily_study_minutes` 컬럼 추가 + 저장 로직 반영
 
 ### 긴급 추가 발견
 - [x] `.env.local.save` `.gitignore`에 추가 (현재 누락)
@@ -684,6 +685,48 @@ if not settings.DEBUG:
 
 - [x] **해결**: DEBUG 환경 가드 추가
 - [ ] **해결**: `backend/accounts/management/` git에 추가
+
+---
+
+---
+
+## 12. DB 컬럼 미구현으로 인한 미저장 필드
+
+### 12-1. `daily_study_minutes` DB 저장 안 됨 `[낮음]`
+
+**파일**: `backend/config/views.py` — `student_patch_goals()`
+
+**현재 상태**:
+`PATCH /api/student/goals` 요청 시 `daily_study_minutes` 값을 받아도 DB에 저장되지 않고 응답에만 그대로 반환된다.
+
+```python
+# 현재: 응답에는 포함되지만 DB INSERT/UPDATE 안 됨
+"goal": {
+    "exam_date": saved_date,
+    "target_score": saved_score,
+    "daily_study_minutes": daily_study_minutes,  # ← 저장 안 됨
+}
+```
+
+**원인**: `student_goal_profiles` 테이블에 `daily_study_minutes` 컬럼이 없음.
+
+```sql
+-- 현재 student_goal_profiles 컬럼
+id, student_id, goal_score, current_level,
+study_goal, studyti_summary, exam_target_date, updated_at
+-- daily_study_minutes 없음
+```
+
+**해결 방법**:
+```sql
+ALTER TABLE student_goal_profiles
+ADD COLUMN daily_study_minutes INT;
+```
+
+그 후 `views.py` UPSERT 쿼리에 해당 컬럼 추가.
+
+- [ ] **해결**: `student_goal_profiles`에 `daily_study_minutes` 컬럼 추가 마이그레이션
+- [ ] **해결**: `student_patch_goals()` UPSERT 쿼리에 컬럼 반영
 
 ---
 

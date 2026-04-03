@@ -184,6 +184,32 @@ export async function getTeacherSettingsOverview() {
   return fetchJson<unknown>("/api/teacher/settings/overview");
 }
 
+export type TeacherSettingsPatchPayload = {
+  notifications?: Array<{ key: string; label: string; description: string; enabled: boolean }>;
+  report?: { defaultPeriod: string; defaultView: string; examEmphasisDDay: string };
+  lesson?: { defaultDuration: string; todayPageInfoScope: string; showNextAction: boolean; showLessonMemo: boolean };
+  assignment?: { defaultDeadlineTime: string; allowPhotoSubmit: boolean; allowOMRSubmit: boolean; questionEnabled: boolean; ocrReviewHighlight: boolean; commonMistakeAlert: boolean };
+};
+
+export async function patchTeacherSettings(payload: TeacherSettingsPatchPayload): Promise<{ ok: boolean; error?: string }> {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const res = await fetch(`${baseUrl}/api/teacher/settings/overview`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({})) as { detail?: string };
+      return { ok: false, error: data.detail ?? "설정 저장에 실패했습니다." };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "네트워크 오류가 발생했습니다." };
+  }
+}
+
 export type UpdateTeacherProfilePayload = {
   name: string;
   displayName?: string;

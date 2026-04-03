@@ -34,12 +34,22 @@ type LessonSettingState = {
   showLessonMemo: boolean;
 };
 
-export function LessonSettings({ initialSettings }: { initialSettings: LessonSettingState }) {
+export function LessonSettings({
+  initialSettings,
+  onStateChange,
+}: {
+  initialSettings: LessonSettingState;
+  onStateChange?: (state: LessonSettingState) => void;
+}) {
   const settings = initialSettings;
   const [duration, setDuration] = useState<Duration>(settings.defaultDuration);
   const [infoScope, setInfoScope] = useState<InfoScope>(settings.todayPageInfoScope);
   const [showNextAction, setShowNextAction] = useState(settings.showNextAction);
   const [showMemo, setShowMemo] = useState(settings.showLessonMemo);
+
+  const notify = (next: Partial<LessonSettingState>) => {
+    onStateChange?.({ defaultDuration: duration, todayPageInfoScope: infoScope, showNextAction, showLessonMemo: showMemo, ...next });
+  };
 
   return (
     <section className="rounded-[24px] border border-border/80 bg-white shadow-soft">
@@ -57,7 +67,7 @@ export function LessonSettings({ initialSettings }: { initialSettings: LessonSet
               <button
                 key={opt}
                 type="button"
-                onClick={() => setDuration(opt)}
+                onClick={() => { setDuration(opt); notify({ defaultDuration: opt }); }}
                 className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
                   duration === opt
                     ? "border-brand bg-brand text-white"
@@ -78,7 +88,7 @@ export function LessonSettings({ initialSettings }: { initialSettings: LessonSet
               <button
                 key={opt}
                 type="button"
-                onClick={() => setInfoScope(opt)}
+                onClick={() => { setInfoScope(opt); notify({ todayPageInfoScope: opt }); }}
                 className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
                   infoScope === opt
                     ? "border-brand bg-brand text-white"
@@ -98,14 +108,14 @@ export function LessonSettings({ initialSettings }: { initialSettings: LessonSet
               <p className="text-sm font-bold text-text">다음 수업 액션 기본 표시</p>
               <p className="mt-0.5 text-xs text-muted">오늘 수업 운영 페이지 하단에 다음 수업 액션을 기본으로 표시합니다.</p>
             </div>
-            <Toggle enabled={showNextAction} onChange={() => setShowNextAction((v) => !v)} />
+            <Toggle enabled={showNextAction} onChange={() => { setShowNextAction((v) => { notify({ showNextAction: !v }); return !v; }); }} />
           </div>
           <div className="flex items-center justify-between py-3.5">
             <div>
               <p className="text-sm font-bold text-text">수업 메모 기본 활성화</p>
               <p className="mt-0.5 text-xs text-muted">수업 종료 후 메모 작성 영역을 기본으로 활성화합니다.</p>
             </div>
-            <Toggle enabled={showMemo} onChange={() => setShowMemo((v) => !v)} />
+            <Toggle enabled={showMemo} onChange={() => { setShowMemo((v) => { notify({ showLessonMemo: !v }); return !v; }); }} />
           </div>
         </div>
       </div>
