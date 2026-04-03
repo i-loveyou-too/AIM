@@ -1,6 +1,6 @@
 # Aim ON Dashboard Data 문서
 
-이 문서는 `src/lib/mock-data/dashboard.ts` 안에 있는 대시보드 데이터를 항목별로 정리한 문서입니다.
+이 문서는 교사용 대시보드 API(`GET /api/teacher/dashboard/overview` 등)에서 반환되어야 할 데이터 항목과 필드 규격을 정리한 문서입니다.
 
 ## 문서 경계
 - 이 문서: 대시보드 화면 데이터 항목/필드 기준
@@ -28,7 +28,7 @@
 | label | value | badge | tone | note |
 | --- | --- | --- | --- | --- |
 | 전체 학생 수 | 125명 | 동기화됨 | rose | DB seed 기준 실데이터 (추후 API 연결 시 자동 반영) |
-| 오늘 수업 수 | 6개 | 오늘 일정 | gold | 오전 2개, 오후 4개 |
+| 오늘 수업 수 | 0개 | 오늘 일정 | gold | 현재 `/api/teacher/today-lessons`가 빈 배열(`[]`)을 반환함 |
 | 미완료 과제 수 | 14개 | 확인 필요 | peach | 오늘 마감 과제 우선 정리 |
 | 시험 임박 학생 수 | 9명 | D-14 | soft | 3일 이내 시험 학생 점검 |
 

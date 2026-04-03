@@ -28,6 +28,11 @@
 - 로그인 API: `POST /api/auth/login`
 - 로그아웃 API: `POST /api/auth/logout`
 - 사용자 확인 API: `GET /api/auth/me`
+- **사용자 정보 표시 우선순위 (2026-04-03 수정)**:
+  1. `teacher_profiles.display_name`
+  2. `users.name`
+  3. `users.login_id`
+  4. `users.email`
 - CSRF 사전 획득: `GET /api/auth/csrf` (unsafe method 호출 전)
 - 현재 로그인 허용 대상: `teacher` 그룹 또는 `is_staff`/`is_superuser`
 

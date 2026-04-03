@@ -34,7 +34,7 @@ export function TodayScheduleSection({ schedule }: Props) {
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">
       {/* 섹션 헤더 */}
-      <div className="flex items-center justify-between border-b border-border/60 px-6 py-5">
+      <div className="flex items-center justify-between border-b border-border/60 px-7 py-6 sm:px-8">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
             오늘 수업 일정
@@ -56,7 +56,7 @@ export function TodayScheduleSection({ schedule }: Props) {
             key={item.id}
             href={`#${item.id}`}
             scroll={true}
-            className="group flex flex-col gap-3 px-6 py-4 transition hover:bg-soft/60 sm:flex-row sm:items-center sm:gap-0"
+            className="group flex flex-col gap-4 px-7 py-5 transition hover:bg-soft/60 sm:flex-row sm:items-center sm:gap-0 sm:px-8"
           >
             {/* 순서 번호 + 시간 */}
             <div className="flex items-center gap-3 sm:w-48 sm:shrink-0">

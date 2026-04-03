@@ -3,10 +3,10 @@ from . import views
 
 urlpatterns = [
     # 기본 조회 API
-    path('students', views.teacher_students, name='teacher_students'),
+    path('students', views.teacher_students_v2, name='teacher_students'),
     path('students/<int:student_id>', views.teacher_student_detail, name='teacher_student_detail'),
-    path('classes', views.teacher_classes, name='teacher_classes'),
-    path('classes/<int:class_group_id>', views.teacher_class_detail, name='teacher_class_detail'),
+    path('classes', views.teacher_classes_v2, name='teacher_classes'),
+    path('classes/<int:class_group_id>', views.teacher_class_detail_v2, name='teacher_class_detail'),
     path('today-lessons', views.teacher_today_lessons, name='teacher_today_lessons'),
 
     # 오버뷰 및 요약 API (프론트 경로와 동일)

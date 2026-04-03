@@ -21,6 +21,13 @@ export default async function RootLayout({
     initials: "김",
   };
 
+  let greeting = "안녕하세요! 👋";
+  profile = {
+    name: "선생님",
+    role: "교사용 관리자",
+    initials: "교",
+  };
+
   try {
     const teacher = await getTeacherProfile();
     profile = {
@@ -28,6 +35,10 @@ export default async function RootLayout({
       role: teacher?.header?.role ?? profile.role,
       initials: teacher?.header?.initials ?? profile.initials,
     };
+    const greetingName = teacher?.header?.greetingName?.trim();
+    if (greetingName) {
+      greeting = `${greetingName} 선생님, 안녕하세요! 👋`;
+    }
   } catch {
     // fallback profile 유지
   }

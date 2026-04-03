@@ -17,11 +17,65 @@ type AppHeaderProps = {
 export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
   const pathname = usePathname();
   const isStudentListPage = pathname === "/dashboard/students";
+  const isStudentRegisterPage = pathname === "/dashboard/students/register";
   const isStudentReportPage = pathname.startsWith("/dashboard/students/") && pathname.endsWith("/report");
-  const isStudentDetailPage = pathname.startsWith("/dashboard/students/") && pathname !== "/dashboard/students" && !isStudentReportPage;
+  const isStudentDetailPage = pathname.startsWith("/dashboard/students/") && pathname !== "/dashboard/students" && !isStudentReportPage && !isStudentRegisterPage;
   const isTodayLessonsPage = pathname === "/dashboard/today-lessons";
   const isCurriculumPage = pathname === "/dashboard/curriculum";
   const isAssignmentsPage = pathname === "/dashboard/assignments";
+
+  if (isTodayLessonsPage) {
+    return null;
+  }
+
+  if (isStudentRegisterPage) {
+    return (
+      <header className="px-1 py-1 sm:px-2">
+        <div className="rounded-[28px] border border-border/80 bg-white/85 px-4 py-4 shadow-soft backdrop-blur">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="space-y-3">
+              <Link
+                href="/dashboard/students"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-soft px-4 py-2 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
+              >
+                ← 학생 목록
+              </Link>
+              <div>
+                <p className="text-xs font-semibold tracking-[0.18em] text-brand">
+                  학생 등록
+                </p>
+                <h1 className="mt-2 text-[1.3rem] font-extrabold tracking-tight text-text sm:text-[1.5rem]">
+                  새로운 학생을 등록합니다
+                </h1>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  기본 정보와 학원/반 배정을 한 번에 완료합니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-end xl:self-auto">
+              <button
+                type="button"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"
+                aria-label="알림"
+              >
+                🔔
+              </button>
+              <div className="ml-1 flex items-center gap-3 rounded-full border border-border bg-white px-3 py-2 shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white shadow-soft">
+                  {profile.initials}
+                </div>
+                <div className="pr-1">
+                  <p className="text-sm font-semibold text-text">{profile.name}</p>
+                  <p className="text-xs text-muted">{profile.role}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   if (isCurriculumPage) {
     return (
@@ -102,10 +156,10 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
   // 오늘 수업 운영 페이지 — 상단 헤더
   if (isTodayLessonsPage) {
     return (
-      <header className="px-0.5 py-0.5 sm:px-1.5">
-        <div className="rounded-[26px] border border-border/80 bg-white/85 px-3.5 py-3.5 shadow-soft backdrop-blur">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="space-y-1">
+      <header className="px-1 py-1 sm:px-2">
+        <div className="rounded-[26px] border border-border/80 bg-white/85 px-5 py-5 shadow-soft backdrop-blur sm:px-6 sm:py-6">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
                 수업 준비 · 운영
               </p>
@@ -114,7 +168,7 @@ export function AppHeader({ title, greeting, profile }: AppHeaderProps) {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 self-end xl:self-auto">
+            <div className="flex items-center gap-2.5 self-end xl:self-auto">
               <button
                 type="button"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition hover:border-brand/30 hover:text-brand"

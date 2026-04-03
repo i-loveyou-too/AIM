@@ -42,12 +42,12 @@ function FilterField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-white px-4 py-3 shadow-sm">
+    <label className="flex min-w-0 flex-col gap-2 rounded-2xl border border-border bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <span className="text-sm font-semibold text-muted">{label}</span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="bg-transparent text-sm font-semibold text-text outline-none"
+        className="min-w-0 bg-transparent text-sm font-semibold text-text outline-none"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value} className="text-text">
@@ -89,30 +89,29 @@ export function StudentFilters({
 
   return (
     <section className="rounded-[28px] border border-border/80 bg-soft p-4 shadow-none sm:p-5">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <label className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 shadow-sm xl:min-w-[360px]">
-          <span className="text-lg text-muted">🔎</span>
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <label className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 shadow-sm xl:max-w-[360px]">
+          <span className="text-lg text-muted">⌕</span>
           <input
             type="search"
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="학생 이름, 학교, 반, 과목 검색"
-            className="w-full bg-transparent text-sm font-medium text-text outline-none placeholder:text-muted/70"
+            className="w-full min-w-0 bg-transparent text-sm font-medium text-text outline-none placeholder:text-muted/70"
           />
         </label>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <FilterField label="학교" value={school} options={schoolOptions} onChange={onSchoolChange} />
           <FilterField label="반" value={className} options={classNameOptions} onChange={onClassNameChange} />
           <FilterField label="학년" value={grade} options={gradeOptions} onChange={onGradeChange} />
           <FilterField label="과목" value={subject} options={subjectOptions} onChange={onSubjectChange} />
           <FilterField label="상태" value={status} options={statusOptions} onChange={onStatusChange} />
           <FilterField label="정렬" value={sortBy} options={sortOptions} onChange={onSortChange} />
-
           <button
             type="button"
             onClick={onReset}
-            className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
+            className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand sm:col-span-2 xl:col-span-3"
           >
             초기화
           </button>
@@ -129,7 +128,7 @@ export function StudentFilters({
           </span>
         ) : null}
         <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted shadow-sm">
-          학교 선택 필터 지원
+          학교 선택 시 반 필터 자동 적용
         </span>
       </div>
     </section>

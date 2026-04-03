@@ -1,13 +1,12 @@
 # Aim ON Mock/Data 전환 현황 (운영형 MVP 기준)
 
-기준일: 2026-04-02
-
+기준일: 2026-04-0
 ## 문서 경계
 - 이 문서: mock 제거 진행도/남은 전환 작업
 - [DASHBOARD_DATA.md](./DASHBOARD_DATA.md): 대시보드 데이터 스펙 문서
 
 ## 한 줄 요약
-- `src/lib/mock-data/*` 기반 구조는 제거됨
+- `src/lib/mock-data/*` 디렉토리 및 파일 완전 제거됨 (확인 완료)
 - 학생용 `제출`/`리포트` 페이지는 API 실연결 완료
 - 남은 이슈는 `페이지 내부 fallback 하드코딩` + `일부 도메인 데이터 밀도`
 
@@ -40,7 +39,7 @@
 | fallback 하드코딩 | `src/components/assignments/assignments-page-content.tsx` | 사용 중 | summary/insights 기본 객체 사용 |
 | fallback 하드코딩 | `src/app/dashboard/reports/page.tsx` | 사용 중 | `safeData` 빈 배열/객체로 대체 |
 | fallback 하드코딩 | `src/components/reports/period-report-hub.tsx` | 사용 중 | 기간 데이터 없으면 빈 차트 데이터 사용 |
-| fallback 하드코딩 | `src/app/dashboard/settings/page.tsx` | 사용 중 | 설정값 기본 하드코딩 다수 |
+| fallback 하드코딩 | `src/app/dashboard/settings/page.tsx` | 사용 중 | 설정값 기본 하드코딩 다수. DB 미연결 필드는 `"<db 데이터필요>"`로 표시 (2026-04-03) |
 
 ---
 

@@ -8,6 +8,14 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
+from .user_display import (
+    resolve_user_display_name,
+    resolve_user_greeting_name,
+    resolve_user_header_name,
+    resolve_user_initials,
+    resolve_user_role_label,
+)
+
 
 UserModel = get_user_model()
 
@@ -27,11 +35,17 @@ def _parse_request_json(request) -> Tuple[Dict[str, Any], Optional[str]]:
 
 
 def _serialize_user(user) -> Dict[str, Any]:
+    display_name = resolve_user_display_name(user)
     return {
         "id": user.id,
         "username": user.get_username(),
         "is_staff": bool(user.is_staff),
         "is_superuser": bool(user.is_superuser),
+        "display_name": display_name,
+        "header_name": resolve_user_header_name(user, display_name),
+        "greeting_name": resolve_user_greeting_name(user, display_name),
+        "initials": resolve_user_initials(user, display_name),
+        "role_label": resolve_user_role_label(user),
     }
 
 

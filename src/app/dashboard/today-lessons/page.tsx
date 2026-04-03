@@ -25,8 +25,8 @@ export default async function TodayLessonsPage() {
 
   if (loadFailed) {
     return (
-      <div className="space-y-6">
-        <header className="rounded-[28px] border border-border/80 bg-white px-6 py-6 shadow-soft">
+      <div className="space-y-8 lg:space-y-10">
+        <header className="rounded-[28px] border border-border/80 bg-white px-7 py-7 shadow-soft sm:px-8 sm:py-8">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
             수업 준비 · 운영
           </p>
@@ -43,47 +43,47 @@ export default async function TodayLessonsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 lg:space-y-10">
       {/* ── 페이지 헤더 ──────────────────────────────────────── */}
-      <header className="rounded-[28px] border border-border/80 bg-white px-6 py-6 shadow-soft">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+      <header className="rounded-[28px] border border-border/80 bg-white px-7 py-7 shadow-soft sm:px-8 sm:py-8">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
           {/* 좌측: 제목 + 설명 */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
               수업 준비 · 운영
             </p>
-            <h1 className="mt-1.5 text-[1.35rem] font-extrabold tracking-tight text-text sm:text-[1.6rem]">
+            <h1 className="mt-2 text-[1.35rem] font-extrabold tracking-tight text-text sm:text-[1.6rem]">
               오늘 수업 운영
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
+            <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
               오늘 수업 일정, 학생별 진도 위치, 설명 포인트, 취약 단원, 숙제 반영 사항을
               한 화면에서 확인하고 바로 수업에 들어가세요.
             </p>
           </div>
 
           {/* 우측: CTA 버튼 그룹 */}
-          <div className="flex flex-wrap items-center gap-2 xl:shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 xl:shrink-0">
             <button
               type="button"
-              className="rounded-full border border-brand bg-brand px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow"
+              className="rounded-full border border-brand bg-brand px-4.5 py-3 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow"
             >
               수업 메모 작성
             </button>
             <button
               type="button"
-              className="rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
+              className="rounded-full border border-border bg-white px-4.5 py-3 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
             >
               진도 업데이트
             </button>
             <Link
               href="/dashboard/today-lessons#materials"
-              className="rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
+              className="rounded-full border border-border bg-white px-4.5 py-3 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
             >
               자료 보기
             </Link>
             <Link
               href="/dashboard/curriculum#reverse-plan"
-              className="rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
+              className="rounded-full border border-border bg-white px-4.5 py-3 text-sm font-semibold text-text shadow-sm transition hover:border-brand/30 hover:text-brand"
             >
               계획 보기
             </Link>
@@ -100,15 +100,15 @@ export default async function TodayLessonsPage() {
       </div>
 
       {/* ── 수업별 준비 카드 ──────────────────────────────────── */}
-      <section id="lesson-prep" className="space-y-4">
-        <div className="px-1">
+      <section id="lesson-prep" className="space-y-5 lg:space-y-6">
+        <div className="px-1.5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
             수업별 준비
           </p>
-          <h2 className="mt-1 text-lg font-extrabold tracking-tight text-text">
+          <h2 className="mt-1.5 text-lg font-extrabold tracking-tight text-text">
             수업별 상세 준비 카드
           </h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-2 text-sm leading-6 text-muted">
             각 수업에서 다룰 진도, 설명 포인트, 약점, 숙제 반영, 운영 메모를 확인하세요.
           </p>
         </div>
@@ -118,7 +118,7 @@ export default async function TodayLessonsPage() {
       </section>
 
       {/* ── 약점 / 집중 관리 + 숙제 반영 — 2컬럼 ────────────── */}
-      <div id="homework" className="grid gap-6 xl:grid-cols-2">
+      <div id="homework" className="grid gap-7 xl:grid-cols-2">
         <WeaknessOverviewSection weaknessOverview={weaknessOverview} />
         <HomeworkReflectionSection homeworkReflection={homeworkReflection} />
       </div>

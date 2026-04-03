@@ -10,6 +10,11 @@ export type AuthUser = {
   is_staff: boolean;
   is_superuser: boolean;
   role?: "teacher" | "student";
+  display_name?: string;
+  header_name?: string;
+  greeting_name?: string;
+  initials?: string;
+  role_label?: string;
 };
 
 export type TeacherLoginApiResponse = {

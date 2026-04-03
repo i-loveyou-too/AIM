@@ -1,24 +1,26 @@
 import type { Metadata } from "next";
-import { ProfileSettings } from "@/components/settings/profile-settings";
-import { NotificationSettings } from "@/components/settings/notification-settings";
-import { ReportSettingsSection } from "@/components/settings/report-settings";
-import { LessonSettings } from "@/components/settings/lesson-settings";
 import { AssignmentSettings } from "@/components/settings/assignment-settings";
 import { BasicInfoSettings } from "@/components/settings/basic-info-settings";
+import { LessonSettings } from "@/components/settings/lesson-settings";
+import { NotificationSettings } from "@/components/settings/notification-settings";
+import { ProfileSettings } from "@/components/settings/profile-settings";
+import { ReportSettingsSection } from "@/components/settings/report-settings";
 import { getTeacherSettingsOverview } from "@/lib/api/teacher";
 
 export const metadata: Metadata = {
   title: "설정 | Aim ON",
-  description: "교사용 대시보드의 기본 운영 환경과 알림, 리포트, 수업, 과제 관련 설정을 관리합니다.",
+  description: "교사용 대시보드의 운영 설정과 프로필 정보를 확인합니다.",
 };
 
 type TeacherSettingsOverview = {
   profile: {
     name: string;
+    displayName: string;
     affiliation: string;
     role: string;
     email: string;
     phone: string;
+    intro: string;
     joined: string;
   };
   notificationSettings: Array<{
@@ -57,18 +59,28 @@ type TeacherSettingsOverview = {
     examScheduleLinked: boolean;
     curriculumTemplateLinked: boolean;
   };
+  dbRequiredSections?: string[];
 };
 
 const EMPTY_SETTINGS: TeacherSettingsOverview = {
   profile: {
-    name: "-",
-    affiliation: "-",
-    role: "-",
-    email: "-",
-    phone: "-",
-    joined: "-",
+    name: "<db 데이터필요>",
+    displayName: "",
+    affiliation: "<db 데이터필요>",
+    role: "<db 데이터필요>",
+    email: "<db 데이터필요>",
+    phone: "<db 데이터필요>",
+    intro: "",
+    joined: "<db 데이터필요>",
   },
-  notificationSettings: [],
+  notificationSettings: [
+    {
+      key: "db-required-notification",
+      label: "<db 데이터필요>",
+      description: "알림 설정은 DB 데이터 연결 후 활성화됩니다.",
+      enabled: false,
+    },
+  ],
   reportSettings: {
     defaultPeriod: "4주",
     defaultView: "학생별",
@@ -89,15 +101,24 @@ const EMPTY_SETTINGS: TeacherSettingsOverview = {
     commonMistakeAlert: false,
   },
   basicInfoSettings: {
-    classes: [],
-    subjects: [],
+    classes: [
+      {
+        name: "<db 데이터필요>",
+        subject: "<db 데이터필요>",
+        studentCount: 0,
+        examDate: "<db 데이터필요>",
+      },
+    ],
+    subjects: ["<db 데이터필요>"],
     examScheduleLinked: false,
     curriculumTemplateLinked: false,
   },
+  dbRequiredSections: [],
 };
 
 export default async function SettingsPage() {
   let data: Partial<TeacherSettingsOverview> | null = null;
+
   try {
     data = (await getTeacherSettingsOverview()) as Partial<TeacherSettingsOverview>;
   } catch {
@@ -112,20 +133,26 @@ export default async function SettingsPage() {
       : EMPTY_SETTINGS.notificationSettings,
     reportSettings: { ...EMPTY_SETTINGS.reportSettings, ...(data?.reportSettings ?? {}) },
     lessonSettings: { ...EMPTY_SETTINGS.lessonSettings, ...(data?.lessonSettings ?? {}) },
-    assignmentSettings: { ...EMPTY_SETTINGS.assignmentSettings, ...(data?.assignmentSettings ?? {}) },
-    basicInfoSettings: { ...EMPTY_SETTINGS.basicInfoSettings, ...(data?.basicInfoSettings ?? {}) },
+    assignmentSettings: {
+      ...EMPTY_SETTINGS.assignmentSettings,
+      ...(data?.assignmentSettings ?? {}),
+    },
+    basicInfoSettings: {
+      ...EMPTY_SETTINGS.basicInfoSettings,
+      ...(data?.basicInfoSettings ?? {}),
+    },
+    dbRequiredSections: Array.isArray(data?.dbRequiredSections) ? data.dbRequiredSections : [],
   };
 
   return (
     <main className="space-y-6">
-      {/* 페이지 헤더 */}
       <header className="rounded-[28px] border border-border/80 bg-white px-6 py-6 shadow-soft">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">설정</p>
         <h1 className="mt-1.5 text-[1.35rem] font-extrabold tracking-tight text-text sm:text-[1.6rem]">
           설정
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
-          교사용 대시보드의 기본 운영 환경과 알림, 리포트, 수업, 과제 관련 설정을 관리하는 화면입니다.
+          교사용 대시보드의 기본 운영 환경과 알림, 리포트, 수업, 과제 관련 설정을 관리합니다.
         </p>
       </header>
 
@@ -135,29 +162,31 @@ export default async function SettingsPage() {
         </section>
       ) : null}
 
-      {/* 2열 레이아웃: 프로필 + 알림 */}
+      {safeData.dbRequiredSections && safeData.dbRequiredSections.length > 0 ? (
+        <section className="rounded-[22px] border border-[#f6d9b8] bg-[#fffaf4] px-5 py-4 text-sm text-[#8a5a1f]">
+          <strong>&lt;db 데이터필요&gt;</strong> {safeData.dbRequiredSections.join(", ")}
+        </section>
+      ) : null}
+
       <div className="grid gap-6 xl:grid-cols-2">
         <ProfileSettings profile={safeData.profile} />
         <NotificationSettings initialSettings={safeData.notificationSettings} />
       </div>
 
-      {/* 2열 레이아웃: 리포트 + 수업 */}
       <div className="grid gap-6 xl:grid-cols-2">
         <ReportSettingsSection initialSettings={safeData.reportSettings} />
         <LessonSettings initialSettings={safeData.lessonSettings} />
       </div>
 
-      {/* 2열 레이아웃: 과제 + 반/과목 정보 */}
       <div className="grid gap-6 xl:grid-cols-2">
         <AssignmentSettings initialSettings={safeData.assignmentSettings} />
         <BasicInfoSettings data={safeData.basicInfoSettings} />
       </div>
 
-      {/* 하단 액션 영역 */}
       <div className="rounded-[24px] border border-border/80 bg-white px-6 py-5 shadow-soft">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-muted">
-            변경 사항은 저장 버튼을 눌러야 반영됩니다.
+            알림 / 리포트 / 수업 / 과제 설정은 이후 실제 저장 구조와 연결될 수 있도록 유지하고 있습니다.
           </p>
           <div className="flex gap-3">
             <button

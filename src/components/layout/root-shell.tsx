@@ -21,9 +21,13 @@ type RootShellProps = {
 export function RootShell({ children, profile, title, greeting }: RootShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { status, isAuthenticated } = useAuth();
+  const { status, isAuthenticated, user } = useAuth();
 
-  const isAuthPage = pathname === "/login";
+  const isAuthPage =
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname.startsWith("/login/") ||
+    pathname === "/student/login";
   const isProtectedRoute = pathname.startsWith("/dashboard");
   const isCheckingAuth = isProtectedRoute && status === "loading";
 
@@ -55,13 +59,23 @@ export function RootShell({ children, profile, title, greeting }: RootShellProps
     );
   }
 
+  const greetingName = user?.greeting_name ?? user?.display_name ?? user?.username ?? null;
+  const resolvedProfile = user
+    ? {
+        name: user.header_name ?? (greetingName ? `${greetingName} 선생님` : profile.name),
+        role: user.role_label ?? profile.role,
+        initials: user.initials ?? profile.initials,
+      }
+    : profile;
+  const resolvedGreeting = greetingName ? `${greetingName} 선생님, 안녕하세요! 👋` : greeting;
+
   return (
     <div className="min-h-screen bg-clean-dots">
-      <div className="mx-auto flex min-h-screen max-w-[1400px] gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-screen max-w-[1480px] flex-col gap-5 overflow-x-clip px-4 pt-7 pb-4 sm:px-6 sm:pt-9 sm:pb-5 lg:flex-row lg:gap-6 lg:px-8 lg:pt-14 lg:pb-6">
         <Sidebar />
-        <div className="flex min-w-0 flex-1 flex-col gap-5">
-          <AppHeader title={title} greeting={greeting} profile={profile} />
-          <main className="min-w-0 flex-1 pb-6">{children}</main>
+        <div className="flex min-w-0 flex-1 flex-col gap-7 lg:gap-8">
+          <AppHeader title={title} greeting={resolvedGreeting} profile={resolvedProfile} />
+          <main className="min-w-0 flex-1 pb-10 lg:pb-12">{children}</main>
         </div>
       </div>
     </div>

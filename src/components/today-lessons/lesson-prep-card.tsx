@@ -161,7 +161,7 @@ export function LessonPrepCard({
       className="overflow-hidden rounded-[28px] border border-border/80 bg-white shadow-soft"
     >
       {/* ── 헤더 (항상 표시) ──────────────────────────────────── */}
-      <div className={`px-6 py-5 ${open ? "border-b border-border/60" : ""}`}>
+      <div className={`px-7 py-6 sm:px-8 ${open ? "border-b border-border/60" : ""}`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
 
           {/* 좌측: 번호 + 이름 + 기본 정보 */}
@@ -224,9 +224,9 @@ export function LessonPrepCard({
           <div className="divide-y divide-border/50">
 
             {/* 1. 오늘 수업 진도 */}
-            <div className="px-6 py-5">
+            <div className="px-7 py-6 sm:px-8">
               <SectionLabel>오늘 수업 진도</SectionLabel>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="rounded-2xl bg-soft p-4">
                   <p className="text-xs font-semibold text-muted">오늘 나갈 단원</p>
                   <p className="mt-1 text-sm font-bold text-text">{lesson.progress.todayUnit}</p>
@@ -269,9 +269,9 @@ export function LessonPrepCard({
             </div>
 
             {/* 2. 오늘 설명할 내용 */}
-            <div className="px-6 py-5">
+            <div className="px-7 py-6 sm:px-8">
               <SectionLabel>오늘 설명할 내용</SectionLabel>
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <Tag variant="focus">{lesson.explanation.conceptType}</Tag>
                 <div>
                   <p className="mb-2 text-[11px] font-bold text-text">꼭 설명해야 할 핵심 개념</p>
@@ -291,9 +291,9 @@ export function LessonPrepCard({
             </div>
 
             {/* 3. 자료 / 리소스 */}
-            <div className="px-6 py-5">
+            <div className="px-7 py-6 sm:px-8">
               <SectionLabel>자료 / 리소스</SectionLabel>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1.5 text-xs font-bold text-white">
                   <span>★</span>
                   <span>오늘 꼭 사용 — {lesson.materials.priorityTag}</span>
@@ -330,9 +330,9 @@ export function LessonPrepCard({
           <div className="divide-y divide-border/50 border-t border-border/50 lg:border-l lg:border-t-0">
 
             {/* 4. 학생 약점 */}
-            <div className="px-6 py-5">
+            <div className="px-7 py-6 sm:px-8">
               <SectionLabel>학생 약점 / 집중 체크</SectionLabel>
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
                   <p className="mb-2 text-[11px] font-bold text-text">취약 단원</p>
                   <div className="flex flex-wrap gap-1.5">
@@ -357,9 +357,9 @@ export function LessonPrepCard({
             </div>
 
             {/* 5. 숙제 반영 */}
-            <div className="px-6 py-5">
+            <div className="px-7 py-6 sm:px-8">
               <SectionLabel>숙제 반영</SectionLabel>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${hw.style}`}>
                     {hw.label}
@@ -402,9 +402,9 @@ export function LessonPrepCard({
             </div>
 
             {/* 6. 수업 운영 메모 */}
-            <div className="px-6 py-5">
+            <div className="px-7 py-6 sm:px-8">
               <SectionLabel>수업 운영 메모</SectionLabel>
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
                   <p className="mb-2 text-[11px] font-bold text-text">수업 전 확인사항</p>
                   <BulletList items={lesson.lessonMemo.preClassCheck} variant="check" />

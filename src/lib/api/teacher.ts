@@ -1,3 +1,4 @@
+import { fetchAuthCsrf } from "@/lib/api/auth";
 import { getApiBaseUrl, parseJsonSafe, requestApiResponse, requestJson } from "@/lib/api/client";
 import type {
   TeacherClassDetail,
@@ -127,17 +128,21 @@ export type TeacherHeaderProfile = {
   greetingName: string;
 };
 
+export type TeacherProfileData = {
+  teacherId: number;
+  name: string;
+  displayName: string;
+  affiliation: string;
+  role: string;
+  email: string;
+  phone: string;
+  intro: string;
+  joined: string;
+  header: TeacherHeaderProfile;
+};
+
 export async function getTeacherProfile() {
-  return fetchJson<{
-    teacherId: number;
-    name: string;
-    affiliation: string;
-    role: string;
-    email: string;
-    phone: string;
-    joined: string;
-    header: TeacherHeaderProfile;
-  }>("/api/teacher/profile");
+  return fetchJson<TeacherProfileData>("/api/teacher/profile");
 }
 
 export async function getTeacherTodayLessonsOverview() {
@@ -177,4 +182,110 @@ export async function getTeacherReportStudentDetail(studentId: number) {
 
 export async function getTeacherSettingsOverview() {
   return fetchJson<unknown>("/api/teacher/settings/overview");
+}
+
+export type UpdateTeacherProfilePayload = {
+  name: string;
+  displayName?: string;
+  email?: string;
+  phone?: string;
+  intro?: string;
+};
+
+export type UpdateTeacherProfileResult =
+  | { ok: true; profile: TeacherProfileData; message: string }
+  | { ok: false; error: string; fieldErrors?: Record<string, string> };
+
+export async function updateTeacherProfile(
+  payload: UpdateTeacherProfilePayload,
+): Promise<UpdateTeacherProfileResult> {
+  const csrfResult = await fetchAuthCsrf();
+  if (!csrfResult.ok) {
+    return { ok: false, error: csrfResult.error };
+  }
+
+  const response = await requestApiResponse({
+    baseUrl: getApiBaseUrl(),
+    path: "/api/teacher/profile",
+    init: {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfResult.csrfToken,
+      },
+      body: JSON.stringify(payload),
+    },
+    cache: "no-store",
+  });
+
+  const data = (await parseJsonSafe(response)) as
+    | { message?: string; detail?: string; profile?: TeacherProfileData; errors?: Record<string, string> }
+    | null;
+
+  if (!response.ok || !data?.profile) {
+    return {
+      ok: false,
+      error:
+        (typeof data?.detail === "string" && data.detail) ||
+        (typeof data?.message === "string" && data.message) ||
+        `API request failed: ${response.status}`,
+      fieldErrors: typeof data?.errors === "object" && data?.errors ? data.errors : undefined,
+    };
+  }
+
+  return {
+    ok: true,
+    profile: data.profile,
+    message: data.message ?? "프로필이 저장되었습니다.",
+  };
+}
+
+// ─── 학생 등록 ────────────────────────────────────────────────────────────────
+
+export type CreateStudentPayload = {
+  name: string;
+  student_code?: string | null;
+  school_name?: string | null;
+  grade: string;             // "고1" | "고2" | "고3"
+  class_group_name?: string | null;
+  enrolled_at?: string | null; // "YYYY-MM-DD"
+};
+
+export type CreateStudentResult =
+  | { ok: true; student_id: number }
+  | { ok: false; error: string };
+
+export async function createTeacherStudent(
+  payload: CreateStudentPayload,
+  csrfToken: string,
+): Promise<CreateStudentResult> {
+  const response = await requestApiResponse({
+    baseUrl: getApiBaseUrl(),
+    path: "/api/teacher/students",
+    init: {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify(payload),
+    },
+    cache: "no-store",
+  });
+
+  const data = (await parseJsonSafe(response)) as Record<string, unknown> | null;
+
+  if (!response.ok) {
+    const error =
+      typeof data?.error === "string"
+        ? data.error
+        : "학생 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+    return { ok: false, error };
+  }
+
+  const student_id =
+    typeof data?.student_id === "number" ? data.student_id : 0;
+  return { ok: true, student_id };
 }

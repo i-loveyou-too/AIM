@@ -67,6 +67,96 @@ function getManagementLevel(student: StudentRecord) {
   return "보통" as const;
 }
 
+function StudentMobileCard({ student }: { student: StudentRecord }) {
+  const hasValidRouteId = /^\d+$/.test(student.id);
+  const detailHref = hasValidRouteId ? `/dashboard/students/${student.id}` : "/dashboard/students";
+  const reportHref = hasValidRouteId ? `/dashboard/students/${student.id}/report` : "/dashboard/students";
+  const managementLevel = getManagementLevel(student);
+  const assignmentRate =
+    student.assignmentTotal > 0
+      ? Math.round((student.assignmentDone / student.assignmentTotal) * 100)
+      : Math.round(student.assignmentRate ?? 0);
+  const hasExamDays = Number.isFinite(student.examDays) && student.examDays >= 0 && student.examDays <= 365;
+
+  return (
+    <article className="rounded-[24px] border border-border bg-white p-4 shadow-soft md:hidden">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-soft text-sm font-extrabold text-brand">
+            {getInitials(student.name)}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-[1rem] font-extrabold tracking-tight text-text">{student.name}</p>
+            <p className="mt-1 text-xs text-muted">학생 코드: {student.studentCode ?? "-"}</p>
+          </div>
+        </div>
+        <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${managementStyles[managementLevel].badge}`}>
+          {managementLevel}
+        </span>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+        <div className="rounded-2xl bg-soft/65 px-3 py-3">
+          <p className="text-xs font-semibold text-muted">학년 · 과목</p>
+          <p className="mt-1 font-semibold text-text">{student.grade} / {student.subject}</p>
+        </div>
+        <div className="rounded-2xl bg-soft/65 px-3 py-3">
+          <p className="text-xs font-semibold text-muted">시험</p>
+          <p className="mt-1 font-semibold text-text">
+            {hasExamDays ? `D-${student.examDays}` : student.nextExamDate ?? "-"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 rounded-2xl bg-soft/65 px-3 py-3">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-extrabold text-text">{student.recentProgress}</p>
+          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-brand">
+            {student.recentTag}
+          </span>
+        </div>
+        <div className="mt-3 h-2 rounded-full bg-white">
+          <div className="h-2 rounded-full bg-brand" style={{ width: `${student.score}%` }} />
+        </div>
+        <p className="mt-2 text-xs text-muted">{student.score}% 최근 성취도</p>
+      </div>
+
+      <div className="mt-3 rounded-2xl bg-soft/65 px-3 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-text">과제 상태</p>
+          <p className="text-sm font-extrabold text-text">
+            {student.assignmentTotal > 0 ? `${student.assignmentDone}/${student.assignmentTotal}` : "-"}
+          </p>
+        </div>
+        <div className="mt-2 h-2 rounded-full bg-white">
+          <div
+            className={`h-2 rounded-full ${student.overdueAssignments > 0 ? "bg-brand" : "bg-emerald-500"}`}
+            style={{ width: `${assignmentRate}%` }}
+          />
+        </div>
+        <p className="mt-2 text-xs text-muted">
+          {student.overdueAssignments > 0 ? `미완료 ${student.overdueAssignments}건` : "과제 정리 완료"}
+        </p>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Link
+          href={detailHref}
+          className="flex items-center justify-center rounded-full border border-brand/20 bg-brand/10 px-3 py-2 text-xs font-bold text-brand shadow-sm transition hover:bg-brand/20"
+        >
+          상세 보기
+        </Link>
+        <Link
+          href={reportHref}
+          className="flex items-center justify-center rounded-full border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-bold text-accent shadow-sm transition hover:bg-accent/20"
+        >
+          리포트 보기
+        </Link>
+      </div>
+    </article>
+  );
+}
+
 export function StudentTable({
   students,
   page,
@@ -82,7 +172,7 @@ export function StudentTable({
         <div className="rounded-[28px] border border-dashed border-border bg-soft px-6 py-10 text-center">
           <p className="text-base font-extrabold tracking-tight text-text">조건에 맞는 학생이 없습니다</p>
           <p className="mt-2 text-sm leading-6 text-muted">
-            상단의 빠른 필터나 상세 필터를 조금만 풀면 다시 학생 목록이 보입니다.
+            상단 빠른 필터나 상세 필터를 조금만 바꾸면 다시 학생 목록이 보입니다.
           </p>
         </div>
       </section>
@@ -90,23 +180,29 @@ export function StudentTable({
   }
 
   return (
-    <section className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft">
-      <div className="flex items-end justify-between gap-4">
-        <div>
+    <section className="rounded-[32px] border border-border/80 bg-white p-4 shadow-soft sm:p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <p className="text-sm font-medium text-muted">학생 리스트</p>
-          <h3 className="mt-1 text-[1.1rem] font-extrabold tracking-tight text-text sm:text-[1.3rem]">
-            학교별로 묶지 않고, 선택 필터로 바로 확인합니다
+          <h3 className="mt-1 text-[1.05rem] font-extrabold tracking-tight text-text sm:text-[1.3rem]">
+            학교별로 묶어 보고, 빠른 필터로 바로 확인합니다
           </h3>
         </div>
         <p className="text-sm font-semibold text-brand">총 {totalCount}명</p>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-[28px] border border-border">
-        <div className="hidden bg-background/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted md:grid md:grid-cols-[1.25fr_0.9fr_1.2fr_0.7fr_1fr_0.8fr_1.1fr]">
+      <div className="mt-5 space-y-4 md:hidden">
+        {students.map((student) => (
+          <StudentMobileCard key={student.id} student={student} />
+        ))}
+      </div>
+
+      <div className="mt-5 hidden overflow-hidden rounded-[28px] border border-border md:block">
+        <div className="grid grid-cols-[1.25fr_0.9fr_1.2fr_0.7fr_1fr_0.8fr_1.1fr] bg-background/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
           <span>학생 정보</span>
           <span>학년 / 과목</span>
           <span>최근 진도</span>
-          <span>시험일</span>
+          <span>시험</span>
           <span>과제 상태</span>
           <span>관리 수준</span>
           <span>바로가기</span>
@@ -127,7 +223,7 @@ export function StudentTable({
             return (
               <article
                 key={student.id}
-                className="grid gap-4 px-4 py-4 transition duration-200 hover:bg-background/60 md:grid-cols-[1.25fr_0.9fr_1.2fr_0.7fr_1fr_0.8fr_1.1fr] md:items-center"
+                className="grid items-center gap-4 px-4 py-4 transition duration-200 hover:bg-background/60 md:grid-cols-[1.25fr_0.9fr_1.2fr_0.7fr_1fr_0.8fr_1.1fr]"
               >
                 <Link
                   href={detailHref}
@@ -146,7 +242,7 @@ export function StudentTable({
                 </Link>
 
                 <div className="text-sm text-muted">
-                  <p className="font-semibold text-text">{student.grade}학년</p>
+                  <p className="font-semibold text-text">{student.grade}</p>
                   <p className="mt-1 uppercase tracking-[0.14em]">{student.subject}</p>
                 </div>
 
@@ -183,9 +279,7 @@ export function StudentTable({
                     />
                   </div>
                   <p className="mt-2 text-xs text-muted">
-                    {student.overdueAssignments > 0
-                      ? `미완료 ${student.overdueAssignments}건`
-                      : "과제 정리 완료"}
+                    {student.overdueAssignments > 0 ? `미완료 ${student.overdueAssignments}건` : "과제 정리 완료"}
                   </p>
                   <p className="mt-1 text-[11px] text-muted">달성률 {assignmentRate}%</p>
                 </div>
@@ -206,14 +300,13 @@ export function StudentTable({
                   </div>
                 </div>
 
-                {/* 상세 보기: 현재 운영 상태 관리 / 리포트 보기: 추이·분석 화면 */}
                 <div className="flex flex-col gap-1.5">
                   <Link
                     href={detailHref}
                     className="flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-bold text-brand shadow-sm transition hover:bg-brand/20"
                     aria-label={`${student.name} 상세 보기`}
                   >
-                    <span>📋</span>
+                    <span>📄</span>
                     <span>상세 보기</span>
                   </Link>
                   <Link
@@ -236,7 +329,7 @@ export function StudentTable({
           페이지 {page} / {totalPages}
         </p>
 
-        <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => onPageChange(Math.max(1, page - 1))}

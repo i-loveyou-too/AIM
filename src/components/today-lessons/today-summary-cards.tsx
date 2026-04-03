@@ -93,13 +93,13 @@ export function TodayLessonsSummaryCards({ summary }: Props) {
   ];
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
       {items.map((item) => {
         const styles = toneMap[item.tone];
         return (
           <div
             key={item.label}
-            className={`rounded-[24px] border border-border/80 bg-white p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 ${styles.border}`}
+            className={`rounded-[24px] border border-border/80 bg-white p-6 shadow-soft transition duration-200 hover:-translate-y-0.5 ${styles.border}`}
           >
             <div className="flex items-start justify-between gap-2">
               <div className={`flex h-11 w-11 items-center justify-center rounded-xl text-xl ${styles.icon}`}>
@@ -109,7 +109,7 @@ export function TodayLessonsSummaryCards({ summary }: Props) {
                 오늘
               </span>
             </div>
-            <p className="mt-4 text-xs font-medium text-muted">{item.label}</p>
+            <p className="mt-5 text-xs font-medium text-muted">{item.label}</p>
             <p className="mt-1.5 text-[1.45rem] font-extrabold tracking-tight text-text">
               {item.value}
             </p>

@@ -68,7 +68,7 @@ export function MaterialsPanel({ materials }: Props) {
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">
       {/* 섹션 헤더 */}
-      <div className="flex items-center justify-between border-b border-border/60 px-6 py-5">
+      <div className="flex items-center justify-between border-b border-border/60 px-7 py-6 sm:px-8">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
             자료 / 리소스
@@ -102,9 +102,9 @@ export function MaterialsPanel({ materials }: Props) {
       {/* 과목별 그룹 */}
       <div className="divide-y divide-border/50">
         {subjectKeys.map((subject) => (
-          <div key={subject} className="px-6 py-5">
+          <div key={subject} className="px-7 py-6 sm:px-8">
             {/* 과목 라벨 */}
-            <div className="mb-4 flex items-center gap-2">
+            <div className="mb-5 flex items-center gap-2.5">
               <span className="rounded-full bg-soft px-3 py-1 text-xs font-bold text-text">
                 {subject}
               </span>
@@ -112,7 +112,7 @@ export function MaterialsPanel({ materials }: Props) {
             </div>
 
             {/* 자료 리스트 */}
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {grouped[subject].map((mat) => {
                 const isReady = !!readyMap[mat.id];
                 const pStyles = priorityStyles[mat.priority];
@@ -122,7 +122,7 @@ export function MaterialsPanel({ materials }: Props) {
                 return (
                   <div
                     key={mat.id}
-                    className={`flex items-start gap-3 rounded-2xl border px-4 py-3 transition-colors duration-200 ${borderClass}`}
+                    className={`flex items-start gap-3.5 rounded-2xl border px-5 py-4 transition-colors duration-200 ${borderClass}`}
                   >
                     {/* 자료 아이콘 */}
                     <span className={`mt-0.5 text-base ${isReady ? "opacity-50" : ""}`}>

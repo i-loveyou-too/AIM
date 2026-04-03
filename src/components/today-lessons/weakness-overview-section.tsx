@@ -30,7 +30,7 @@ export function WeaknessOverviewSection({ weaknessOverview }: Props) {
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">
       {/* 섹션 헤더 */}
-      <div className="border-b border-border/60 px-6 py-5">
+      <div className="border-b border-border/60 px-7 py-6 sm:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
           약점 / 집중 관리
         </p>
@@ -43,15 +43,15 @@ export function WeaknessOverviewSection({ weaknessOverview }: Props) {
       </div>
 
       {/* 학생 가로 리스트: 1명당 1줄 */}
-      <div className="space-y-3 p-6">
+      <div className="space-y-4 p-7 sm:p-8">
         {weaknessOverview.map((student, index) => {
           const styles = urgencyStyles[student.urgency];
           return (
             <div
               key={`${student.studentName}-${index}`}
-              className={`rounded-2xl border bg-white p-4 transition hover:shadow-soft ${styles.border}`}
+              className={`rounded-2xl border bg-white p-5 transition hover:shadow-soft ${styles.border}`}
             >
-              <div className="grid gap-3 md:grid-cols-[1.1fr_1.25fr_1.25fr_1fr] md:items-center">
+              <div className="grid gap-4 md:grid-cols-[1.1fr_1.25fr_1.25fr_1fr] md:items-center">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-base font-extrabold text-text">{student.studentName}</p>

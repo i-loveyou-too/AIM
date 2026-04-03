@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { StudentFilters } from "@/components/students/student-filters";
 import { StudentOverview, type OverviewKey } from "@/components/students/student-overview";
 import { StudentTable } from "@/components/students/student-table";
@@ -219,7 +220,7 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
   return (
     <section className="space-y-6">
       <div className="rounded-[32px] border border-border/80 bg-white p-5 shadow-soft sm:p-6">
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-3">
             <span className="inline-flex rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-brand">
               학생 관리
@@ -232,6 +233,15 @@ export function StudentDirectory({ students }: StudentDirectoryProps) {
                 학교, 학년, 과목 기준으로 학생 상태를 빠르게 확인하고 필요한 학생부터 우선 관리할 수 있습니다.
               </p>
             </div>
+          </div>
+          <div className="shrink-0">
+            <Link
+              href="/dashboard/students/register"
+              className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow active:translate-y-0"
+            >
+              <span className="text-base leading-none">+</span>
+              학생 등록
+            </Link>
           </div>
         </div>
       </div>

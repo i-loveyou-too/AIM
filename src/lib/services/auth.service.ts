@@ -2,6 +2,7 @@ import { fetchAuthCsrf, requestAuthLogout, requestAuthMe, requestTeacherLogin } 
 import type { AuthUser, TeacherLoginResult } from "@/types/auth";
 
 const DEFAULT_NEXT_PATH = "/dashboard";
+const AUTH_REQUEST_TIMEOUT_MS = 8000;
 
 function normalizeNextPath(path: unknown) {
   if (typeof path !== "string") return DEFAULT_NEXT_PATH;
@@ -17,13 +18,32 @@ function toAuthErrorMessage(fallback: string, error: unknown) {
   return fallback;
 }
 
+async function withTimeout<T>(promise: Promise<T>, fallbackMessage: string, timeoutMs = AUTH_REQUEST_TIMEOUT_MS): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  try {
+    return await Promise.race<T>([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(fallbackMessage)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 export type AuthSessionResult =
   | { authenticated: true; user: AuthUser }
   | { authenticated: false };
 
 export async function getAuthSession(): Promise<AuthSessionResult> {
   try {
-    const meResult = await requestAuthMe();
+    const meResult = await withTimeout(
+      requestAuthMe(),
+      "세션 확인이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.",
+      5000,
+    );
     if (!meResult.ok) return { authenticated: false };
     if (!meResult.data?.authenticated || !meResult.data.user) return { authenticated: false };
     return { authenticated: true, user: meResult.data.user };
@@ -46,39 +66,65 @@ export async function loginInstructor(
   }
 
   try {
-    const csrfResult = await fetchAuthCsrf();
+    const csrfResult = await withTimeout(
+      fetchAuthCsrf(),
+      "CSRF 토큰을 가져오지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.",
+    );
     if (!csrfResult.ok) {
       return { ok: false, error: csrfResult.error };
     }
 
-    const loginResult = await requestTeacherLogin(
-      {
-        username: trimmedUsername,
-        password,
-        next: normalizeNextPath(next),
-      },
-      csrfResult.csrfToken,
+    const loginResult = await withTimeout(
+      requestTeacherLogin(
+        {
+          username: trimmedUsername,
+          password,
+          next: normalizeNextPath(next),
+        },
+        csrfResult.csrfToken,
+      ),
+      "로그인 요청이 지연되고 있습니다. 기존 브라우저 쿠키를 지우고 다시 시도해 주세요.",
     );
 
     if (!loginResult.ok) {
       return { ok: false, error: loginResult.error };
     }
 
-    // 로그인 성공 후 세션 기준 사용자 상태를 다시 확인해 동기화
-    const meResult = await requestAuthMe();
-    const user = meResult.ok && meResult.data?.authenticated ? meResult.data.user : loginResult.data?.user;
+    const fallbackUser = loginResult.data?.user;
 
-    if (!user) {
-      return { ok: false, error: "로그인 상태를 확인하지 못했습니다. 다시 시도해 주세요." };
+    try {
+      const meResult = await withTimeout(
+        requestAuthMe(),
+        "세션 확인이 지연되고 있습니다.",
+        4000,
+      );
+      const user = meResult.ok && meResult.data?.authenticated ? meResult.data.user : fallbackUser;
+
+      if (!user) {
+        return { ok: false, error: "로그인 상태를 확인하지 못했습니다. 다시 시도해 주세요." };
+      }
+
+      return {
+        ok: true,
+        nextPath: normalizeNextPath(next ?? loginResult.data?.next),
+        user,
+        raw: loginResult.data,
+      };
+    } catch {
+      if (!fallbackUser) {
+        return {
+          ok: false,
+          error: "로그인은 되었지만 세션 확인이 지연되고 있습니다. 브라우저 쿠키를 지우고 다시 시도해 주세요.",
+        };
+      }
+
+      return {
+        ok: true,
+        nextPath: normalizeNextPath(next ?? loginResult.data?.next),
+        user: fallbackUser,
+        raw: loginResult.data,
+      };
     }
-
-    const nextPath = normalizeNextPath(next ?? loginResult.data?.next);
-    return {
-      ok: true,
-      nextPath,
-      user,
-      raw: loginResult.data,
-    };
   } catch (error) {
     return {
       ok: false,
@@ -89,12 +135,18 @@ export async function loginInstructor(
 
 export async function logoutInstructor() {
   try {
-    const csrfResult = await fetchAuthCsrf();
+    const csrfResult = await withTimeout(
+      fetchAuthCsrf(),
+      "로그아웃 준비 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+    );
     if (!csrfResult.ok) {
       return { ok: false as const, error: csrfResult.error };
     }
 
-    const result = await requestAuthLogout(csrfResult.csrfToken);
+    const result = await withTimeout(
+      requestAuthLogout(csrfResult.csrfToken),
+      "로그아웃 요청이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.",
+    );
     if (!result.ok) {
       return { ok: false as const, error: result.error };
     }

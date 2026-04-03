@@ -4,10 +4,20 @@ import os
 from collections import defaultdict
 from functools import wraps
 
-from django.db import connection
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+from django.db import connection, transaction
 from django.http import JsonResponse
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
+from accounts.user_display import (
+    get_user_profile_context,
+    resolve_user_display_name,
+    resolve_user_greeting_name,
+    resolve_user_header_name,
+    resolve_user_initials,
+    resolve_user_role_label,
+)
 
 GRADE_LABELS = {
     "grade1": "고1",
@@ -97,6 +107,20 @@ def fetch_one_dict(query, params=None):
     if row is None:
         return None
     return dict(zip(columns, row))
+
+
+def fetch_all_dict_safe(query, params=None):
+    try:
+        return fetch_all_dict(query, params)
+    except Exception:
+        return []
+
+
+def fetch_one_dict_safe(query, params=None):
+    try:
+        return fetch_one_dict(query, params)
+    except Exception:
+        return None
 
 
 def to_float(value, default=0.0):
@@ -252,8 +276,8 @@ def status_to_risk_label(score):
     return "위험"
 
 
-def get_teacher_profile():
-    teacher = fetch_one_dict(
+def get_teacher_profile(user=None):
+    teacher = fetch_one_dict_safe(
         """
         SELECT id, name, role, initials, email, phone, created_at
         FROM teachers
@@ -1984,6 +2008,143 @@ def build_settings_overview():
     return {
         "profile": {
             "name": profile.get("name"),
+            "displayName": profile.get("displayName", ""),
+            "affiliation": profile.get("affiliation"),
+            "role": profile.get("role"),
+            "email": profile.get("email"),
+            "phone": profile.get("phone"),
+            "intro": profile.get("intro", ""),
+            "joined": profile.get("joined"),
+        },
+        "notificationSettings": notification_settings,
+        "reportSettings": report_settings,
+        "lessonSettings": lesson_settings,
+        "assignmentSettings": assignment_settings,
+        "basicInfoSettings": basic_info_settings,
+    }
+
+
+def get_teacher_profile(user=None):
+    teacher = fetch_one_dict_safe(
+        """
+        SELECT id, name, role, initials, email, phone, created_at
+        FROM teachers
+        ORDER BY id
+        LIMIT 1
+        """
+    )
+
+    display_name = resolve_user_display_name(user)
+    name = display_name or (teacher.get("name") if teacher else None) or "선생님"
+    role = resolve_user_role_label(user) or (teacher.get("role") if teacher else None) or "교사용 관리자"
+    initials = resolve_user_initials(user, name)
+    teacher_id = (teacher.get("id") if teacher else None) or getattr(user, "id", None) or 1
+    user_email = (getattr(user, "email", None) or "").strip() if user is not None else ""
+
+    return {
+        "teacherId": teacher_id,
+        "name": name,
+        "affiliation": "목동 에임 학원",
+        "role": role,
+        "email": user_email or (teacher.get("email") if teacher else None) or "-",
+        "phone": (teacher.get("phone") if teacher else None) or "-",
+        "joined": format_date_dot(teacher.get("created_at") if teacher else None) or "-",
+        "header": {
+            "name": resolve_user_header_name(user, name),
+            "role": role,
+            "initials": initials,
+            "greetingName": resolve_user_greeting_name(user, name),
+        },
+    }
+
+
+def build_settings_overview(user=None):
+    profile = get_teacher_profile(user)
+    teacher_id = profile.get("teacherId") or 1
+
+    settings_rows = fetch_all_dict_safe(
+        """
+        SELECT setting_key, setting_value
+        FROM teacher_settings
+        WHERE teacher_id = %s
+        """,
+        [teacher_id],
+    )
+    settings_map = {row.get("setting_key"): to_json(row.get("setting_value"), {}) for row in settings_rows}
+
+    class_rows = fetch_all_dict_safe(
+        """
+        SELECT
+            vc.class_group_id,
+            vc.class_name,
+            vc.track,
+            vc.enrolled_count,
+            vc.next_exam_date
+        FROM v_class_list vc
+        ORDER BY vc.class_group_id
+        LIMIT 200
+        """
+    )
+
+    notification_defaults = [
+        {"key": "exam_alert", "label": "?쒗뿕 ?꾨컯 ?뚮┝", "description": "D-14 ?대궡 ?쒗뿕 ?덉젙 ?숈깮 諛쒖깮 ???뚮┝", "enabled": True},
+        {"key": "missing_hw", "label": "誘몄젣異??뚮┝", "description": "?숈젣 誘몄젣異?2???댁긽 ?숈깮 諛쒖깮 ???뚮┝", "enabled": True},
+        {"key": "question_alert", "label": "吏덈Ц ?깅줉 ?뚮┝", "description": "?숈깮??吏덈Ц???덈줈 ?깅줉?????뚮┝", "enabled": True},
+        {"key": "ocr_review", "label": "OCR 寃???꾩슂 ?뚮┝", "description": "OCR ?몄떇 ?ㅻ쪟濡?寃?좉? ?꾩슂?????뚮┝", "enabled": True},
+        {"key": "plan_delay", "label": "怨꾪쉷 吏???뚮┝", "description": "吏꾨룄 ?ъ꽦瑜좎씠 紐⑺몴 ?鍮???쓣 ???뚮┝", "enabled": True},
+        {"key": "lesson_issue", "label": "?섏뾽 諛섏쁺 ?꾩슂 ?댁뒋 ?뚮┝", "description": "?댁뒋?⑥뿉 湲닿툒 ?댁뒋媛 ?깅줉?????뚮┝", "enabled": True},
+    ]
+
+    notification_settings = settings_map.get("notification_settings")
+    if not isinstance(notification_settings, list):
+        notification_settings = notification_defaults
+
+    report_settings = settings_map.get("report_settings")
+    if not isinstance(report_settings, dict):
+        report_settings = {
+            "defaultPeriod": "4二?",
+            "defaultView": "?숈깮蹂?",
+            "examEmphasisDDay": "D-14",
+        }
+
+    lesson_settings = settings_map.get("lesson_settings")
+    if not isinstance(lesson_settings, dict):
+        lesson_settings = {
+            "defaultDuration": "90遺?",
+            "showNextAction": True,
+            "showLessonMemo": True,
+            "todayPageInfoScope": "?꾩껜",
+        }
+
+    assignment_settings = settings_map.get("assignment_settings")
+    if not isinstance(assignment_settings, dict):
+        assignment_settings = {
+            "defaultDeadlineTime": "23:59",
+            "allowPhotoSubmit": True,
+            "allowOMRSubmit": True,
+            "questionEnabled": True,
+            "ocrReviewHighlight": True,
+            "commonMistakeAlert": True,
+        }
+
+    basic_info_settings = {
+        "classes": [
+            {
+                "name": row.get("class_name") or "-",
+                "subject": track_subject_label(row.get("track")),
+                "studentCount": to_int(row.get("enrolled_count"), 0),
+                "examDate": format_date(row.get("next_exam_date")) or "-",
+            }
+            for row in class_rows
+        ],
+        "subjects": sorted({track_subject_label(row.get("track")) for row in class_rows}),
+        "examScheduleLinked": any(row.get("next_exam_date") is not None for row in class_rows),
+        "curriculumTemplateLinked": True,
+    }
+
+    return {
+        "profile": {
+            "name": profile.get("name"),
             "affiliation": profile.get("affiliation"),
             "role": profile.get("role"),
             "email": profile.get("email"),
@@ -1998,17 +2159,793 @@ def build_settings_overview():
     }
 
 
+def get_teacher_profile(user=None):
+    teacher = fetch_one_dict_safe(
+        """
+        SELECT id, name, role, initials, email, phone, created_at
+        FROM teachers
+        ORDER BY id
+        LIMIT 1
+        """
+    )
+
+    profile_context = get_user_profile_context(user)
+    teacher_display_name = ((profile_context or {}).get("teacher_display_name") or "").strip()
+    user_name = ((profile_context or {}).get("user_name") or "").strip()
+    login_id = ((profile_context or {}).get("login_id") or "").strip()
+    profile_email = ((profile_context or {}).get("email") or "").strip()
+    profile_phone = ((profile_context or {}).get("phone") or "").strip()
+    intro = ((profile_context or {}).get("intro") or "").strip()
+    resolved_display_name = (profile_context or {}).get("display_name") or resolve_user_display_name(user)
+    name = user_name or login_id or profile_email or resolved_display_name or (teacher.get("name") if teacher else None) or "\uc120\uc0dd\ub2d8"
+    role = (
+        (profile_context or {}).get("role_label")
+        or resolve_user_role_label(user)
+        or (teacher.get("role") if teacher else None)
+        or "\uad50\uc0ac\uc6a9 \uad00\ub9ac\uc790"
+    )
+    initials = resolve_user_initials(user, resolved_display_name or name)
+    teacher_id = (profile_context or {}).get("user_id") or (teacher.get("id") if teacher else None) or getattr(user, "id", None) or 1
+    user_email = (getattr(user, "email", None) or "").strip() if user is not None else ""
+    affiliation = (profile_context or {}).get("academy_name")
+    joined_at = (profile_context or {}).get("created_at") or (teacher.get("created_at") if teacher else None)
+
+    return {
+        "teacherId": teacher_id,
+        "name": name,
+        "displayName": teacher_display_name,
+        "affiliation": affiliation or DB_REQUIRED_TEXT,
+        "role": role,
+        "email": _db_required_text(profile_email or user_email or (teacher.get("email") if teacher else None)),
+        "phone": _db_required_text(profile_phone or (teacher.get("phone") if teacher else None)),
+        "intro": intro,
+        "joined": _db_required_date(joined_at),
+        "header": {
+            "name": resolve_user_header_name(user, resolved_display_name or name),
+            "role": role,
+            "initials": initials,
+            "greetingName": resolve_user_greeting_name(user, resolved_display_name or name),
+        },
+    }
+
+
+DB_REQUIRED_TEXT = "<db 데이터필요>"
+
+
+def _db_required_text(value, fallback=DB_REQUIRED_TEXT):
+    if value is None:
+        return fallback
+    text = str(value).strip()
+    if not text or text == "-":
+        return fallback
+    return text
+
+
+def _db_required_date(value):
+    formatted = format_date_dot(value)
+    if formatted in (None, "", "-"):
+        return DB_REQUIRED_TEXT
+    return formatted
+
+
+def _table_exists(table_name):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT to_regclass(%s)", [f"public.{table_name}"])
+        row = cursor.fetchone()
+    return bool(row and row[0])
+
+
+def _parse_json_request_body(request):
+    if not request.body:
+        return {}, None
+
+    try:
+        return json.loads(request.body.decode("utf-8")), None
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return {}, "올바른 JSON 형식이 아닙니다."
+
+
+def _normalize_optional_text(value, *, max_length=None):
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    if not text:
+        return None
+    if max_length is not None and len(text) > max_length:
+        raise ValueError(f"{max_length}자 이하로 입력해 주세요.")
+    return text
+
+
+def _normalize_profile_update_payload(payload):
+    errors = {}
+
+    try:
+        name = _normalize_optional_text(payload.get("name"), max_length=255)
+    except ValueError as exc:
+        errors["name"] = str(exc)
+        name = None
+
+    if not name:
+        errors["name"] = "이름을 입력해 주세요."
+
+    try:
+        email = _normalize_optional_text(payload.get("email"), max_length=254)
+    except ValueError as exc:
+        errors["email"] = str(exc)
+        email = None
+
+    if email:
+        try:
+            validate_email(email)
+        except ValidationError:
+            errors["email"] = "올바른 이메일 형식이 아닙니다."
+
+    try:
+        phone = _normalize_optional_text(payload.get("phone"), max_length=50)
+    except ValueError as exc:
+        errors["phone"] = str(exc)
+        phone = None
+
+    try:
+        display_name = _normalize_optional_text(
+            payload.get("displayName", payload.get("display_name")),
+            max_length=255,
+        )
+    except ValueError as exc:
+        errors["displayName"] = str(exc)
+        display_name = None
+
+    intro_raw = payload.get("intro")
+    intro = None
+    if intro_raw is not None:
+        intro = str(intro_raw).strip() or None
+        if intro is not None and len(intro) > 2000:
+            errors["intro"] = "소개는 2000자 이하로 입력해 주세요."
+
+    return {
+        "errors": errors,
+        "name": name,
+        "email": email,
+        "phone": phone,
+        "display_name": display_name,
+        "intro": intro,
+    }
+
+
+def _ensure_teacher_user_row(user):
+    if not _table_exists("users"):
+        raise RuntimeError("users table not found")
+
+    username = (user.get_username() or "").strip()
+    fallback_name = (
+        ((user.get_full_name() or "").strip())
+        or ((getattr(user, "email", None) or "").strip())
+        or username
+        or "선생님"
+    )
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT id
+            FROM public.users
+            WHERE auth_user_id = %s
+               OR LOWER(login_id) = LOWER(%s)
+            ORDER BY CASE WHEN auth_user_id = %s THEN 0 ELSE 1 END, id
+            LIMIT 1
+            """,
+            [user.id, username, user.id],
+        )
+        row = cursor.fetchone()
+
+        if row:
+            user_id = row[0]
+            cursor.execute(
+                """
+                UPDATE public.users
+                SET auth_user_id = %s,
+                    login_id = COALESCE(NULLIF(BTRIM(login_id), ''), %s),
+                    password_hash = COALESCE(NULLIF(password_hash, ''), %s),
+                    name = COALESCE(NULLIF(BTRIM(name), ''), %s),
+                    email = COALESCE(NULLIF(BTRIM(email), ''), NULLIF(%s, ''))
+                WHERE id = %s
+                """,
+                [user.id, username, user.password, fallback_name, (user.email or "").strip(), user_id],
+            )
+            return user_id
+
+        cursor.execute(
+            """
+            INSERT INTO public.users (
+                auth_user_id,
+                login_id,
+                email,
+                password_hash,
+                name,
+                phone,
+                role,
+                status,
+                last_login_at
+            )
+            VALUES (%s, %s, NULLIF(%s, ''), %s, %s, NULL, 'teacher', 'active', %s)
+            RETURNING id
+            """,
+            [user.id, username, (user.email or "").strip(), user.password, fallback_name, user.last_login],
+        )
+        return cursor.fetchone()[0]
+
+
+def _find_teacher_user_row_id(user):
+    if not _table_exists("users"):
+        return None
+
+    username = (user.get_username() or "").strip()
+    row = fetch_one_dict(
+        """
+        SELECT id
+        FROM public.users
+        WHERE auth_user_id = %s
+           OR LOWER(login_id) = LOWER(%s)
+        ORDER BY CASE WHEN auth_user_id = %s THEN 0 ELSE 1 END, id
+        LIMIT 1
+        """,
+        [user.id, username, user.id],
+    )
+    return row.get("id") if row else None
+
+
+def _get_primary_academy_id(user_id):
+    if _table_exists("academy_members"):
+        row = fetch_one_dict(
+            """
+            SELECT academy_id
+            FROM public.academy_members
+            WHERE user_id = %s
+              AND status IN ('active', 'invited', 'inactive')
+            ORDER BY
+                is_primary DESC,
+                CASE status WHEN 'active' THEN 0 WHEN 'invited' THEN 1 ELSE 2 END,
+                id
+            LIMIT 1
+            """,
+            [user_id],
+        )
+        if row and row.get("academy_id"):
+            return row["academy_id"]
+
+    if _table_exists("academies"):
+        row = fetch_one_dict(
+            """
+            SELECT id
+            FROM public.academies
+            WHERE owner_user_id = %s
+              AND status IN ('active', 'inactive', 'archived')
+            ORDER BY
+                CASE status WHEN 'active' THEN 0 WHEN 'inactive' THEN 1 ELSE 2 END,
+                id
+            LIMIT 1
+            """,
+            [user_id],
+        )
+        if row and row.get("id"):
+            return row["id"]
+
+    return None
+
+
+def _sync_teacher_profile_tables(user, payload):
+    normalized = _normalize_profile_update_payload(payload)
+    if normalized["errors"]:
+        return {"ok": False, "errors": normalized["errors"]}
+
+    existing_user_id = _find_teacher_user_row_id(user)
+    if normalized["email"] and _table_exists("users"):
+        existing_email_row = fetch_one_dict(
+            """
+            SELECT id
+            FROM public.users
+            WHERE LOWER(email) = LOWER(%s)
+              AND (%s IS NULL OR id <> %s)
+              AND status <> 'deleted'
+            LIMIT 1
+            """,
+            [normalized["email"], existing_user_id, existing_user_id],
+        )
+        if existing_email_row:
+            return {"ok": False, "errors": {"email": "이미 사용 중인 이메일입니다."}}
+
+    with transaction.atomic():
+        user_id = _ensure_teacher_user_row(user)
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE public.users
+                SET name = %s,
+                    email = NULLIF(%s, ''),
+                    phone = NULLIF(%s, '')
+                WHERE id = %s
+                """,
+                [
+                    normalized["name"],
+                    normalized["email"] or "",
+                    normalized["phone"] or "",
+                    user_id,
+                ],
+            )
+
+        user.__class__.objects.filter(pk=user.pk).update(email=normalized["email"] or "")
+        user.email = normalized["email"] or ""
+
+        if _table_exists("teacher_profiles"):
+            existing_profile = fetch_one_dict(
+                """
+                SELECT tp.id, tp.academy_id
+                FROM public.teacher_profiles tp
+                LEFT JOIN public.academy_members am
+                  ON am.user_id = tp.user_id
+                 AND am.academy_id = tp.academy_id
+                 AND am.status IN ('active', 'invited', 'inactive')
+                WHERE tp.user_id = %s
+                  AND tp.status IN ('active', 'inactive', 'archived')
+                ORDER BY
+                    CASE WHEN am.is_primary THEN 0 ELSE 1 END,
+                    CASE tp.status WHEN 'active' THEN 0 WHEN 'inactive' THEN 1 ELSE 2 END,
+                    tp.id
+                LIMIT 1
+                """,
+                [user_id],
+            )
+
+            teacher_display_name = normalized["display_name"] or normalized["name"]
+
+            if existing_profile:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        UPDATE public.teacher_profiles
+                        SET display_name = %s,
+                            intro = %s
+                        WHERE id = %s
+                        """,
+                        [teacher_display_name, normalized["intro"], existing_profile["id"]],
+                    )
+            elif normalized["display_name"] or normalized["intro"]:
+                academy_id = _get_primary_academy_id(user_id)
+                if academy_id is None:
+                    return {
+                        "ok": False,
+                        "errors": {
+                            "displayName": "teacher_profiles를 생성할 학원 소속 정보가 없습니다.",
+                        },
+                    }
+
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        INSERT INTO public.teacher_profiles (
+                            user_id,
+                            academy_id,
+                            display_name,
+                            intro,
+                            status
+                        )
+                        VALUES (%s, %s, %s, %s, 'active')
+                        """,
+                        [user_id, academy_id, teacher_display_name, normalized["intro"]],
+                    )
+
+    return {"ok": True, "profile": get_teacher_profile(user)}
+
+
+def _build_teacher_class_rows(user=None):
+    profile_context = get_user_profile_context(user)
+    teacher_user_id = (profile_context or {}).get("user_id")
+    if not teacher_user_id:
+        return []
+
+    return fetch_all_dict_safe(
+        """
+        SELECT
+            cg.id AS class_group_id,
+            cg.name AS class_name,
+            cg.subject,
+            COUNT(en.student_id) FILTER (WHERE en.status = 'active') AS student_count
+        FROM public.class_groups cg
+        LEFT JOIN public.enrollments en
+          ON en.class_group_id = cg.id
+        WHERE cg.teacher_user_id = %s
+          AND cg.status IN ('active', 'inactive', 'archived')
+        GROUP BY cg.id, cg.name, cg.subject
+        ORDER BY
+            CASE cg.status WHEN 'active' THEN 0 WHEN 'inactive' THEN 1 ELSE 2 END,
+            cg.id
+        LIMIT 200
+        """,
+        [teacher_user_id],
+    )
+
+
+def _resolve_teacher_user_row_id(user):
+    existing_user_id = _find_teacher_user_row_id(user)
+    if existing_user_id:
+        return existing_user_id
+    return _ensure_teacher_user_row(user)
+
+
+def _get_accessible_academy_ids(user_id):
+    academy_ids = []
+
+    if _table_exists("academy_members"):
+        rows = fetch_all_dict_safe(
+            """
+            SELECT academy_id
+            FROM public.academy_members
+            WHERE user_id = %s
+              AND status IN ('active', 'invited', 'inactive')
+            ORDER BY
+                is_primary DESC,
+                CASE status WHEN 'active' THEN 0 WHEN 'invited' THEN 1 ELSE 2 END,
+                id
+            """,
+            [user_id],
+        )
+        academy_ids.extend(row.get("academy_id") for row in rows if row.get("academy_id"))
+
+    if _table_exists("academies"):
+        rows = fetch_all_dict_safe(
+            """
+            SELECT id
+            FROM public.academies
+            WHERE owner_user_id = %s
+              AND status IN ('active', 'inactive', 'archived')
+            ORDER BY
+                CASE status WHEN 'active' THEN 0 WHEN 'inactive' THEN 1 ELSE 2 END,
+                id
+            """,
+            [user_id],
+        )
+        academy_ids.extend(row.get("id") for row in rows if row.get("id"))
+
+    unique_ids = []
+    seen = set()
+    for academy_id in academy_ids:
+        if academy_id in seen:
+            continue
+        seen.add(academy_id)
+        unique_ids.append(academy_id)
+    return unique_ids
+
+
+def _build_teacher_students_rows(user):
+    teacher_user_id = _resolve_teacher_user_row_id(user)
+    academy_ids = _get_accessible_academy_ids(teacher_user_id)
+    if not academy_ids:
+        primary_academy_id = _get_primary_academy_id(teacher_user_id)
+        academy_ids = [primary_academy_id] if primary_academy_id else []
+
+    if not academy_ids:
+        return []
+
+    return fetch_all_dict_safe(
+        """
+        SELECT
+            s.id AS student_id,
+            s.student_code,
+            s.name,
+            s.school_name,
+            s.grade,
+            CASE
+                WHEN s.status IN ('inactive', 'archived') THEN 'warning'
+                ELSE 'stable'
+            END AS status,
+            COALESCE(NULLIF(BTRIM(latest.class_name), ''), NULLIF(BTRIM(latest.group_name), '')) AS class_name,
+            latest.track,
+            COALESCE(
+                NULLIF(BTRIM(latest.group_name), ''),
+                NULLIF(BTRIM(latest.class_name), ''),
+                '등록 정보 확인'
+            ) AS recent_progress_unit,
+            COALESCE(NULLIF(BTRIM(latest.subject), ''), '등록') AS recent_tag,
+            0::integer AS score,
+            0::integer AS assignment_done,
+            0::integer AS assignment_total,
+            0::integer AS overdue_assignments,
+            0::integer AS assignment_rate,
+            NULL::text AS top_weak_topics,
+            NULL::date AS next_exam_date,
+            NULL::integer AS exam_days_left,
+            NULL::text AS note
+        FROM public.students s
+        LEFT JOIN LATERAL (
+            SELECT
+                en.class_group_id,
+                en.enrolled_at,
+                cg.class_name,
+                cg.name AS group_name,
+                cg.subject,
+                cg.track
+            FROM public.enrollments en
+            LEFT JOIN public.class_groups cg
+              ON cg.id = en.class_group_id
+            WHERE en.student_id = s.id
+              AND COALESCE(en.status, 'active') IN ('active', 'inactive', 'archived')
+            ORDER BY
+                CASE WHEN COALESCE(en.is_active, TRUE) THEN 0 ELSE 1 END,
+                CASE COALESCE(en.status, 'active')
+                    WHEN 'active' THEN 0
+                    WHEN 'inactive' THEN 1
+                    ELSE 2
+                END,
+                COALESCE(en.updated_at, en.created_at, en.enrolled_at) DESC,
+                en.id DESC
+            LIMIT 1
+        ) latest ON TRUE
+        WHERE s.academy_id = ANY(%s)
+          AND s.status IN ('active', 'inactive', 'archived')
+        ORDER BY s.id DESC
+        LIMIT 200
+        """,
+        [academy_ids],
+    )
+
+
+def _build_teacher_class_list_rows(user):
+    teacher_user_id = _resolve_teacher_user_row_id(user)
+    teacher_name = resolve_user_display_name(user) or user.get_username() or "선생님"
+
+    return fetch_all_dict_safe(
+        """
+        SELECT
+            cg.id AS class_group_id,
+            COALESCE(NULLIF(BTRIM(cg.class_name), ''), cg.name) AS class_name,
+            cg.grade,
+            cg.track,
+            cg.level,
+            %s AS teacher_name,
+            COUNT(en.id) FILTER (
+                WHERE COALESCE(en.status, 'active') = 'active'
+                  AND COALESCE(en.is_active, TRUE) = TRUE
+            )::integer AS enrolled_count,
+            NULL::integer AS max_students,
+            NULL::date AS next_exam_date,
+            NULL::integer AS exam_days_left,
+            NULL::numeric AS avg_score,
+            NULL::numeric AS avg_assignment_rate,
+            NULL::text AS curriculum_status,
+            NULL::integer AS actual_progress,
+            NULL::integer AS planned_progress,
+            NULL::integer AS delay_units,
+            CASE WHEN cg.status = 'active' THEN TRUE ELSE FALSE END AS is_active
+        FROM public.class_groups cg
+        LEFT JOIN public.enrollments en
+          ON en.class_group_id = cg.id
+        WHERE cg.teacher_user_id = %s
+          AND cg.status IN ('active', 'inactive', 'archived')
+        GROUP BY
+            cg.id,
+            COALESCE(NULLIF(BTRIM(cg.class_name), ''), cg.name),
+            cg.grade,
+            cg.track,
+            cg.level,
+            cg.status
+        ORDER BY
+            CASE cg.status WHEN 'active' THEN 0 WHEN 'inactive' THEN 1 ELSE 2 END,
+            cg.id DESC
+        LIMIT 200
+        """,
+        [teacher_name, teacher_user_id],
+    )
+
+
+def _to_optional_int(value):
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        trimmed = value.strip()
+        if trimmed.isdigit():
+            return int(trimmed)
+    return None
+
+
+def build_settings_overview(user=None):
+    profile = get_teacher_profile(user)
+    profile_context = get_user_profile_context(user)
+    db_required_sections = []
+
+    notification_settings = [
+        {
+            "key": "db-required-notification",
+            "label": DB_REQUIRED_TEXT,
+            "description": "teacher_settings.notification_settings 연결 필요",
+            "enabled": False,
+        }
+    ]
+    db_required_sections.append("알림 설정")
+
+    report_settings = {
+        "defaultPeriod": "4주",
+        "defaultView": "학생별",
+        "examEmphasisDDay": "D-14",
+    }
+    db_required_sections.append("리포트 설정")
+
+    lesson_settings = {
+        "defaultDuration": "90분",
+        "showNextAction": False,
+        "showLessonMemo": False,
+        "todayPageInfoScope": "요약만",
+    }
+    db_required_sections.append("수업 설정")
+
+    assignment_settings = {
+        "defaultDeadlineTime": "23:59",
+        "allowPhotoSubmit": False,
+        "allowOMRSubmit": False,
+        "questionEnabled": False,
+        "ocrReviewHighlight": False,
+        "commonMistakeAlert": False,
+    }
+    db_required_sections.append("과제 설정")
+
+    class_rows = _build_teacher_class_rows(user)
+    if class_rows:
+        basic_info_settings = {
+            "classes": [
+                {
+                    "name": _db_required_text(row.get("class_name")),
+                    "subject": _db_required_text(row.get("subject")),
+                    "studentCount": to_int(row.get("student_count"), 0),
+                    "examDate": DB_REQUIRED_TEXT,
+                }
+                for row in class_rows
+            ],
+            "subjects": sorted(
+                {
+                    _db_required_text(row.get("subject"))
+                    for row in class_rows
+                }
+            ),
+            "examScheduleLinked": False,
+            "curriculumTemplateLinked": False,
+        }
+        db_required_sections.append("시험 일정/커리큘럼 설정")
+    else:
+        basic_info_settings = {
+            "classes": [
+                {
+                    "name": DB_REQUIRED_TEXT,
+                    "subject": DB_REQUIRED_TEXT,
+                    "studentCount": 0,
+                    "examDate": DB_REQUIRED_TEXT,
+                }
+            ],
+            "subjects": [DB_REQUIRED_TEXT],
+            "examScheduleLinked": False,
+            "curriculumTemplateLinked": False,
+        }
+        db_required_sections.append("반/과목 정보")
+
+    return {
+        "profile": {
+            "name": _db_required_text(profile.get("name")),
+            "affiliation": _db_required_text(profile.get("affiliation")),
+            "role": _db_required_text(profile.get("role")),
+            "email": _db_required_text(profile.get("email")),
+            "phone": _db_required_text(profile.get("phone")),
+            "joined": _db_required_date((profile_context or {}).get("created_at")),
+        },
+        "notificationSettings": notification_settings,
+        "reportSettings": report_settings,
+        "lessonSettings": lesson_settings,
+        "assignmentSettings": assignment_settings,
+        "basicInfoSettings": basic_info_settings,
+        "dbRequiredSections": db_required_sections,
+    }
+
+
 @teacher_api_required
-@require_GET
+@require_http_methods(["GET", "POST"])
 def teacher_students(request):
-    query = """
-        SELECT *
-        FROM v_student_list
-        ORDER BY student_id DESC
-        LIMIT 100
-    """
-    data = fetch_all_dict(query)
-    return JsonResponse(data, safe=False)
+    if request.method == "GET":
+        data = _build_teacher_students_rows(request.user)
+        return JsonResponse(data, safe=False)
+
+    # ── POST: 학생 등록 ────────────────────────────────────────────────────────
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "요청 형식이 올바르지 않습니다."}, status=400)
+
+    # 필수값 검증
+    name = (body.get("name") or "").strip()
+    if not name:
+        return JsonResponse({"error": "학생 이름은 필수입니다."}, status=400)
+
+    GRADE_MAP = {"고1": "grade1", "고2": "grade2", "고3": "grade3"}
+    grade_display = (body.get("grade") or "").strip()
+    grade = GRADE_MAP.get(grade_display)
+    if not grade:
+        return JsonResponse(
+            {"error": "학년 값이 올바르지 않습니다. (고1 / 고2 / 고3 중 하나)"},
+            status=400,
+        )
+
+    # 선택값
+    student_code    = (body.get("student_code") or "").strip() or None
+    school_name     = (body.get("school_name") or "").strip() or None
+    class_group_name = (body.get("class_group_name") or "").strip() or None
+    enrolled_at     = (body.get("enrolled_at") or "").strip() or None
+
+    try:
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+
+                # school_id 조회 또는 신규 생성
+                school_id = None
+                if school_name:
+                    cursor.execute(
+                        "SELECT id FROM schools WHERE name = %s LIMIT 1",
+                        [school_name],
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        school_id = row[0]
+                    else:
+                        cursor.execute(
+                            "INSERT INTO schools (name) VALUES (%s) RETURNING id",
+                            [school_name],
+                        )
+                        school_id = cursor.fetchone()[0]
+
+                # students INSERT
+                cursor.execute(
+                    """
+                    INSERT INTO students (student_code, name, school_id, grade)
+                    VALUES (%s, %s, %s, %s::student_grade)
+                    RETURNING id
+                    """,
+                    [student_code, name, school_id, grade],
+                )
+                student_id = cursor.fetchone()[0]
+
+                # enrollments INSERT (반 배정이 있는 경우)
+                if class_group_name:
+                    cursor.execute(
+                        """
+                        SELECT id FROM class_groups
+                        WHERE class_name = %s AND teacher_user_id = %s
+                        LIMIT 1
+                        """,
+                        [class_group_name, request.user.id],
+                    )
+                    cg_row = cursor.fetchone()
+                    if cg_row:
+                        class_group_id = cg_row[0]
+                        cursor.execute(
+                            """
+                            INSERT INTO enrollments
+                                (student_id, class_group_id, enrolled_at, is_active)
+                            VALUES (%s, %s, %s, TRUE)
+                            ON CONFLICT (student_id, class_group_id) DO NOTHING
+                            """,
+                            [
+                                student_id,
+                                class_group_id,
+                                enrolled_at or datetime.date.today(),
+                            ],
+                        )
+
+        return JsonResponse({"ok": True, "student_id": student_id}, status=201)
+
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"저장 중 오류가 발생했습니다: {str(e)}"},
+            status=500,
+        )
 
 
 @teacher_api_required
@@ -2033,6 +2970,192 @@ def teacher_class_detail(request, class_group_id):
         WHERE class_group_id = %s
     """
     data = fetch_one_dict(query, [class_group_id])
+    if data is None:
+        return JsonResponse({"detail": "not found"}, status=404)
+    return JsonResponse(data)
+
+
+@teacher_api_required
+@require_http_methods(["GET", "POST"])
+def teacher_students_v2(request):
+    if request.method == "GET":
+        data = _build_teacher_students_rows(request.user)
+        return JsonResponse(data, safe=False)
+
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "요청 형식이 올바르지 않습니다."}, status=400)
+
+    name = (body.get("name") or "").strip()
+    if not name:
+        return JsonResponse({"error": "학생 이름은 필수입니다."}, status=400)
+
+    teacher_user_id = _resolve_teacher_user_row_id(request.user)
+    accessible_academy_ids = _get_accessible_academy_ids(teacher_user_id)
+    primary_academy_id = _get_primary_academy_id(teacher_user_id)
+
+    academy_id = _to_optional_int(body.get("academy_id")) or primary_academy_id
+    if academy_id is None:
+        return JsonResponse({"error": "학생을 등록할 학원 소속 정보가 없습니다."}, status=400)
+    if accessible_academy_ids and academy_id not in accessible_academy_ids:
+        return JsonResponse({"error": "접근할 수 없는 학원입니다."}, status=403)
+
+    student_code = (body.get("student_code") or "").strip() or None
+    school_name = (body.get("school_name") or "").strip() or None
+    grade = (body.get("grade") or "").strip() or None
+    parent_name = (body.get("parent_name") or "").strip() or None
+    parent_phone = (body.get("parent_phone") or "").strip() or None
+    student_phone = (body.get("student_phone") or "").strip() or None
+    status = (body.get("status") or "active").strip() or "active"
+    if status not in {"active", "inactive", "archived"}:
+        return JsonResponse({"error": "학생 상태 값이 올바르지 않습니다."}, status=400)
+
+    class_group_id = _to_optional_int(body.get("class_group_id"))
+    class_group_name = (body.get("class_group_name") or "").strip() or None
+    enrolled_at_text = (body.get("enrolled_at") or "").strip() or None
+    if enrolled_at_text:
+        try:
+            enrolled_at = datetime.datetime.strptime(enrolled_at_text, "%Y-%m-%d")
+        except ValueError:
+            return JsonResponse({"error": "등록일 형식이 올바르지 않습니다. (YYYY-MM-DD)"}, status=400)
+    else:
+        enrolled_at = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
+
+    try:
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                if student_code:
+                    cursor.execute(
+                        """
+                        SELECT id
+                        FROM public.students
+                        WHERE academy_id = %s
+                          AND student_code = %s
+                        LIMIT 1
+                        """,
+                        [academy_id, student_code],
+                    )
+                    if cursor.fetchone():
+                        return JsonResponse({"error": "이미 사용 중인 학생 코드입니다."}, status=400)
+
+                cursor.execute(
+                    """
+                    INSERT INTO public.students (
+                        academy_id,
+                        name,
+                        student_code,
+                        school_name,
+                        grade,
+                        parent_name,
+                        parent_phone,
+                        student_phone,
+                        status
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id
+                    """,
+                    [
+                        academy_id,
+                        name,
+                        student_code,
+                        school_name,
+                        grade,
+                        parent_name,
+                        parent_phone,
+                        student_phone,
+                        status,
+                    ],
+                )
+                student_id = cursor.fetchone()[0]
+
+                if class_group_id is None and class_group_name:
+                    cursor.execute(
+                        """
+                        SELECT id
+                        FROM public.class_groups
+                        WHERE teacher_user_id = %s
+                          AND academy_id = %s
+                          AND (
+                              name = %s
+                              OR class_name = %s
+                          )
+                          AND status IN ('active', 'inactive', 'archived')
+                        LIMIT 1
+                        """,
+                        [teacher_user_id, academy_id, class_group_name, class_group_name],
+                    )
+                    cg_row = cursor.fetchone()
+                    if cg_row:
+                        class_group_id = cg_row[0]
+
+                if class_group_id is not None:
+                    cursor.execute(
+                        """
+                        SELECT id
+                        FROM public.class_groups
+                        WHERE id = %s
+                          AND teacher_user_id = %s
+                          AND academy_id = %s
+                          AND status IN ('active', 'inactive', 'archived')
+                        LIMIT 1
+                        """,
+                        [class_group_id, teacher_user_id, academy_id],
+                    )
+                    if not cursor.fetchone():
+                        return JsonResponse({"error": "선택한 반 정보를 찾을 수 없습니다."}, status=400)
+
+                    cursor.execute(
+                        """
+                        INSERT INTO public.enrollments (
+                            class_group_id,
+                            student_id,
+                            enrolled_at,
+                            status,
+                            is_active
+                        )
+                        VALUES (%s, %s, %s, 'active', TRUE)
+                        RETURNING id
+                        """,
+                        [class_group_id, student_id, enrolled_at],
+                    )
+                    enrollment_id = cursor.fetchone()[0]
+                else:
+                    enrollment_id = None
+
+        return JsonResponse(
+            {
+                "ok": True,
+                "student_id": student_id,
+                "enrollment_id": enrollment_id,
+            },
+            status=201,
+        )
+    except Exception as error:
+        return JsonResponse(
+            {"error": f"저장 중 오류가 발생했습니다: {error}"},
+            status=500,
+        )
+
+
+@teacher_api_required
+@require_GET
+def teacher_classes_v2(request):
+    data = _build_teacher_class_list_rows(request.user)
+    return JsonResponse(data, safe=False)
+
+
+@teacher_api_required
+@require_GET
+def teacher_class_detail_v2(request, class_group_id):
+    data = next(
+        (
+            row
+            for row in _build_teacher_class_list_rows(request.user)
+            if to_int(row.get("class_group_id"), 0) == class_group_id
+        ),
+        None,
+    )
     if data is None:
         return JsonResponse({"detail": "not found"}, status=404)
     return JsonResponse(data)
@@ -2073,9 +3196,32 @@ def teacher_today_lessons(request):
 
 
 @teacher_api_required
-@require_GET
+@require_http_methods(["GET", "PATCH"])
 def teacher_profile(request):
-    data = get_teacher_profile()
+    if request.method == "PATCH":
+        payload, parse_error = _parse_json_request_body(request)
+        if parse_error:
+            return JsonResponse({"detail": parse_error, "message": parse_error}, status=400)
+
+        result = _sync_teacher_profile_tables(request.user, payload)
+        if not result["ok"]:
+            return JsonResponse(
+                {
+                    "detail": "프로필 저장에 실패했습니다.",
+                    "message": "프로필 저장에 실패했습니다.",
+                    "errors": result.get("errors", {}),
+                },
+                status=400,
+            )
+
+        return JsonResponse(
+            {
+                "message": "프로필이 저장되었습니다.",
+                "profile": result["profile"],
+            }
+        )
+
+    data = get_teacher_profile(request.user)
     return JsonResponse(data)
 
 
@@ -2119,7 +3265,7 @@ def teacher_report_student_detail(request, student_id):
 @teacher_api_required
 @require_GET
 def teacher_settings_overview(request):
-    data = build_settings_overview()
+    data = build_settings_overview(request.user)
     return JsonResponse(data)
 
 

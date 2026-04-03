@@ -25,7 +25,7 @@ export function HomeworkReflectionSection({ homeworkReflection }: Props) {
   return (
     <section className="rounded-[28px] border border-border/80 bg-white shadow-soft">
       {/* 섹션 헤더 */}
-      <div className="border-b border-border/60 px-6 py-5">
+      <div className="border-b border-border/60 px-7 py-6 sm:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
           숙제 반영
         </p>
@@ -39,7 +39,7 @@ export function HomeworkReflectionSection({ homeworkReflection }: Props) {
 
       <div className="space-y-0 divide-y divide-border/50">
         {/* 1. 오늘 반드시 반영할 항목 */}
-        <div className="px-6 py-5">
+        <div className="px-7 py-6 sm:px-8">
           <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
             오늘 꼭 반영할 숙제 이슈
           </p>
@@ -47,7 +47,7 @@ export function HomeworkReflectionSection({ homeworkReflection }: Props) {
             {homeworkReflection.criticalItems.map((item, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-brand/20 bg-brand/5 px-5 py-4"
+                className="rounded-2xl border border-brand/20 bg-brand/5 px-5 py-4.5"
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -71,7 +71,7 @@ export function HomeworkReflectionSection({ homeworkReflection }: Props) {
         </div>
 
         {/* 2. 숙제 미완료 학생 */}
-        <div className="px-6 py-5">
+        <div className="px-7 py-6 sm:px-8">
           <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
             숙제 미완료 / 부분 완료 학생
           </p>
@@ -108,7 +108,7 @@ export function HomeworkReflectionSection({ homeworkReflection }: Props) {
         </div>
 
         {/* 3. 공통 재설명 포인트 + 보강 필요 항목 */}
-        <div className="grid gap-0 px-6 py-5 sm:grid-cols-2 sm:gap-6">
+        <div className="grid gap-0 px-7 py-6 sm:grid-cols-2 sm:gap-7 sm:px-8">
           <div>
             <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
               공통 재설명 포인트
